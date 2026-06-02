@@ -146,7 +146,7 @@ export default function Home() {
                         <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mb-3 relative z-10">
                            <FaChartLine size={20} />
                         </div>
-                        <h4 className="text-4xl font-extrabold text-foreground mb-1 relative z-10">99%</h4>
+                        <div className="text-4xl font-extrabold text-foreground mb-1 relative z-10">99%</div>
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest relative z-10">Delivery</p>
                      </div>
 
@@ -178,19 +178,19 @@ export default function Home() {
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
-                  <h4 className="text-4xl font-bold text-primary mb-2">250+</h4>
+                  <div className="text-4xl font-bold text-primary mb-2">250+</div>
                   <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Projects Delivered</p>
                </motion.div>
                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
-                  <h4 className="text-4xl font-bold text-primary mb-2">98%</h4>
+                  <div className="text-4xl font-bold text-primary mb-2">98%</div>
                   <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Client Retention</p>
                </motion.div>
                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
-                  <h4 className="text-4xl font-bold text-primary mb-2">15+</h4>
+                  <div className="text-4xl font-bold text-primary mb-2">15+</div>
                   <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Industries Served</p>
                </motion.div>
                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}>
-                  <h4 className="text-4xl font-bold text-primary mb-2">20+</h4>
+                  <div className="text-4xl font-bold text-primary mb-2">20+</div>
                   <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Countries Served</p>
                </motion.div>
             </div>

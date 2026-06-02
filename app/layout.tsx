@@ -26,9 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
         <style>{`
           .material-symbols-outlined {
@@ -84,7 +86,7 @@ export default function RootLayout({
             className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-green-500 text-white rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 hover:shadow-green-500/50"
             aria-label="Chat with us on WhatsApp"
           >
-            <FaWhatsapp className="w-8 h-8" />
+            <FaWhatsapp className="w-8 h-8" aria-hidden="true" focusable="false" />
           </a>
         </ThemeProvider>
       </body>
