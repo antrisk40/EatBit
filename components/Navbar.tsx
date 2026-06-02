@@ -5,11 +5,23 @@ import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/ModeToggle";
 
 export default function Navbar() {
+  const pathname = usePathname();
+
+  const getLinkClass = (path: string) => {
+    const isActive = pathname === path;
+    return `font-medium transition-colors ${
+      isActive 
+        ? "text-primary underline decoration-2 underline-offset-8" 
+        : "text-muted-foreground hover:text-primary"
+    }`;
+  };
+
   return (
-    <nav className="fixed w-full z-50 bg-background/90 backdrop-blur-md border-b border-border transition-colors duration-300">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-background/90 backdrop-blur-md border-b border-border transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
@@ -21,11 +33,14 @@ export default function Navbar() {
             </Link>
           </motion.div>
           <div className="hidden md:flex space-x-8 items-center">
-            <Link className="text-muted-foreground hover:text-primary transition-colors font-medium" href="/services">Services</Link>
-            <Link className="text-muted-foreground hover:text-primary transition-colors font-medium" href="/plans">Plans</Link>
-            <Link className="text-muted-foreground hover:text-primary transition-colors font-medium" href="/samples">Samples</Link>
-            <Link className="text-muted-foreground hover:text-primary transition-colors font-medium" href="/careers">Careers</Link>
-            <Button className="rounded-full shadow-lg shadow-orange-500/30 w-[140px] font-semibold transition-transform hover:scale-105">Get Started</Button>
+            <Link className={getLinkClass("/services")} href="/services">Services</Link>
+            <Link className={getLinkClass("/plans")} href="/plans">Plans</Link>
+            <Link className={getLinkClass("/samples")} href="/samples">Samples</Link>
+            <Link className={getLinkClass("/careers")} href="/careers">Careers</Link>
+            <Link className={getLinkClass("/contact-us")} href="/contact-us">Contact Us</Link>
+            <Button className="rounded-none shadow-lg shadow-orange-500/30 w-[140px] font-semibold transition-transform hover:scale-105" asChild>
+              <Link href="/contact-us">Get Started</Link>
+            </Button>
             <ModeToggle />
           </div>
           <div className="md:hidden flex items-center gap-2">
@@ -39,3 +54,6 @@ export default function Navbar() {
     </nav>
   );
 }
+
+
+

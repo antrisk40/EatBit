@@ -63,9 +63,9 @@ export default function ContactUsPage() {
   };
 
   const inputClass =
-    "w-full h-12 px-4 rounded-lg border border-slate-300 bg-[#f8f7f5] focus:border-[#f27f0d] focus:ring-1 focus:ring-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/50 text-[#181411]";
+    "w-full h-12 px-4 rounded-none border border-slate-300 bg-[#f8f7f5] focus:border-[#f27f0d] focus:ring-1 focus:ring-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/50 text-[#181411]";
   const iconInputClass =
-    "w-full h-12 pl-11 pr-4 rounded-lg border border-slate-300 bg-[#f8f7f5] focus:border-[#f27f0d] focus:ring-1 focus:ring-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/50 text-[#181411]";
+    "w-full h-12 pl-11 pr-4 rounded-none border border-slate-300 bg-[#f8f7f5] focus:border-[#f27f0d] focus:ring-1 focus:ring-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/50 text-[#181411]";
 
   return (
     <div className="bg-background text-foreground antialiased min-h-screen flex flex-col">
@@ -89,8 +89,8 @@ export default function ContactUsPage() {
 
             <div className="grid gap-5">
               {/* Email */}
-              <div className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-shadow">
-                <div className="bg-primary/10 p-3 rounded-lg text-primary shrink-0">
+              <div className="flex items-start gap-4 p-4 rounded-none bg-card border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div className="bg-primary/10 p-3 rounded-none text-primary shrink-0">
                   <span className="material-symbols-outlined">mail</span>
                 </div>
                 <div>
@@ -100,8 +100,8 @@ export default function ContactUsPage() {
               </div>
 
               {/* Phone */}
-              <div className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-shadow">
-                <div className="bg-primary/10 p-3 rounded-lg text-primary shrink-0">
+              <div className="flex items-start gap-4 p-4 rounded-none bg-card border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div className="bg-primary/10 p-3 rounded-none text-primary shrink-0">
                   <span className="material-symbols-outlined">call</span>
                 </div>
                 <div>
@@ -112,8 +112,8 @@ export default function ContactUsPage() {
               </div>
 
               {/* LinkedIn */}
-              <div className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-shadow">
-                <div className="bg-primary/10 p-3 rounded-lg text-primary shrink-0">
+              <div className="flex items-start gap-4 p-4 rounded-none bg-card border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div className="bg-primary/10 p-3 rounded-none text-primary shrink-0">
                   <span className="material-symbols-outlined">people</span>
                 </div>
                 <div>
@@ -133,7 +133,7 @@ export default function ContactUsPage() {
 
           {/* ── Right: Form ── */}
           <div className="lg:col-span-7">
-            <div className="bg-card rounded-2xl shadow-xl p-6 md:p-10 border border-border">
+            <div className="bg-card rounded-none shadow-xl p-6 md:p-10 border border-border">
               <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">edit_document</span>
                 Project Details
@@ -144,7 +144,7 @@ export default function ContactUsPage() {
 
               {/* Success Banner */}
               {status === "success" && (
-                <div className="flex items-center gap-3 p-4 mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400">
+                <div className="flex items-center gap-3 p-4 mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-none text-green-700 dark:text-green-400">
                   <span className="material-symbols-outlined text-[28px]">check_circle</span>
                   <div>
                     <p className="font-bold">Request sent!</p>
@@ -155,7 +155,7 @@ export default function ContactUsPage() {
 
               {/* Error Banner */}
               {status === "error" && (
-                <div className="flex items-center gap-3 p-4 mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400">
+                <div className="flex items-center gap-3 p-4 mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-none text-red-700 dark:text-red-400">
                   <span className="material-symbols-outlined text-[28px]">error</span>
                   <div>
                     <p className="font-bold">Submission failed</p>
@@ -301,7 +301,7 @@ export default function ContactUsPage() {
                     Project Description <span className="text-primary">*</span>
                   </label>
                   <textarea
-                    className="w-full p-4 rounded-lg border border-slate-300 bg-[#f8f7f5] focus:border-[#f27f0d] focus:ring-1 focus:ring-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/50 text-[#181411] resize-none"
+                    className="w-full p-4 rounded-none border border-slate-300 bg-[#f8f7f5] focus:border-[#f27f0d] focus:ring-1 focus:ring-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/50 text-[#181411] resize-none"
                     id="description"
                     name="description"
                     placeholder="Tell us about your project goals, timeline, and requirements…"
@@ -315,7 +315,7 @@ export default function ContactUsPage() {
                 {/* Submit */}
                 <div className="pt-2">
                   <button
-                    className="w-full h-14 bg-primary hover:bg-orange-600 text-white font-bold text-lg rounded-xl shadow-lg shadow-primary/30 transition-all hover:shadow-primary/50 hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                    className="w-full h-14 bg-primary hover:bg-orange-600 text-white font-bold text-lg rounded-none shadow-lg shadow-primary/30 transition-all hover:shadow-primary/50 hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                     type="submit"
                     disabled={status === "loading"}
                   >
@@ -348,3 +348,5 @@ export default function ContactUsPage() {
     </div>
   );
 }
+
+

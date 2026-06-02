@@ -4,6 +4,7 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/components/theme-provider'
+import { FaWhatsapp } from 'react-icons/fa'
 
 const poppins = Poppins({ 
   subsets: ['latin'],
@@ -54,15 +55,41 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <Navbar />
-          <div className="flex flex-col min-h-screen">
-            <main className="flex-1">
+          {/* Out of the Box Global Background */}
+          <div className="fixed inset-0 z-0 pointer-events-none bg-background">
+             {/* Dynamic dot matrix grid */}
+             <div className="absolute inset-0 bg-[radial-gradient(#80808040_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+             
+             {/* Animated ambient glowing orbs */}
+             <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary/10 blur-[120px] animate-pulse"></div>
+             <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-500/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+             
+             {/* Subtle Vignette to darken edges for a cinematic feel */}
+             <div className="absolute inset-0 bg-background [mask-image:radial-gradient(transparent,white_85%)]"></div>
+          </div>
+
+          <div className="flex flex-col min-h-screen relative z-10">
+            <Navbar />
+            <main className="flex-1 relative">
               {children}
             </main>
             <Footer />
           </div>
+
+          {/* Floating WhatsApp Icon */}
+          <a
+            href="https://wa.me/8319212779"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-green-500 text-white rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 hover:shadow-green-500/50"
+            aria-label="Chat with us on WhatsApp"
+          >
+            <FaWhatsapp className="w-8 h-8" />
+          </a>
         </ThemeProvider>
       </body>
     </html>
   )
 }
+
+

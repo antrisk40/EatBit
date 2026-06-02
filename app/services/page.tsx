@@ -2,7 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-
+import { servicesData } from "@/lib/data/services";
+import Link from "next/link";
+import { FaArrowRight, FaCheck } from "react-icons/fa";
 
 export default function ServicesPage() {
   const containerVariants = {
@@ -18,151 +20,72 @@ export default function ServicesPage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
-  const services = [
-    {
-      title: "Web Development",
-      iconName: "code",
-      desc: "Our core strength. We craft robust, scalable, and secure web applications using modern frameworks like React, Vue, and Node.js.",
-      features: ["Full-Stack Solutions", "Progressive Web Apps (PWA)", "API Integration"],
-      action: "Explore Web Dev",
-      comingSoon: false,
-    },
-    {
-      title: "UI/UX Design",
-      iconName: "draw",
-      desc: "We design intuitive interfaces that users love. Our process involves deep research, wireframing, and high-fidelity prototyping.",
-      features: ["User Research", "Wireframing & Prototyping", "Design Systems"],
-      action: "See Our Designs",
-      comingSoon: false,
-    },
-    {
-      title: "Mobile Development",
-      iconName: "smartphone",
-      desc: "Native and cross-platform mobile applications that provide seamless experiences on iOS and Android devices.",
-      features: ["React Native / Flutter", "iOS & Android Native", "App Store Optimization"],
-      action: "View Mobile Apps",
-      comingSoon: false,
-    },
-    {
-      title: "E-commerce",
-      iconName: "shopping_bag",
-      desc: "Turn visitors into customers. We build custom online stores using Shopify, WooCommerce, or bespoke solutions.",
-      features: ["Custom Storefronts", "Payment Gateway Integration", "Inventory Management"],
-      action: "Start Selling",
-      comingSoon: false,
-    },
-    {
-      title: "AI & Machine Learning",
-      iconName: "hub",
-      desc: "We are preparing to help businesses leverage the power of data through intelligent algorithms and predictive models.",
-      progress: 75,
-      comingSoon: true,
-    },
-    {
-      title: "Cloud & DevOps",
-      iconName: "cloud",
-      desc: "Upcoming services to streamline deployment and ensure your infrastructure is scalable, reliable, and automated.",
-      progress: 50,
-      comingSoon: true,
-    }
-  ];
-
   return (
     <>
-      <header className="relative overflow-hidden pt-32 pb-24 lg:pt-40 lg:pb-32 bg-background-light dark:bg-background-dark">
-        <div className="absolute inset-0 z-0 opacity-10 dark:opacity-5 bg-[radial-gradient(#EA8C32_1px,transparent_1px)] [background-size:20px_20px]"></div>
+      <header className="relative overflow-hidden pt-24 pb-20 lg:pt-28 lg:pb-32 bg-background border-b border-border">
+        <div className="absolute inset-0 z-0 opacity-10 bg-[radial-gradient(#EA8C32_1px,transparent_1px)] [background-size:20px_20px]"></div>
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 dark:bg-primary/20 text-primary font-semibold text-sm mb-6 border border-primary/20">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-            Innovating Digital Solutions
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-muted border border-border text-foreground font-bold text-[10px] mb-6 uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            End-To-End Enterprise Engineering
           </div>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-foreground">
-            We Build The <span className="text-primary relative inline-block">
-              Future
-              <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary opacity-30" preserveAspectRatio="none" viewBox="0 0 100 10">
-                <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" strokeWidth="3"></path>
-              </svg>
-            </span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-foreground">
+            Custom Solutions Built for <span className="text-primary">Scale</span>
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-muted-foreground leading-relaxed">
-            From pixel-perfect UI designs to scalable backend architectures. EatBit consumes complexity and delivers simplicity.
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground leading-relaxed">
+            From high-performance web applications to advanced AI integrations, we engineer robust digital products that drive operational efficiency and market dominance.
           </p>
         </motion.div>
       </header>
 
-      <main className="flex-grow bg-card py-20 relative border-t border-border">
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-secondary/5 dark:bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
-        
+      <main className="flex-grow bg-card py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Our Expertise</h2>
-            <p className="mt-4 max-w-2xl mx-auto text-muted-foreground">
-                Tailored technology services designed to bite-size your biggest challenges.
-            </p>
-          </motion.div>
-
           <motion.div 
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
           >
-            {services.map((svc, i) => (
-              <motion.div key={i} variants={itemVariants} className={`group bg-background border border-border rounded-2xl p-8 flex flex-col h-full relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${svc.comingSoon ? 'opacity-90' : ''}`}>
-                {!svc.comingSoon && <div className="absolute top-0 left-0 w-1 h-full bg-primary" />}
-                {svc.comingSoon && (
-                  <div className="absolute top-4 right-4 bg-secondary text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
-                    Coming Soon
-                  </div>
-                )}
-                
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300 ${svc.comingSoon ? 'bg-muted' : 'bg-primary/10 group-hover:bg-primary'}`}>
-                  <span className={`material-symbols-outlined text-[32px] ${svc.comingSoon ? 'text-muted-foreground' : 'text-primary group-hover:text-white'}`}>{svc.iconName}</span>
+            {servicesData.map((svc, i) => (
+              <motion.div key={svc.id} variants={itemVariants} className="group bg-background border border-border rounded-none p-8 flex flex-col h-full relative overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-primary hover:shadow-2xl hover:shadow-primary/20">
+                {/* Background Numbering Graphic */}
+                <div className="absolute -right-8 -top-8 text-[150px] font-black text-muted/30 group-hover:text-primary/10 transition-colors duration-500 pointer-events-none select-none">
+                  {String(i + 1).padStart(2, '0')}
                 </div>
                 
-                <h3 className={`text-2xl font-bold mb-3 transition-colors ${svc.comingSoon ? 'text-muted-foreground' : 'text-foreground group-hover:text-primary'}`}>
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <h3 className="text-2xl font-extrabold mb-4 text-foreground group-hover:text-primary transition-colors relative z-10">
                   {svc.title}
                 </h3>
                 
-                <p className="text-muted-foreground mb-6 flex-grow">{svc.desc}</p>
+                <p className="text-muted-foreground mb-8 text-sm leading-relaxed line-clamp-4 relative z-10">
+                  {svc.description}
+                </p>
                 
-                {!svc.comingSoon ? (
-                  <>
-                    <ul className="space-y-2 mb-8">
-                      {svc.features?.map((feat, j) => (
-                        <li key={j} className="flex items-center text-sm text-muted-foreground">
-                          <span className="text-primary mr-2 md:text-base">•</span> {feat}
-                        </li>
-                      ))}
-                    </ul>
-                    <a className="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all group-hover:translate-x-1" href="#">
-                        {svc.action} <span className="material-symbols-outlined text-[20px] ml-1">arrow_forward</span>
-                    </a>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-3 mb-8">
-                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary/50 rounded-full" style={{ width: `${svc.progress}%` }}></div>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Development in progress: {svc.progress}%</p>
-                    </div>
-                    <span className="inline-flex items-center text-muted-foreground font-semibold cursor-not-allowed">
-                        Notify Me <span className="material-symbols-outlined text-[20px] ml-1">notifications</span>
+                <div className="mb-8 relative z-10">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-4">Core Capabilities</h4>
+                  <ul className="space-y-3">
+                    {svc.benefits.map((benefit, j) => (
+                      <li key={j} className="flex items-start text-sm text-muted-foreground group-hover:text-foreground/90 transition-colors">
+                        <FaCheck className="text-primary mt-1 mr-3 shrink-0" /> {benefit}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div className="mt-auto pt-6 border-t border-border flex flex-wrap gap-2 relative z-10">
+                  {svc.industries.map((ind, k) => (
+                    <span key={k} className="text-[10px] font-bold uppercase tracking-wider bg-muted text-muted-foreground px-2 py-1 rounded-none border border-border group-hover:border-primary/30 group-hover:text-primary transition-colors">
+                      {ind}
                     </span>
-                  </>
-                )}
+                  ))}
+                </div>
               </motion.div>
             ))}
           </motion.div>
@@ -171,16 +94,16 @@ export default function ServicesPage() {
 
       <section className="bg-background py-20 border-t border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-foreground mb-6">Ready to take a bite out of your next project?</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-6">Ready to Architect Your Next Big Move?</h2>
           <p className="text-lg text-muted-foreground mb-10">
-            Let's discuss how EatBit can help you achieve your digital goals. Our team is ready to deliver excellence.
+            Let's discuss how our engineering team can build a tailored solution for your exact requirements.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="rounded-full px-8 py-6 font-bold text-lg shadow-lg hover:shadow-orange-500/30 text-primary-foreground transition-all">
-                Get a Quote
+            <Button className="rounded-none font-bold px-8 py-6 shadow-xl shadow-primary/20 hover:scale-105 transition-all" asChild>
+                <Link href="/contact-us">Start a Project</Link>
             </Button>
-            <Button variant="outline" size="lg" className="rounded-full px-8 py-6 font-bold text-lg border-2 hover:bg-secondary hover:text-white transition-all">
-                View Portfolio
+            <Button variant="outline" className="bg-background rounded-none font-bold px-8 py-6 gap-2 group hover:border-primary/50 transition-all" asChild>
+                <Link href="/samples">View Case Studies <FaArrowRight className="group-hover:translate-x-1 transition-transform" /></Link>
             </Button>
           </div>
         </div>

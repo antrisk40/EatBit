@@ -64,9 +64,9 @@ export default function JobApplicationPage() {
   };
 
   const inputClass =
-    "form-input w-full rounded-lg border border-[#e6e0db] bg-[#f8f7f5] h-12 px-4 focus:ring-2 focus:ring-[#f27f0d] focus:border-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/60 text-[#181411]";
+    "form-input w-full rounded-none border border-[#e6e0db] bg-[#f8f7f5] h-12 px-4 focus:ring-2 focus:ring-[#f27f0d] focus:border-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/60 text-[#181411]";
   const iconInputClass =
-    "form-input w-full rounded-lg border border-[#e6e0db] bg-[#f8f7f5] h-12 pl-12 pr-4 focus:ring-2 focus:ring-[#f27f0d] focus:border-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/60 text-[#181411]";
+    "form-input w-full rounded-none border border-[#e6e0db] bg-[#f8f7f5] h-12 pl-12 pr-4 focus:ring-2 focus:ring-[#f27f0d] focus:border-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/60 text-[#181411]";
 
   return (
     <div className="bg-background text-foreground antialiased min-h-screen flex flex-col">
@@ -74,10 +74,10 @@ export default function JobApplicationPage() {
         <div className="flex flex-col max-w-[800px] w-full gap-8">
 
           {/* Job Header */}
-          <div className="bg-card rounded-xl p-8 border border-border shadow-sm">
+          <div className="bg-card rounded-none p-8 border border-border shadow-sm">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                <span className="bg-primary/10 text-primary px-3 py-1 rounded-none text-xs font-bold uppercase tracking-wider">
                   Business Development
                 </span>
                 <span className="text-muted-foreground text-sm flex items-center gap-1">
@@ -97,7 +97,7 @@ export default function JobApplicationPage() {
 
           {/* Success Banner */}
           {status === "success" && (
-            <div className="flex items-center gap-3 p-5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400">
+            <div className="flex items-center gap-3 p-5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-none text-green-700 dark:text-green-400">
               <span className="material-symbols-outlined text-[28px]">check_circle</span>
               <div>
                 <p className="font-bold text-base">Application submitted!</p>
@@ -108,7 +108,7 @@ export default function JobApplicationPage() {
 
           {/* Error Banner */}
           {status === "error" && (
-            <div className="flex items-center gap-3 p-5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400">
+            <div className="flex items-center gap-3 p-5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-none text-red-700 dark:text-red-400">
               <span className="material-symbols-outlined text-[28px]">error</span>
               <div>
                 <p className="font-bold text-base">Submission failed</p>
@@ -118,7 +118,7 @@ export default function JobApplicationPage() {
           )}
 
           {/* Application Form */}
-          <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className="bg-card rounded-none border border-border shadow-sm overflow-hidden">
             <div className="p-8 border-b border-border bg-muted/30">
               <h2 className="text-xl font-bold text-foreground">Submit your application</h2>
               <p className="text-muted-foreground mt-1 text-sm">
@@ -250,7 +250,7 @@ export default function JobApplicationPage() {
                   Tell us a bit about yourself and why you'd be a great fit for this role.
                 </p>
                 <textarea
-                  className="form-textarea w-full rounded-lg border border-[#e6e0db] bg-[#f8f7f5] dark:bg-muted h-32 p-4 focus:ring-2 focus:ring-[#f27f0d] focus:border-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/60 text-foreground resize-y"
+                  className="form-textarea w-full rounded-none border border-[#e6e0db] bg-[#f8f7f5] dark:bg-muted h-32 p-4 focus:ring-2 focus:ring-[#f27f0d] focus:border-[#f27f0d] outline-none transition-all placeholder:text-[#8a7560]/60 text-foreground resize-y"
                   name="why_us"
                   placeholder="I believe I am a great fit because..."
                   required
@@ -267,7 +267,7 @@ export default function JobApplicationPage() {
                   By submitting, you agree that EatBit may contact you regarding this application.
                 </p>
                 <button
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg bg-primary h-12 px-8 text-white text-base font-bold hover:bg-orange-600 active:bg-orange-700 transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-none bg-primary h-12 px-8 text-white text-base font-bold hover:bg-orange-600 active:bg-orange-700 transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                   type="submit"
                   disabled={status === "loading"}
                 >
@@ -292,3 +292,5 @@ export default function JobApplicationPage() {
     </div>
   );
 }
+
+
