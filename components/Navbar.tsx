@@ -12,7 +12,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const getLinkClass = (path: string) => {
-    const isActive = pathname === path;
+    const isActive = pathname === path || pathname.startsWith(path + '/');
     return `font-medium transition-colors ${
       isActive 
         ? "text-primary underline decoration-2 underline-offset-8" 
@@ -36,6 +36,7 @@ export default function Navbar() {
             <Link className={getLinkClass("/services")} href="/services">Services</Link>
             <Link className={getLinkClass("/plans")} href="/plans">Plans</Link>
             <Link className={getLinkClass("/samples")} href="/samples">Samples</Link>
+            <Link className={getLinkClass("/tools")} href="/tools/gemini-watermark-remover">🛠 Tools</Link>
             <Link className={getLinkClass("/careers")} href="/careers">Careers</Link>
             <Link className={getLinkClass("/contact-us")} href="/contact-us">Contact Us</Link>
             <Button className="rounded-none shadow-lg shadow-orange-500/30 w-[140px] font-semibold transition-transform hover:scale-105" asChild>

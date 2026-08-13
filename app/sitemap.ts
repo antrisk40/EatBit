@@ -48,5 +48,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "yearly",
             priority: 0.8,
         },
+        {
+            url: `${BASE_URL}/tools/gemini-watermark-remover`,
+            lastModified: now,
+            changeFrequency: "weekly",
+            priority: 0.9,
+        },
     ];
 }
