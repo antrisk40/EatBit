@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -52,6 +53,20 @@ export default function RootLayout({
         `}</style>
       </head>
       <body className={`${poppins.variable} font-sans antialiased text-foreground bg-background transition-colors duration-300`}>
+
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-R7BFVRPLRS"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-R7BFVRPLRS');
+          `}
+        </Script>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
