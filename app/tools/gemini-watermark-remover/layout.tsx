@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Gemini Watermark Remover — Free, No Signup | EatBit Tools",
+  title: "Gemini Watermark Remover - Free Image & Video Tool | EatBit",
   description:
-    "Remove Google Gemini AI watermarks from images instantly. 100% free, no account required, fully local processing. Drop your image and download a clean version in seconds.",
+    "Remove visible Gemini AI watermarks from images and videos directly in your browser. Free, no signup, and your files stay on your device.",
   keywords: [
     "gemini watermark remover",
     "remove gemini watermark",
@@ -15,20 +15,36 @@ export const metadata: Metadata = {
     "watermark remover no signup",
     "gemini watermark free",
     "local watermark remover",
+    "synthid",
+    "visible gemini watermark",
+    "gemini ai image",
+    "watermark removal online",
+    "reverse alpha blending",
+    "how to remove gemini watermark",
+    "gemini watermark removal tool",
   ],
   openGraph: {
-    title: "Gemini Watermark Remover — Free, No Signup",
+    title: "Gemini Watermark Remover - Free Image & Video Tool | EatBit",
     description:
-      "Remove Google Gemini AI watermarks from images for free. No account, 100% private, all processing in your browser.",
+      "Remove visible Gemini AI watermarks from images and videos for free. No account, 100% private, all processing in your browser.",
     url: "https://eatbit.in/tools/gemini-watermark-remover",
     siteName: "EatBit",
     type: "website",
+    images: [
+      {
+        url: "https://eatbit.in/og-gemini-watermark-remover.png",
+        width: 1200,
+        height: 630,
+        alt: "EatBit Gemini Watermark Remover — Free, No Signup",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gemini Watermark Remover — Free, No Signup",
+    title: "Gemini Watermark Remover - Free Image & Video Tool | EatBit",
     description:
-      "Remove Google Gemini AI watermarks from images instantly. No account needed, 100% local.",
+      "Remove visible Gemini AI watermarks from images and videos instantly. No account needed, 100% local browser processing.",
+    images: ["https://eatbit.in/og-gemini-watermark-remover.png"],
   },
   alternates: {
     canonical: "https://eatbit.in/tools/gemini-watermark-remover",

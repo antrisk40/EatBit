@@ -7,7 +7,7 @@ import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/components/theme-provider'
 import { FaWhatsapp } from 'react-icons/fa'
 
-const poppins = Poppins({ 
+const poppins = Poppins({
   subsets: ['latin'],
   weight: ['300', '400', '600', '700'],
   variable: '--font-poppins',
@@ -75,15 +75,15 @@ export default function RootLayout({
         >
           {/* Out of the Box Global Background */}
           <div className="fixed inset-0 z-0 pointer-events-none bg-background">
-             {/* Dynamic dot matrix grid */}
-             <div className="absolute inset-0 bg-[radial-gradient(#80808040_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-             
-             {/* Animated ambient glowing orbs */}
-             <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary/10 blur-[120px] animate-pulse"></div>
-             <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-500/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-             
-             {/* Subtle Vignette to darken edges for a cinematic feel */}
-             <div className="absolute inset-0 bg-background [mask-image:radial-gradient(transparent,white_85%)]"></div>
+            {/* Dynamic dot matrix grid */}
+            <div className="absolute inset-0 bg-[radial-gradient(#80808040_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+
+            {/* Animated ambient glowing orbs */}
+            <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary/10 blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-500/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+
+            {/* Subtle Vignette to darken edges for a cinematic feel */}
+            <div className="absolute inset-0 bg-background [mask-image:radial-gradient(transparent,white_85%)]"></div>
           </div>
 
           <div className="flex flex-col min-h-screen relative z-10">

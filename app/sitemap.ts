@@ -48,11 +48,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "yearly",
             priority: 0.8,
         },
+        // ── Tools ──
         {
             url: `${BASE_URL}/tools/gemini-watermark-remover`,
             lastModified: now,
             changeFrequency: "weekly",
             priority: 0.9,
+        },
+        // ── Blog ──
+        {
+            url: `${BASE_URL}/blog/how-to-remove-gemini-watermark`,
+            lastModified: now,
+            changeFrequency: "monthly",
+            priority: 0.85,
+        },
+        {
+            url: `${BASE_URL}/blog/gemini-watermark-explained`,
+            lastModified: now,
+            changeFrequency: "monthly",
+            priority: 0.8,
+        },
+        {
+            url: `${BASE_URL}/blog/gemini-watermark-vs-synthid`,
+            lastModified: now,
+            changeFrequency: "monthly",
+            priority: 0.8,
         },
     ];
 }

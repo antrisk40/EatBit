@@ -99,6 +99,14 @@ const FAQS = [
     q: "What if the watermark isn't fully removed?",
     a: "Our tool handles all standard Gemini outputs. In rare edge cases, use the feedback form below the result to let us know.",
   },
+  {
+    q: "Does this remove the SynthID invisible watermark?",
+    a: "No. SynthID is Google DeepMind's cryptographic provenance watermark embedded in the pixel data at a level invisible to the human eye. Our tool removes only the visible Gemini overlay watermark — the semi-transparent logo you can see in the bottom-right corner. SynthID cannot be removed by any browser-based tool.",
+  },
+  {
+    q: "What is Reverse Alpha Blending and why does it matter?",
+    a: "Alpha blending is how Gemini composites its watermark onto your image: result = foreground × alpha + background × (1 − alpha). Reverse alpha blending inverts this formula — given the composited result and known watermark pixels, we can solve for the original background with pixel-perfect accuracy. Unlike AI inpainting (which guesses), this is a mathematical reconstruction — deterministic and lossless.",
+  },
 ];
 
 function getFileKind(file: File): FileKind | null {
@@ -551,18 +559,53 @@ export default function GeminiWatermarkRemoverPage() {
         )}
       </AnimatePresence>
 
-      {/* JSON-LD */}
+      {/* JSON-LD: WebApplication */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
+            "@type": "WebApplication",
             name: "Gemini Watermark Remover",
-            applicationCategory: "ImageEditorApplication",
+            applicationCategory: "MultimediaApplication",
             operatingSystem: "Any",
+            browserRequirements: "Requires a modern browser with JavaScript enabled",
+            url: "https://eatbit.in/tools/gemini-watermark-remover",
             offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-            description: "Free browser tool to remove Google Gemini AI watermarks from images and videos. No signup, no upload.",
+            description: "Free browser tool to remove visible Google Gemini AI watermarks from images and videos. No signup, no upload — all processing happens locally in your browser.",
+            featureList: [
+              "Remove visible Gemini watermark from images",
+              "Remove visible Gemini watermark from videos",
+              "Reverse alpha blending algorithm",
+              "100% local browser processing",
+              "No account required",
+              "Supports JPG, PNG, WebP, MP4, WebM, MOV",
+            ],
+            screenshot: "https://eatbit.in/og-gemini-watermark-remover.png",
+            softwareVersion: "1.0",
+            creator: {
+              "@type": "Organization",
+              name: "EatBit",
+              url: "https://eatbit.in",
+            },
+          }),
+        }}
+      />
+      {/* JSON-LD: FAQPage */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: FAQS.map((faq) => ({
+              "@type": "Question",
+              name: faq.q,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: faq.a,
+              },
+            })),
           }),
         }}
       />
@@ -586,7 +629,7 @@ export default function GeminiWatermarkRemoverPage() {
             <br /><span className="text-foreground">Remover</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            Remove Google Gemini AI watermarks from <strong className="text-foreground">images and videos</strong> in your browser. Free, instant, and completely private.
+            Remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from images and videos directly in your browser. Free, no signup, and your files stay on your device.
           </p>
           <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
             {["Images & Videos", "Free Forever", "No Account", "100% Private"].map((b) => (
@@ -799,6 +842,90 @@ export default function GeminiWatermarkRemoverPage() {
         </div>
       </section>
 
+      {/* ── WHAT THIS TOOL REMOVES ──────────────────────────────────────────── */}
+      <section className="bg-card py-20 border-b border-border" id="what-it-removes">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
+              What This Tool <span className="text-primary">Removes</span>
+            </h2>
+            <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+              There are two very different types of Gemini watermarks. It&#39;s important to know the distinction.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Visible watermark — CAN remove */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="border border-green-500/30 bg-green-500/5 p-8"
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center shrink-0">
+                  <FaCheck className="text-green-400 w-4 h-4" />
+                </div>
+                <h3 className="font-extrabold text-foreground text-lg">Visible Gemini Watermark</h3>
+              </div>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                The semi-transparent Google Gemini logo overlaid in the bottom-right corner of every image and video Gemini generates. This is a visible, alpha-composited overlay.
+              </p>
+              <ul className="space-y-2 text-sm">
+                {[
+                  "Bottom-right corner overlay",
+                  "Semi-transparent Gemini logo",
+                  "Present on all generated images & videos",
+                  "Removed via Reverse Alpha Blending",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-green-400">
+                    <FaCheck className="w-3 h-3 shrink-0" />
+                    <span className="text-muted-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 px-3 py-2 bg-green-500/10 border border-green-500/20 text-xs text-green-400 font-bold">
+                ✓ This tool removes this watermark
+              </div>
+            </motion.div>
+
+            {/* SynthID — CANNOT remove */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="border border-red-500/30 bg-red-500/5 p-8"
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0">
+                  <FaExclamationTriangle className="text-red-400 w-4 h-4" />
+                </div>
+                <h3 className="font-extrabold text-foreground text-lg">SynthID (Invisible Watermark)</h3>
+              </div>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                Google DeepMind&#39;s cryptographic provenance technology. SynthID embeds imperceptible signals directly into the pixel data — invisible to humans, detectable only by Google&#39;s servers.
+              </p>
+              <ul className="space-y-2 text-sm">
+                {[
+                  "Invisible to the human eye",
+                  "Embedded in pixel-level data",
+                  "Survives screenshots & re-saves",
+                  "Cannot be removed by any browser tool",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-red-400">
+                    <FaTimes className="w-3 h-3 shrink-0" />
+                    <span className="text-muted-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 px-3 py-2 bg-red-500/10 border border-red-500/20 text-xs text-red-400 font-bold">
+                ✗ SynthID cannot be removed by any browser-based tool
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* ── FEATURES ───────────────────────────────────────────────────────── */}
       <section className="bg-background py-20 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -820,25 +947,82 @@ export default function GeminiWatermarkRemoverPage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ───────────────────────────────────────────────────── */}
-      <section className="bg-card py-20 border-b border-border">
+      {/* ── HOW THE ALGORITHM WORKS ─────────────────────────────────────────── */}
+      <section className="bg-card py-20 border-b border-border" id="how-it-works">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
-              How It <span className="text-primary">Works</span>
+              How the Algorithm <span className="text-primary">Works</span>
             </h2>
+            <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+              We use mathematical reconstruction, not AI guesswork. Here&apos;s exactly what happens when you drop a file.
+            </p>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          {/* The Math */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="border border-primary/30 bg-primary/5 p-8 mb-8"
+          >
+            <h3 className="font-extrabold text-foreground text-base mb-4 flex items-center gap-2">
+              <span className="text-primary">∑</span> The Math: Reverse Alpha Blending
+            </h3>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+              Alpha compositing is how Gemini overlays its watermark. Given a watermark pixel <code className="text-primary font-mono text-xs bg-muted px-1.5 py-0.5 rounded">W</code>, an alpha value <code className="text-primary font-mono text-xs bg-muted px-1.5 py-0.5 rounded">α</code>, and the original background <code className="text-primary font-mono text-xs bg-muted px-1.5 py-0.5 rounded">B</code>, the composited result <code className="text-primary font-mono text-xs bg-muted px-1.5 py-0.5 rounded">C</code> is:
+            </p>
+            <div className="font-mono text-sm text-center py-4 px-6 bg-muted border border-border rounded mb-4 text-foreground">
+              C = W × α + B × (1 − α)
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              By knowing <code className="text-primary font-mono text-xs bg-muted px-1.5 py-0.5 rounded">C</code> (the image you downloaded), <code className="text-primary font-mono text-xs bg-muted px-1.5 py-0.5 rounded">W</code> (the known Gemini watermark pixels), and estimating <code className="text-primary font-mono text-xs bg-muted px-1.5 py-0.5 rounded">α</code>, we can solve for the original background exactly: <span className="text-foreground font-semibold">B = (C − W × α) / (1 − α)</span>. This is deterministic and pixel-perfect — not an approximation.
+            </p>
+          </motion.div>
+
+          {/* Step-by-step for images and videos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {[
-              { label: "🖼 Images", color: "border-primary/40 bg-primary/5", steps: ["Upload JPG, PNG, or WebP", "Auto-detects watermark via Reverse Alpha Blending", "Multi-pass pixel reconstruction", "Download lossless PNG"] },
-              { label: "🎬 Videos", color: "border-blue-400/40 bg-blue-400/5", steps: ["Upload MP4, WebM, or MOV", "Samples frames to detect watermark position", "Frame-by-frame removal with AI denoising", "Download cleaned MP4"] },
+              {
+                label: "🖼 Images",
+                color: "border-primary/40 bg-primary/5",
+                steps: [
+                  "Upload JPG, PNG, or WebP",
+                  "Watermark region detected via spatial sampling",
+                  "Per-pixel alpha estimated from composited vs. watermark template",
+                  "Background reconstructed via Reverse Alpha Blending formula",
+                  "Multi-pass processing for edge refinement",
+                  "Download lossless PNG — zero quality loss",
+                ],
+              },
+              {
+                label: "🎬 Videos",
+                color: "border-blue-400/40 bg-blue-400/5",
+                steps: [
+                  "Upload MP4, WebM, or MOV",
+                  "Sample frames decoded via Canvas API",
+                  "Watermark position and alpha estimated from sample",
+                  "Every frame processed individually in-browser",
+                  "Optional ONNX AI denoising pass (runs via WebAssembly)",
+                  "Frames remuxed into a clean MP4 — nothing uploaded",
+                ],
+              },
             ].map((col, i) => (
-              <motion.div key={col.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }} className={`border p-8 ${col.color}`}>
+              <motion.div
+                key={col.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+                className={`border p-8 ${col.color}`}
+              >
                 <h3 className="font-extrabold text-foreground text-lg mb-6">{col.label}</h3>
                 <ol className="space-y-4">
                   {col.steps.map((step, j) => (
                     <li key={j} className="flex items-start gap-3 text-sm text-muted-foreground">
-                      <span className="shrink-0 w-6 h-6 rounded-full bg-muted border border-border text-foreground font-bold flex items-center justify-center text-xs">{j + 1}</span>
+                      <span className="shrink-0 w-6 h-6 rounded-full bg-muted border border-border text-foreground font-bold flex items-center justify-center text-xs">
+                        {j + 1}
+                      </span>
                       {step}
                     </li>
                   ))}
@@ -846,6 +1030,31 @@ export default function GeminiWatermarkRemoverPage() {
               </motion.div>
             ))}
           </div>
+
+          {/* Limitations */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="border border-yellow-500/20 bg-yellow-500/5 p-6"
+          >
+            <h3 className="font-extrabold text-foreground text-sm mb-3 flex items-center gap-2">
+              <FaExclamationTriangle className="text-yellow-400 w-4 h-4" /> Known Limitations
+            </h3>
+            <ul className="space-y-2 text-xs text-muted-foreground">
+              {[
+                "Only the visible Gemini overlay is removed — SynthID cryptographic watermarks cannot be removed by any browser tool.",
+                "Very low-alpha watermark regions (near-transparent edges) may show minor artifacts.",
+                "Non-standard Gemini outputs or heavily compressed images may produce less precise results.",
+                "Video processing time depends on length and resolution — large files may take several minutes in-browser.",
+              ].map((lim, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className="shrink-0 mt-0.5 text-yellow-400">•</span>
+                  {lim}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </div>
       </section>
 
@@ -858,10 +1067,16 @@ export default function GeminiWatermarkRemoverPage() {
             </h2>
             <div className="text-muted-foreground space-y-4 text-sm leading-7">
               <p>
-                When Google Gemini generates images or videos, it embeds a watermark in the bottom-right corner. This tool uses an open-source <strong className="text-foreground">Reverse Alpha Blending</strong> algorithm to mathematically reconstruct the pixels beneath the watermark — not AI inpainting — for lossless, pixel-perfect results.
+                When Google Gemini generates images or videos, it embeds a visible semi-transparent logo watermark in the bottom-right corner. This tool uses an open-source <strong className="text-foreground">Reverse Alpha Blending</strong> algorithm to mathematically reconstruct the original pixels beneath the watermark — not AI inpainting — for lossless, pixel-perfect results.
               </p>
               <p>
                 For <strong className="text-foreground">videos</strong>, each frame is processed individually using Canvas API and an optional ONNX AI denoising model (running via WebAssembly), then remuxed back into MP4. No data ever leaves your browser tab.
+              </p>
+              <p>
+                It&apos;s important to note: this tool targets the <strong className="text-foreground">visible Gemini overlay watermark only</strong>. It does not remove SynthID — Google DeepMind&apos;s invisible cryptographic provenance watermark, which is embedded at the pixel level and cannot be removed by any browser-based tool. Want to understand the difference in depth?{" "}
+                <Link href="/blog/gemini-watermark-vs-synthid" className="text-primary underline underline-offset-4 hover:opacity-80 transition-opacity">
+                  Read our explainer →
+                </Link>
               </p>
             </div>
           </motion.div>
@@ -893,6 +1108,50 @@ export default function GeminiWatermarkRemoverPage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── RELATED READING ─────────────────────────────────────────────────── */}
+      <section className="bg-card py-16 border-b border-border">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <h2 className="text-xl font-extrabold text-foreground mb-6">
+              Learn More About <span className="text-primary">Gemini Watermarks</span>
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                {
+                  href: "/blog/how-to-remove-gemini-watermark",
+                  title: "How to Remove a Gemini Watermark",
+                  desc: "Step-by-step guide to using this tool and understanding what gets removed.",
+                },
+                {
+                  href: "/blog/gemini-watermark-explained",
+                  title: "What Is the Gemini Watermark?",
+                  desc: "Where it appears, why Google adds it, and what it looks like.",
+                },
+                {
+                  href: "/blog/gemini-watermark-vs-synthid",
+                  title: "Gemini Watermark vs SynthID",
+                  desc: "The critical distinction between the visible overlay and invisible cryptographic provenance.",
+                },
+              ].map((article) => (
+                <Link
+                  key={article.href}
+                  href={article.href}
+                  className="group border border-border bg-background p-5 hover:border-primary/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <h3 className="font-bold text-foreground text-sm mb-2 group-hover:text-primary transition-colors">
+                    {article.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{article.desc}</p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs text-primary font-semibold">
+                    Read more <FaArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
