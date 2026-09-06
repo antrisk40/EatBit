@@ -835,7 +835,6 @@ export default function GeminiWatermarkRemoverPage() {
                       >
                         <FaDownload /> {fileKind === "image" ? "Download Image" : "Download Video"}
                       </button>
-                    </>
                   )}
                   <button onClick={handleReset} id="reset-btn" className="flex items-center gap-2 px-6 py-3 border border-border bg-background text-muted-foreground font-bold text-sm hover:text-foreground hover:border-primary/50 transition-all">
                     <FaRedo /> New File
