@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "What Is the Gemini Watermark? — Explained | EatBit",
@@ -83,6 +84,17 @@ export default function GeminiWatermarkExplainedPage() {
             <span>5 min read</span>
           </div>
         </header>
+
+        {/* Hero Image */}
+        <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
+          <Image 
+            src="/ai_watermark_concept.jpg" 
+            alt="AI Watermark Concept Visualization" 
+            width={1200} 
+            height={675} 
+            className="w-full h-auto object-cover"
+          />
+        </div>
 
         <div className="space-y-10 text-muted-foreground text-[15px] leading-8">
 

@@ -3,6 +3,8 @@
 import { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
+import OtherToolsSidebar from "@/components/OtherToolsSidebar";
 import {
   FaDownload,
   FaCopy,
@@ -106,6 +108,14 @@ const FAQS = [
   {
     q: "What is Reverse Alpha Blending and why does it matter?",
     a: "Alpha blending is how Gemini composites its watermark onto your image: result = foreground × alpha + background × (1 − alpha). Reverse alpha blending inverts this formula — given the composited result and known watermark pixels, we can solve for the original background with pixel-perfect accuracy. Unlike AI inpainting (which guesses), this is a mathematical reconstruction — deterministic and lossless.",
+  },
+  {
+    q: "How do I remove the Gemini logo?",
+    a: "Simply upload your image or video directly to our tool. It automatically detects the position of the Gemini watermark and uses reverse alpha blending to smoothly remove it without uploading your files anywhere.",
+  },
+  {
+    q: "Does this Gemini watermark remover keep my data private?",
+    a: "Yes. All processing happens entirely inside your browser (client-side). Your files are never uploaded to any server, making this the most secure and private way to erase Gemini watermarks.",
   },
 ];
 
@@ -372,7 +382,7 @@ export default function GeminiWatermarkRemoverPage() {
     const origUrl = URL.createObjectURL(file);
     setOriginalSrc(origUrl);
 
-    const img = new Image();
+    const img = new window.Image();
     img.src = origUrl;
     await new Promise<void>((res, rej) => {
       img.onload = () => res();
@@ -631,7 +641,7 @@ export default function GeminiWatermarkRemoverPage() {
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             Remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from images and videos directly in your browser. Free, no signup, and your files stay on your device.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
+          <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground mb-12">
             {["Images & Videos", "Free Forever", "No Account", "100% Private"].map((b) => (
               <span key={b} className="flex items-center gap-1.5">
                 <FaCheck className="text-primary w-3 h-3" /> {b}
@@ -643,8 +653,10 @@ export default function GeminiWatermarkRemoverPage() {
 
       {/* ── TOOL ───────────────────────────────────────────────────────────── */}
       <section className="bg-card py-16 border-b border-border" id="tool">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatePresence mode="wait">
+        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+            <div className="flex-1 min-w-0">
+              <AnimatePresence mode="wait">
             {status === "idle" ? (
               <motion.div key="upload" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div
@@ -838,7 +850,14 @@ export default function GeminiWatermarkRemoverPage() {
                 )}
               </motion.div>
             )}
-          </AnimatePresence>
+              </AnimatePresence>
+            </div>
+
+            {/* Right Sidebar */}
+            <div className="w-full lg:w-80 shrink-0">
+              <OtherToolsSidebar />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -849,9 +868,12 @@ export default function GeminiWatermarkRemoverPage() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
               What This Tool <span className="text-primary">Removes</span>
             </h2>
-            <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+            <p className="text-muted-foreground text-sm max-w-xl mx-auto mb-10">
               There are two very different types of Gemini watermarks. It&#39;s important to know the distinction.
             </p>
+            <div className="w-full max-w-2xl mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-border/50">
+              <Image src="/cartoon_watermark.jpg" alt="Cartoon Watermark Remover Illustration" width={1000} height={562} className="w-full h-auto" />
+            </div>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

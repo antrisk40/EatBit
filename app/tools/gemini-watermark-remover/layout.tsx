@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Gemini Watermark Remover - Free Image & Video Tool | EatBit",
+  title: "Free Gemini Watermark & Logo Remover (No Sign-up)",
   description:
     "Remove visible Gemini AI watermarks from images and videos directly in your browser. Free, no signup, and your files stay on your device.",
   keywords: [
+    "gemini logo remover online",
+    "remove google gemini watermark free",
+    "ai watermark eraser for gemini",
+    "gemini image watermark remover",
     "gemini watermark remover",
     "remove gemini watermark",
     "gemini ai watermark",
@@ -24,7 +28,7 @@ export const metadata: Metadata = {
     "gemini watermark removal tool",
   ],
   openGraph: {
-    title: "Gemini Watermark Remover - Free Image & Video Tool | EatBit",
+    title: "Free Gemini Watermark & Logo Remover (No Sign-up)",
     description:
       "Remove visible Gemini AI watermarks from images and videos for free. No account, 100% private, all processing in your browser.",
     url: "https://eatbit.in/tools/gemini-watermark-remover",
@@ -41,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gemini Watermark Remover - Free Image & Video Tool | EatBit",
+    title: "Free Gemini Watermark & Logo Remover (No Sign-up)",
     description:
       "Remove visible Gemini AI watermarks from images and videos instantly. No account needed, 100% local browser processing.",
     images: ["https://eatbit.in/og-gemini-watermark-remover.png"],

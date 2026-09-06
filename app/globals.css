@@ -64,3 +64,103 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+@font-face {
+  font-family: 'Liberation Serif Local';
+  src: url('/fonts/liberation/LiberationSerif-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Liberation Serif Local';
+  src: url('/fonts/liberation/LiberationSerif-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Liberation Serif Local';
+  src: url('/fonts/liberation/LiberationSerif-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Liberation Serif Local';
+  src: url('/fonts/liberation/LiberationSerif-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DejaVu Sans Local';
+  src: url('/fonts/dejavu/DejaVuSans.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'DejaVu Sans Local';
+  src: url('/fonts/dejavu/DejaVuSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'DejaVu Sans Local';
+  src: url('/fonts/dejavu/DejaVuSans-Oblique.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'DejaVu Sans Local';
+  src: url('/fonts/dejavu/DejaVuSans-BoldOblique.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DejaVu Serif Local';
+  src: url('/fonts/dejavu/DejaVuSerif.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'DejaVu Serif Local';
+  src: url('/fonts/dejavu/DejaVuSerif-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'DejaVu Serif Local';
+  src: url('/fonts/dejavu/DejaVuSerif-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'DejaVu Serif Local';
+  src: url('/fonts/dejavu/DejaVuSerif-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Liberation Mono Local';
+  src: url('/fonts/liberation-mono/LiberationMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Liberation Mono Local';
+  src: url('/fonts/liberation-mono/LiberationMono-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Liberation Mono Local';
+  src: url('/fonts/liberation-mono/LiberationMono-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Liberation Mono Local';
+  src: url('/fonts/liberation-mono/LiberationMono-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}

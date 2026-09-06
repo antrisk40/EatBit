@@ -36,7 +36,36 @@ export default function Navbar() {
             <Link className={getLinkClass("/services")} href="/services">Services</Link>
             <Link className={getLinkClass("/plans")} href="/plans">Plans</Link>
             <Link className={getLinkClass("/samples")} href="/samples">Samples</Link>
-            <Link className={getLinkClass("/tools")} href="/tools/gemini-watermark-remover">🛠 Tools</Link>
+            <Link className={getLinkClass("/blog")} href="/blog">Blog</Link>
+            <div className="relative group py-2">
+              <span className={`cursor-pointer ${getLinkClass("/tools")}`}>🛠 Tools</span>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-80 bg-background border border-border rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col p-2 gap-0.5 z-50 max-h-[80vh] overflow-y-auto">
+                <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Image Tools</div>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/gemini-watermark-remover")}`} href="/tools/gemini-watermark-remover">✨ Watermark Remover</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/image-cropper-and-resizer")}`} href="/tools/image-cropper-and-resizer">🖼️ Image Cropper</Link>
+                <div className="my-1 border-t border-border" />
+                <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Image Converters</div>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/image-converter")}`} href="/tools/image-converter">🔄 Image Converter (All)</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/heic-to-jpg-converter")}`} href="/tools/heic-to-jpg-converter">📱 HEIC to JPG</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/webp-to-jpg-converter")}`} href="/tools/webp-to-jpg-converter">🌐 WebP to JPG</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/png-to-jpg-converter")}`} href="/tools/png-to-jpg-converter">🔵 PNG to JPG</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/jpg-to-png-converter")}`} href="/tools/jpg-to-png-converter">🟠 JPG to PNG</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/jpg-to-webp-converter")}`} href="/tools/jpg-to-webp-converter">⚡ JPG to WebP</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/png-to-webp-converter")}`} href="/tools/png-to-webp-converter">⚡ PNG to WebP</Link>
+                <div className="my-1 border-t border-border" />
+                <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">PDF Tools</div>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/free-pdf-editor-no-signup")}`} href="/tools/free-pdf-editor-no-signup">✏️ Free PDF Editor (No Sign-up)</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/merge-and-split-pdf")}`} href="/tools/merge-and-split-pdf">📑 PDF Merger (Free, No Sign-up)</Link>
+                <div className="my-1 border-t border-border" />
+                <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">QR Codes</div>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/qr-code-generator")}`} href="/tools/qr-code-generator">📱 QR Generator (All Types)</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/wifi-qr-code-generator")}`} href="/tools/wifi-qr-code-generator">📶 WiFi QR Code</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/whatsapp-qr-code-generator")}`} href="/tools/whatsapp-qr-code-generator">🟢 WhatsApp QR Code</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/vcard-qr-code-generator")}`} href="/tools/vcard-qr-code-generator">👤 vCard QR Code</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/email-qr-code-generator")}`} href="/tools/email-qr-code-generator">📧 Email QR Code</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/pdf-qr-code-generator")}`} href="/tools/pdf-qr-code-generator">📄 PDF QR Code</Link>
+              </div>
+            </div>
             <Link className={getLinkClass("/careers")} href="/careers">Careers</Link>
             <Link className={getLinkClass("/contact-us")} href="/contact-us">Contact Us</Link>
             <Button className="rounded-none shadow-lg shadow-orange-500/30 w-[140px] font-semibold transition-transform hover:scale-105" asChild>

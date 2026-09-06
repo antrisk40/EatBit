@@ -2,6 +2,29 @@ import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
+import '@fontsource/amiri'
+import '@fontsource/arimo'
+import '@fontsource/caladea'
+import '@fontsource/carlito'
+import '@fontsource/eb-garamond'
+import '@fontsource/fira-sans'
+import '@fontsource/inter'
+import '@fontsource/lato'
+import '@fontsource/noto-sans'
+import '@fontsource/noto-sans-chakma'
+import '@fontsource/noto-serif'
+import '@fontsource/noto-serif-tamil'
+import '@fontsource/open-sans'
+import '@fontsource/open-sans-condensed'
+import '@fontsource/oranienbaum'
+import '@fontsource/poppins'
+import '@fontsource/pt-sans'
+import '@fontsource/pt-sans-caption'
+import '@fontsource/pt-sans-narrow'
+import '@fontsource/pt-serif'
+import '@fontsource/pt-serif-caption'
+import '@fontsource/scheherazade-new'
+import '@fontsource/roboto'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -12,7 +35,7 @@ const poppins = Poppins({
   weight: ['300', '400', '600', '700'],
   variable: '--font-poppins',
   display: 'swap',
-  fallback: ['system-ui', 'sans-serif'],
+  fallback: ['system-ui', 'sans-serif']
 })
 
 export const metadata: Metadata = {

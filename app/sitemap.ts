@@ -55,6 +55,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "weekly",
             priority: 0.9,
         },
+        {
+            url: `${BASE_URL}/tools/free-pdf-editor-no-signup`,
+            lastModified: now,
+            changeFrequency: "weekly",
+            priority: 0.9,
+        },
+        {
+            url: `${BASE_URL}/tools/merge-and-split-pdf`,
+            lastModified: now,
+            changeFrequency: "weekly",
+            priority: 0.9,
+        },
         // ── Blog ──
         {
             url: `${BASE_URL}/blog/how-to-remove-gemini-watermark`,
