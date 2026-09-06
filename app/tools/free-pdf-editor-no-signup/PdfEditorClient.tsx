@@ -791,6 +791,7 @@ export default function PdfEditorClient() {
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [isDraggingImageOnCanvas, setIsDraggingImageOnCanvas] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isWorking, setIsWorking] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
   const [pendingImage, setPendingImage] = useState<{
@@ -833,6 +834,7 @@ export default function PdfEditorClient() {
   // ─── LOAD FILE ─────────────────────────────────────────────────────────────
   const loadFile = async (file: File) => {
     if (!file || !isPdfjsLoaded || !isPdflibLoaded) return;
+    setIsWorking(true);
     // @ts-ignore
     const pdfjsLib = window.pdfjsLib;
     const fName = file.name;
@@ -852,6 +854,8 @@ export default function PdfEditorClient() {
     } catch (err) {
       console.error("Error loading PDF:", err);
       alert("Could not load the PDF file.");
+    } finally {
+      setIsWorking(false);
     }
   };
 
@@ -906,6 +910,7 @@ export default function PdfEditorClient() {
     let cancelled = false;
     (async () => {
       try {
+        setIsWorking(true);
         const page = await pdfDoc.getPage(currentPage);
         const viewport = page.getViewport({ scale: renderScale });
         setPageViewportCache((prev) => ({
@@ -975,6 +980,7 @@ export default function PdfEditorClient() {
           if (!cancelled) setLinkAnnotations((prev) => ({ ...prev, [currentPage]: links }));
         } catch (e) { /* no annotations */ }
       } catch (err) { console.error("Page render failed:", err); }
+      finally { setIsWorking(false); }
     })();
     return () => { cancelled = true; };
   }, [pdfDoc, currentPage, renderScale, numPages, isPdfjsLoaded]);
@@ -1383,6 +1389,21 @@ export default function PdfEditorClient() {
         onChange={(e) => { const f = e.target.files?.[0]; if (f) loadFile(f); }} />
       <input type="file" ref={imageInputRef} accept="image/png,image/jpeg,image/webp" className="hidden"
         onChange={handleImageSelected} />
+
+      {isWorking && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center"
+        >
+          <div className="bg-card border border-border p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 text-center">
+            <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
+            <h3 className="text-lg font-bold text-foreground mb-2">Processing Document...</h3>
+            <p className="text-sm text-muted-foreground">Please wait while the PDF is loaded and rendered.</p>
+          </div>
+        </motion.div>
+      )}
 
       {!originalBytes ? (
         /* ─── DROPZONE ─── */

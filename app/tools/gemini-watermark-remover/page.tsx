@@ -401,10 +401,16 @@ export default function GeminiWatermarkRemoverPage() {
       const meta = (resultCanvas as any).__watermarkMeta;
 
       const processedBlob: Blob = await new Promise((res, rej) => {
-        resultCanvas.toBlob(
-          (b: Blob | null) => (b ? res(b) : rej(new Error("Blob failed"))),
-          "image/png"
-        );
+        if (resultCanvas.convertToBlob) {
+          resultCanvas.convertToBlob({ type: "image/png" }).then(res).catch(rej);
+        } else if (resultCanvas.toBlob) {
+          resultCanvas.toBlob(
+            (b: Blob | null) => (b ? res(b) : rej(new Error("Blob failed"))),
+            "image/png"
+          );
+        } else {
+          rej(new Error("No blob conversion method available"));
+        }
       });
 
       const procUrl = URL.createObjectURL(processedBlob);
@@ -566,6 +572,35 @@ export default function GeminiWatermarkRemoverPage() {
             fileName={fileName}
             fileKind={fileKind}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Global Processing Overlay */}
+      <AnimatePresence>
+        {isProcessing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center"
+          >
+            <div className="bg-card border border-border p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 text-center">
+              <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
+              <h3 className="text-lg font-bold text-foreground mb-2">Processing...</h3>
+              <p className="text-sm text-muted-foreground">{statusMsg}</p>
+              {fileKind === "video" && videoProgress && (
+                <div className="w-full mt-4">
+                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all duration-300 ease-out"
+                      style={{ width: `${videoProgressPct}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 text-right">{videoProgressPct}%</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
