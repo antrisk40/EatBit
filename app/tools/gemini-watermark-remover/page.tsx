@@ -167,7 +167,7 @@ function FeedbackModal({ onProceed, onClose, fileName, fileKind }: FeedbackModal
       await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
       });
     } catch {
@@ -346,7 +346,6 @@ export default function GeminiWatermarkRemoverPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [sliderX, setSliderX] = useState(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
-  const [copyLabel, setCopyLabel] = useState("Copy Image");
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [fileName, setFileName] = useState<string>("output");
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
@@ -508,14 +507,7 @@ export default function GeminiWatermarkRemoverPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleCopy = async () => {
-    if (!processedSrc || fileKind !== "image") return;
-    try {
-      const blob = await (await fetch(processedSrc)).blob();
-      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      setCopyLabel("Copied!"); setTimeout(() => setCopyLabel("Copy Image"), 2000);
-    } catch { setCopyLabel("Copy failed"); setTimeout(() => setCopyLabel("Copy Image"), 2000); }
-  };
+
 
   // Trigger actual download after feedback
   const triggerDownload = () => {
@@ -836,31 +828,13 @@ export default function GeminiWatermarkRemoverPage() {
                 {/* Action buttons */}
                 <div className="flex flex-wrap gap-3">
                   {processedSrc && (
-                    <>
-                      {/* Image: direct download. Video: show feedback first */}
-                      {fileKind === "image" ? (
-                        <a
-                          href={downloadUrl ?? "#"}
-                          download={downloadName}
-                          id="download-btn"
-                          className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all hover:scale-105 shadow-xl shadow-primary/20"
-                        >
-                          <FaDownload /> Download Image
-                        </a>
-                      ) : (
-                        <button
-                          onClick={() => setShowFeedback(true)}
-                          id="download-btn"
-                          className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all hover:scale-105 shadow-xl shadow-primary/20"
-                        >
-                          <FaDownload /> Download Video
-                        </button>
-                      )}
-                      {fileKind === "image" && (
-                        <button onClick={handleCopy} id="copy-btn" className="flex items-center gap-2 px-6 py-3 border border-border bg-background text-foreground font-bold text-sm hover:border-primary/50 transition-all">
-                          <FaCopy /> {copyLabel}
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setShowFeedback(true)}
+                        id="download-btn"
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all hover:scale-105 shadow-xl shadow-primary/20"
+                      >
+                        <FaDownload /> {fileKind === "image" ? "Download Image" : "Download Video"}
+                      </button>
                     </>
                   )}
                   <button onClick={handleReset} id="reset-btn" className="flex items-center gap-2 px-6 py-3 border border-border bg-background text-muted-foreground font-bold text-sm hover:text-foreground hover:border-primary/50 transition-all">
