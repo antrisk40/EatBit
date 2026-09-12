@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "In-depth guides, explainers, and technical articles about Gemini AI tools, watermarks, and browser-based utilities from EatBit.",
   robots: { index: true, follow: true },
-  alternates: { canonical: "https://eatbit.in/blog" },
+  alternates: { canonical: "https://eatbit.in/blogs" },
 };
 
 export default function BlogLayout({

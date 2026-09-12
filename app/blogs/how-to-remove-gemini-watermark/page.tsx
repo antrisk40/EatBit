@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: "How to Remove the Gemini Watermark Free with Zero Blur (No Sign-Up)",
     description:
       "Learn why AI inpainting ruins your images and how to use a mathematical Gemini logo remover to restore 100% of your original image and Veo 3 video quality for free.",
-    url: "https://eatbit.in/blog/how-to-remove-gemini-watermark",
+    url: "https://eatbit.in/blogs/how-to-remove-gemini-watermark",
     siteName: "EatBit",
     type: "article",
   },
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
       "Learn why AI inpainting ruins your images and how to use a mathematical Gemini logo remover to restore 100% of your original image and Veo 3 video quality for free.",
   },
   alternates: {
-    canonical: "https://eatbit.in/blog/how-to-remove-gemini-watermark",
+    canonical: "https://eatbit.in/blogs/how-to-remove-gemini-watermark",
   },
   robots: { index: true, follow: true },
 };
@@ -44,7 +44,7 @@ export default function HowToRemoveGeminiWatermarkPage() {
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
+          <Link href="/blogs" className="hover:text-primary transition-colors">Blog</Link>
           <span>/</span>
           <span className="text-foreground">How to Remove the Gemini Watermark Free with Zero Blur (No Sign-Up)</span>
         </nav>

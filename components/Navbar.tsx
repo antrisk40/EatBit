@@ -36,7 +36,7 @@ export default function Navbar() {
             <Link className={getLinkClass("/services")} href="/services">Services</Link>
             <Link className={getLinkClass("/plans")} href="/plans">Plans</Link>
             <Link className={getLinkClass("/samples")} href="/samples">Samples</Link>
-            <Link className={getLinkClass("/blog")} href="/blog">Blog</Link>
+            <Link className={getLinkClass("/blogs")} href="/blogs">Blog</Link>
             <div className="relative group py-2">
               <span className={`cursor-pointer ${getLinkClass("/tools")}`}>🛠 Tools</span>
               <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-80 bg-background border border-border rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col p-2 gap-0.5 z-50 max-h-[80vh] overflow-y-auto">

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "SynthID vs. Visible Sparkles: Understanding Google Gemini Watermarks",
     description:
       "What is the difference between Google's SynthID and the visible sparkle logo? Discover how to clean up your AI art with a dedicated Gemini logo remover.",
-    url: "https://eatbit.in/blog/gemini-watermark-vs-synthid",
+    url: "https://eatbit.in/blogs/gemini-watermark-vs-synthid",
     siteName: "EatBit",
     type: "article",
   },
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
       "What is the difference between Google's SynthID and the visible sparkle logo? Discover how to clean up your AI art with a dedicated Gemini logo remover.",
   },
   alternates: {
-    canonical: "https://eatbit.in/blog/gemini-watermark-vs-synthid",
+    canonical: "https://eatbit.in/blogs/gemini-watermark-vs-synthid",
   },
   robots: { index: true, follow: true },
 };
@@ -43,7 +43,7 @@ export default function GeminiWatermarkVsSynthidPage() {
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
+          <Link href="/blogs" className="hover:text-primary transition-colors">Blog</Link>
           <span>/</span>
           <span className="text-foreground">SynthID vs. Visible Sparkles</span>
         </nav>

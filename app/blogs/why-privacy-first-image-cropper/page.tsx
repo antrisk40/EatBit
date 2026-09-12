@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "Why Your Image Tools Should Be Privacy-First: Introducing the EatBit Cropper & Resizer",
     description:
       "Crop and resize your images securely in your browser without losing quality. Our new client-side tools are fast, free, and never upload your photos to a server.",
-    url: "https://eatbit.in/blog/why-privacy-first-image-cropper",
+    url: "https://eatbit.in/blogs/why-privacy-first-image-cropper",
     siteName: "EatBit",
     type: "article",
   },
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
       "Crop and resize your images securely in your browser without losing quality. Our new client-side tools are fast, free, and never upload your photos to a server.",
   },
   alternates: {
-    canonical: "https://eatbit.in/blog/why-privacy-first-image-cropper",
+    canonical: "https://eatbit.in/blogs/why-privacy-first-image-cropper",
   },
   robots: { index: true, follow: true },
 };
@@ -42,7 +42,7 @@ export default function PrivacyFirstImageCropperPage() {
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
+          <Link href="/blogs" className="hover:text-primary transition-colors">Blog</Link>
           <span>/</span>
           <span className="text-foreground">Why Your Image Tools Should Be Privacy-First</span>
         </nav>

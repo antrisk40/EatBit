@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: "What Is the Gemini Watermark? — Explained | EatBit",
     description:
       "Everything you need to know about the Google Gemini watermark: what it is, where it appears, why Google adds it, and how it differs from SynthID.",
-    url: "https://eatbit.in/blog/gemini-watermark-explained",
+    url: "https://eatbit.in/blogs/gemini-watermark-explained",
     siteName: "EatBit",
     type: "article",
   },
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     description: "Everything about the Gemini watermark: what it is, where it appears, why Google adds it, and how to remove it.",
   },
   alternates: {
-    canonical: "https://eatbit.in/blog/gemini-watermark-explained",
+    canonical: "https://eatbit.in/blogs/gemini-watermark-explained",
   },
   robots: { index: true, follow: true },
 };
@@ -48,7 +48,7 @@ export default function GeminiWatermarkExplainedPage() {
               "Everything you need to know about the Google Gemini watermark: what it is, where it appears, why Google adds it, and how it differs from SynthID.",
             author: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" },
             publisher: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" },
-            mainEntityOfPage: "https://eatbit.in/blog/gemini-watermark-explained",
+            mainEntityOfPage: "https://eatbit.in/blogs/gemini-watermark-explained",
             datePublished: "2026-08-21",
             dateModified: "2026-08-21",
           }),
@@ -60,7 +60,7 @@ export default function GeminiWatermarkExplainedPage() {
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
+          <Link href="/blogs" className="hover:text-primary transition-colors">Blog</Link>
           <span>/</span>
           <span className="text-foreground">What Is the Gemini Watermark?</span>
         </nav>
@@ -185,7 +185,7 @@ export default function GeminiWatermarkExplainedPage() {
             </div>
             <p>
               SynthID is a completely different technology developed by Google DeepMind. It embeds imperceptible signals directly into the pixel values of the image, designed to be detectable only by Google&apos;s detection systems.{" "}
-              <Link href="/blog/gemini-watermark-vs-synthid" className="text-primary underline underline-offset-4 hover:opacity-80">
+              <Link href="/blogs/gemini-watermark-vs-synthid" className="text-primary underline underline-offset-4 hover:opacity-80">
                 Read the full Gemini Watermark vs SynthID comparison →
               </Link>
             </p>

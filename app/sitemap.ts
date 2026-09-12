@@ -1,90 +1,60 @@
 import { MetadataRoute } from "next";
+import fs from "fs";
+import path from "path";
 
 const BASE_URL = "https://eatbit.in"; // Update this to your production domain
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const now = new Date();
 
-    return [
-        {
-            url: `${BASE_URL}`,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 1.0,
-        },
-        {
-            url: `${BASE_URL}/services`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.9,
-        },
-        {
-            url: `${BASE_URL}/plans`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.8,
-        },
-        {
-            url: `${BASE_URL}/samples`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.7,
-        },
-        {
-            url: `${BASE_URL}/careers`,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 0.7,
-        },
-        {
-            url: `${BASE_URL}/careers/bda`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.6,
-        },
-        {
-            url: `${BASE_URL}/contact`,
-            lastModified: now,
-            changeFrequency: "yearly",
-            priority: 0.8,
-        },
-        // ── Tools ──
-        {
-            url: `${BASE_URL}/tools/gemini-watermark-remover`,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 0.9,
-        },
-        {
-            url: `${BASE_URL}/tools/free-pdf-editor-no-signup`,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 0.9,
-        },
-        {
-            url: `${BASE_URL}/tools/merge-and-split-pdf`,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 0.9,
-        },
-        // ── Blog ──
-        {
-            url: `${BASE_URL}/blog/how-to-remove-gemini-watermark`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.85,
-        },
-        {
-            url: `${BASE_URL}/blog/gemini-watermark-explained`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.8,
-        },
-        {
-            url: `${BASE_URL}/blog/gemini-watermark-vs-synthid`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.8,
-        },
-    ];
+    const staticRoutes = [
+        "",
+        "/services",
+        "/plans",
+        "/samples",
+        "/careers",
+        "/careers/bda",
+        "/contact",
+        "/blogs",
+        "/tools"
+    ].map((route) => ({
+        url: `${BASE_URL}${route}`,
+        lastModified: now,
+        changeFrequency: "weekly" as const,
+        priority: route === "" ? 1.0 : 0.8,
+    }));
+
+    // Dynamically get tools
+    let tools: MetadataRoute.Sitemap = [];
+    try {
+        const toolsDir = path.join(process.cwd(), "app/tools");
+        tools = fs.readdirSync(toolsDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => ({
+                url: `${BASE_URL}/tools/${dirent.name}`,
+                lastModified: now,
+                changeFrequency: "weekly" as const,
+                priority: 0.9,
+            }));
+    } catch (e) {
+        console.error("Failed to read tools directory for sitemap", e);
+    }
+
+    // Dynamically get blogs
+    let blogs: MetadataRoute.Sitemap = [];
+    try {
+        const blogsDir = path.join(process.cwd(), "app/blogs");
+        blogs = fs.readdirSync(blogsDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => ({
+                url: `${BASE_URL}/blogs/${dirent.name}`,
+                lastModified: now,
+                changeFrequency: "monthly" as const,
+                priority: 0.8,
+            }));
+    } catch (e) {
+        console.error("Failed to read blog directory for sitemap", e);
+    }
+
+    return [...staticRoutes, ...tools, ...blogs];
 }
