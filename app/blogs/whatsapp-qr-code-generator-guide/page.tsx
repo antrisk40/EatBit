@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/whatsapp-qr.jpg" 
+            src="/blogs/whatsapp_qr.webp" 
             alt="Start Conversations Faster with WhatsApp QR Codes Demo" 
             width={1200} 
             height={675} 

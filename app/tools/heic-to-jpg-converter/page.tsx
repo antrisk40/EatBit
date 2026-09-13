@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import ImageConverter from "../image-converter/ImageConverter";
 
 export const metadata: Metadata = {
@@ -23,6 +24,9 @@ const FAQ_JSON_LD = {
 
 const SEO_CONTENT = (
   <div className="mt-24 space-y-16 border-t border-border pt-16 pb-24">
+    <div className="max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden shadow-2xl border border-border">
+      <Image src="/images/heic_jpg.webp" alt="{metadata.title as string || 'Tool Illustration'}" width={1200} height={675} className="w-full h-auto object-cover" />
+    </div>
     <section className="max-w-4xl mx-auto">
       <h2 className="text-3xl font-bold mb-8 text-center">What is HEIC and why can&apos;t I open it?</h2>
       <div className="text-muted-foreground leading-relaxed space-y-4">

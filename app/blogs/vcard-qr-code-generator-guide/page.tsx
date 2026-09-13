@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/vcard-qr.jpg" 
+            src="/blogs/vcard_qr_code.webp" 
             alt="Share Your Contact Info Instantly with vCard QR Codes Demo" 
             width={1200} 
             height={675} 

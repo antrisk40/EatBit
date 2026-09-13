@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/wifi-qr.jpg" 
+            src="/blogs/wifi_wr.webp" 
             alt="Share Your WiFi Network Securely Using QR Codes Demo" 
             width={1200} 
             height={675} 

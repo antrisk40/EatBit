@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import QRCoder from "./QRCoder";
 
 export const metadata: Metadata = {
@@ -68,6 +69,15 @@ const JSON_LD = {
   ]
 };
 
+
+const SEO_CONTENT = (
+  <div className="mt-24 space-y-16 border-t border-border pt-16 pb-24 px-4 max-w-5xl mx-auto">
+    <div className="max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden shadow-2xl border border-border">
+      <Image src="/images/qr_code_generator.webp" alt="QR Code Generator" width={1200} height={675} className="w-full h-auto object-cover" />
+    </div>
+  </div>
+);
+
 export default function QRCodeGeneratorPage() {
   return (
     <>
@@ -75,7 +85,7 @@ export default function QRCodeGeneratorPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
       />
-      <QRCoder />
+      <QRCoder seoContent={SEO_CONTENT} />
     </>
   );
 }

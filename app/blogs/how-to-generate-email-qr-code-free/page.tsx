@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/email-qr.jpg" 
+            src="/blogs/email_qr.webp" 
             alt="How to Generate Email QR Codes for Free Demo" 
             width={1200} 
             height={675} 

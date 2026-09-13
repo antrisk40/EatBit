@@ -69,7 +69,7 @@ export default function PrivacyFirstImageCropperPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/privacy_first_cropper.jpg" 
+            src="/blogs/privacy_first.webp" 
             alt="Privacy First Image Cropper Dashboard Concept" 
             width={1200} 
             height={675} 

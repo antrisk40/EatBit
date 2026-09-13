@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/png-to-webp.jpg" 
+            src="/blogs/png_to_webp.webp" 
             alt="The Complete Guide to Converting PNG to WebP Demo" 
             width={1200} 
             height={675} 

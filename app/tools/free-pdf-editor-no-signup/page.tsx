@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import PdfEditorClient from "./PdfEditorClient";
 
 export const metadata: Metadata = {
@@ -78,11 +79,38 @@ const FAQ_JSON_LD = {
         "text": "Yes. The left thumbnail panel displays all pages in your document. Hover over any page thumbnail to rotate it clockwise by 90 degrees or click the delete button to omit that page from your final exported document.",
       },
     },
+    {
+      "@type": "Question",
+      "name": "How do I sign a PDF document online?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can easily add your signature to any PDF. Choose to type your name in various handwriting styles, draw your signature using your mouse or trackpad, or upload an image of your existing signature."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I fill out non-interactive PDF forms?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! If a form contains no input fields, simply select the 'Text' tool to type your answers anywhere on the page, and use our shapes or text tools to add checkmarks and radio bullets."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I annotate pages or add hyperlinks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Absolutely. You can annotate your PDF by highlighting or striking through text. You can also add new clickable hyperlinks or edit existing links within the document."
+      }
+    }
   ],
 };
 
 const SEO_CONTENT = (
   <div className="mt-20 space-y-16 border-t border-border pt-16 pb-24 px-4 max-w-5xl mx-auto">
+    <div className="max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden shadow-2xl border border-border">
+      <Image src="/images/pdf_editor.webp" alt="{metadata.title as string || 'Tool Illustration'}" width={1200} height={675} className="w-full h-auto object-cover" />
+    </div>
     <section className="text-center max-w-3xl mx-auto">
       <h2 className="text-3xl sm:text-4xl font-black mb-6 text-foreground tracking-tight">
         The Privacy-First PDF Editor That Runs in Your Browser
@@ -109,23 +137,37 @@ const SEO_CONTENT = (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
         <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
           <div className="text-3xl mb-3">✏️</div>
-          <h3 className="font-bold text-foreground text-lg mb-2">Click to Retype Text</h3>
+          <h3 className="font-bold text-foreground text-lg mb-2">Edit & Add Text</h3>
           <p className="text-sm text-muted-foreground">
-            Click directly on any existing sentence or figure to edit it in place with matching font metrics.
+            Click existing text to edit it, or click anywhere to type new text. Make text bold, change font size, family, and color.
+          </p>
+        </div>
+        <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
+          <div className="text-3xl mb-3">✍️</div>
+          <h3 className="font-bold text-foreground text-lg mb-2">Sign PDFs & Fill Forms</h3>
+          <p className="text-sm text-muted-foreground">
+            Type, draw, or upload your signature. Click any form field to type, or add text to non-interactive forms easily.
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
           <div className="text-3xl mb-3">🖼️</div>
           <h3 className="font-bold text-foreground text-lg mb-2">Insert Images & Logos</h3>
           <p className="text-sm text-muted-foreground">
-            Drop in signatures, business logos, stamps, or illustrations with smooth corner resize handles.
+            Drop in business logos, stamps, or illustrations. Drag to move and use corner handles to resize seamlessly.
+          </p>
+        </div>
+        <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
+          <div className="text-3xl mb-3">🔗</div>
+          <h3 className="font-bold text-foreground text-lg mb-2">Annotate & Add Links</h3>
+          <p className="text-sm text-muted-foreground">
+            Highlight or strikethrough text, add rectangular or elliptical shapes, and insert or edit clickable hyperlinks.
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
           <div className="text-3xl mb-3">🛡️</div>
           <h3 className="font-bold text-foreground text-lg mb-2">Whiteout & Redact</h3>
           <p className="text-sm text-muted-foreground">
-            Easily drag redaction boxes over sensitive prices, addresses, or confidential details.
+            Easily drag redaction boxes over sensitive prices, addresses, or confidential details to hide them securely.
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
@@ -136,17 +178,24 @@ const SEO_CONTENT = (
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
-          <div className="text-3xl mb-3">🔒</div>
-          <h3 className="font-bold text-foreground text-lg mb-2">Zero Server Uploads</h3>
+          <div className="text-3xl mb-3">🔍</div>
+          <h3 className="font-bold text-foreground text-lg mb-2">Find & Replace in PDF</h3>
           <p className="text-sm text-muted-foreground">
-            100% client-side. Your PDFs never touch any backend server, ensuring compliance and security.
+            Easily find and replace all occurrences of specific words or phrases throughout your entire PDF document.
+          </p>
+        </div>
+        <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
+          <div className="text-3xl mb-3">🔒</div>
+          <h3 className="font-bold text-foreground text-lg mb-2">100% Secure & Local</h3>
+          <p className="text-sm text-muted-foreground">
+            Get the privacy of an offline desktop app right in your browser. Your files never leave your computer.
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-muted/40 border border-border/60">
           <div className="text-3xl mb-3">⚡</div>
           <h3 className="font-bold text-foreground text-lg mb-2">No Sign-Up or Limits</h3>
           <p className="text-sm text-muted-foreground">
-            No email required, no watermarks added, and no hidden subscriptions. Ready whenever you are.
+            No email required, no watermarks added, and no hidden subscriptions. Ready to use whenever you are.
           </p>
         </div>
       </div>

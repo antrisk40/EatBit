@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/pdf-qr.jpg" 
+            src="/blogs/pdf_qr_code.webp" 
             alt="How to Create PDF QR Codes for Free Demo" 
             width={1200} 
             height={675} 

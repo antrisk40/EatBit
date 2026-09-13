@@ -88,7 +88,7 @@ export default function GeminiWatermarkExplainedPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/ai_watermark_concept.jpg" 
+            src="/blogs/gemini_watermark.webp" 
             alt="AI Watermark Concept Visualization" 
             width={1200} 
             height={675} 

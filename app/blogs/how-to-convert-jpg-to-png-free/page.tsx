@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/jpg-to-png.jpg" 
+            src="/blogs/jpg_png.webp" 
             alt="How to Convert JPG to PNG for Free Demo" 
             width={1200} 
             height={675} 

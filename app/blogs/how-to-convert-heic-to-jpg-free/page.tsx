@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/heic-to-jpg.jpg" 
+            src="/blogs/heic_jpg.webp" 
             alt="How to Convert HEIC to JPG Free and Fast Demo" 
             width={1200} 
             height={675} 

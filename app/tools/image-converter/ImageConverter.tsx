@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import NextImage from "next/image";
 import OtherToolsSidebar from "@/components/OtherToolsSidebar";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
@@ -459,6 +460,9 @@ function DefaultSEOContent() {
   ];
   return (
     <div className="mt-24 space-y-16 border-t border-border pt-16 pb-24">
+      <div className="max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden shadow-2xl border border-border">
+        <NextImage src="/images/image_converter.webp" alt="Image Converter Tool" width={1200} height={675} className="w-full h-auto object-cover" />
+      </div>
       <section>
         <h2 className="text-3xl font-bold mb-10 text-center">Supported conversions</h2>
         <div className="overflow-x-auto rounded-2xl border border-border">

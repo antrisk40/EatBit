@@ -70,7 +70,7 @@ export default function HowToRemoveGeminiWatermarkPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/watermark_removal_demo.jpg" 
+            src="/blogs/gemini_watermark_blog.webp" 
             alt="Watermark Removal Demo Before and After" 
             width={1200} 
             height={675} 

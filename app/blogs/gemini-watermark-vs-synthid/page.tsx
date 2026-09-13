@@ -70,7 +70,7 @@ export default function GeminiWatermarkVsSynthidPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/ai_watermark_concept.jpg" 
+            src="/blogs/synth_id.webp" 
             alt="Abstract AI Watermark Concept" 
             width={1200} 
             height={675} 

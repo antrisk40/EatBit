@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/image-converter.jpg" 
+            src="/blogs/free_image_convereter.webp" 
             alt="The Ultimate Free Image Converter for Web Developers Demo" 
             width={1200} 
             height={675} 

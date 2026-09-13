@@ -68,7 +68,7 @@ export default function BlogPostPage() {
         {/* Hero Image */}
         <div className="mb-12 rounded-xl overflow-hidden shadow-2xl border border-border">
           <Image 
-            src="/images/merge-split-pdf.jpg" 
+            src="/blogs/merge_and_split.webp" 
             alt="How to Merge and Split PDF Files Locally Demo" 
             width={1200} 
             height={675} 
