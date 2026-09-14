@@ -117,6 +117,60 @@ const FAQS = [
     q: "Does this Gemini watermark remover keep my data private?",
     a: "Yes. All processing happens entirely inside your browser (client-side). Your files are never uploaded to any server, making this the most secure and private way to erase Gemini watermarks.",
   },
+  // ── Video-focused FAQs targeting high-impression zero-click queries ──────────
+  {
+    q: "How do I remove the Gemini watermark from a video?",
+    a: "Upload your Gemini-generated video (MP4, WebM, or MOV) directly to this tool. It will automatically detect the Gemini logo watermark, process every frame using Reverse Alpha Blending inside your browser, and let you download a clean MP4 — all without uploading your file to any server.",
+  },
+  {
+    q: "Is there a free Gemini video watermark remover with no sign-up?",
+    a: "Yes — this tool is completely free and requires no account or sign-up. Just open the page, drop your Gemini video onto the upload area, and download the watermark-free version in minutes. There are no file limits, no watermarks on the output, and no hidden fees.",
+  },
+  {
+    q: "Does removing the Gemini watermark work on MP4 video files?",
+    a: "Yes. MP4 is the primary supported video format. WebM and MOV are also supported. The tool decodes your video frame-by-frame using the Canvas API, applies Reverse Alpha Blending to each frame to erase the Gemini logo, then remuxes the clean frames back into a downloadable MP4 file — all in your browser.",
+  },
+  {
+    q: "Can I remove the Gemini watermark from a video online without downloading any software?",
+    a: "Yes. This is a 100% browser-based tool — no downloads, no installations, no extensions required. Open the page in any modern browser (Chrome, Safari, Firefox, Edge), upload your video, and the watermark removal happens entirely online inside your browser tab.",
+  },
+  {
+    q: "Why does my Google Gemini video have a watermark, and can it be removed?",
+    a: "Google Gemini adds a visible semi-transparent logo watermark to the bottom-right corner of every image and video it generates. This is a visual brand mark, not a cryptographic watermark. Our tool removes this visible overlay using a mathematical algorithm (Reverse Alpha Blending) that reconstructs the original pixels beneath the logo — completely free, with no sign-up and no uploads.",
+  },
+];
+
+const USE_CASES = [
+  {
+    emoji: "📱",
+    title: "Social Media Creators",
+    desc: "Remove the Gemini logo before posting AI-generated thumbnails, reels covers, and carousel images to Instagram, X, or YouTube.",
+  },
+  {
+    emoji: "🎬",
+    title: "Video Editors",
+    desc: "Clean up Gemini-generated B-roll or stock-style clips before adding them to your edit — without the visible AI watermark breaking the shot.",
+  },
+  {
+    emoji: "🏢",
+    title: "Businesses & Marketers",
+    desc: "Use Gemini-generated visuals in professional presentations, ad creatives, or brand collateral without the watermark distracting from your message.",
+  },
+  {
+    emoji: "🎨",
+    title: "Designers",
+    desc: "Generate concept art or mood board images with Gemini, then remove the overlay before sharing with clients or incorporating into mockups.",
+  },
+  {
+    emoji: "📚",
+    title: "Educators & Students",
+    desc: "Create clean AI illustrations for course materials, presentations, or research papers — without the Gemini watermark appearing in your documents.",
+  },
+  {
+    emoji: "💻",
+    title: "Developers & Indie Hackers",
+    desc: "Quickly generate placeholder art, app icons, or hero images with Gemini and remove the overlay before shipping your product or side project.",
+  },
 ];
 
 function getFileKind(file: File): FileKind | null {
@@ -1138,6 +1192,75 @@ export default function GeminiWatermarkRemoverPage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── WHO USES THIS TOOL ───────────────────────────────────────────────── */}
+      <section className="bg-background py-20 border-b border-border" id="use-cases">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
+              Who Uses This <span className="text-primary">Tool</span>
+            </h2>
+            <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+              From content creators to enterprise teams — anyone who needs clean, watermark-free Gemini outputs.
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {USE_CASES.map((uc, i) => (
+              <motion.div
+                key={uc.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="border border-border bg-card p-6 hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="text-3xl mb-3">{uc.emoji}</div>
+                <h3 className="font-bold text-foreground text-sm mb-2">{uc.title}</h3>
+                <p className="text-muted-foreground text-xs leading-relaxed">{uc.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── INLINE LEAD BANNER ──────────────────────────────────────────────── */}
+      <section className="bg-card py-12 border-b border-border">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative overflow-hidden border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-8 flex flex-col sm:flex-row items-center gap-6"
+          >
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/15 blur-3xl rounded-full pointer-events-none" />
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-xs font-bold uppercase tracking-wider text-primary mb-2">Built by EatBit</p>
+              <h3 className="text-xl font-extrabold text-foreground mb-2">
+                Need a custom AI tool or web app?
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                We build production-grade SaaS, AI tools, and mobile apps — just like this one. Fast, affordable, and backed by real engineering.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 shrink-0 w-full sm:w-auto">
+              <Link
+                href="/contact-us"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 hover:scale-105 transition-all shadow-lg shadow-primary/20"
+              >
+                Get a Free Quote <FaArrowRight className="w-3 h-3" />
+              </Link>
+              <a
+                href="https://wa.me/8319212779?text=Hi%2C%20I%20saw%20the%20Gemini%20Watermark%20Remover%20on%20EatBit%20and%20I%27m%20interested%20in%20custom%20software."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-green-500/40 bg-green-500/10 text-green-400 font-bold text-sm hover:bg-green-500/20 transition-colors"
+              >
+                <FaMagic className="w-3 h-3" /> Chat on WhatsApp
+              </a>
+            </div>
+          </motion.div>
         </div>
       </section>
 

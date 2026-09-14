@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ClientLeadBanner from "@/components/ClientLeadBanner";
 
 const TOOLS = [
   {
@@ -134,6 +135,7 @@ export default function OtherToolsSidebar() {
 
   return (
     <aside className="sticky top-28 flex flex-col gap-4">
+      <ClientLeadBanner />
       <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-2">
         Other Tools You Might Like
       </h3>

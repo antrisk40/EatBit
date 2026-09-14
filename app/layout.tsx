@@ -39,8 +39,33 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'EatBit - Bite-Sized Tech, Giant Results',
-  description: 'We transform complex technical challenges into digestible, elegant solutions.',
+  title: 'EatBit — Custom Software Development Agency | Web, Mobile & AI',
+  description: 'EatBit is a software development agency building custom web apps, mobile apps, SaaS platforms, and AI tools. Based in India. Free consultation — get a quote today.',
+  keywords: 'software development agency, custom web development, mobile app development, saas development, ai development, next.js development, react development, software agency india',
+  openGraph: {
+    title: 'EatBit — Custom Software Development Agency',
+    description: 'We build custom web apps, mobile apps, SaaS platforms, and AI tools. Based in India. Free consultation.',
+    url: 'https://eatbit.in',
+    siteName: 'EatBit',
+    type: 'website',
+    images: [
+      {
+        url: 'https://eatbit.in/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'EatBit — Custom Software Development Agency',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'EatBit — Custom Software Development Agency',
+    description: 'We build custom web apps, mobile apps, SaaS platforms, and AI tools. Based in India.',
+    images: ['https://eatbit.in/og-image.png'],
+  },
+  alternates: {
+    canonical: 'https://eatbit.in',
+  },
 }
 
 export default function RootLayout({
@@ -90,6 +115,26 @@ export default function RootLayout({
             gtag('config', 'G-TRB57BHFJF');
           `}
         </Script>
+        {/* Organization Structured Data */}
+        <Script id="org-jsonld" type="application/ld+json" strategy="afterInteractive">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "EatBit",
+            url: "https://eatbit.in",
+            logo: "https://eatbit.in/favicon.ico",
+            description: "EatBit is a software development agency building custom web apps, mobile apps, SaaS platforms, and AI tools.",
+            contactPoint: {
+              "@type": "ContactPoint",
+              telephone: "+91-8319212779",
+              contactType: "customer service",
+              availableLanguage: ["English", "Hindi"],
+            },
+            sameAs: [
+              "https://eatbit.in",
+            ],
+          })}
+        </Script>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -117,15 +162,21 @@ export default function RootLayout({
             <Footer />
           </div>
 
-          {/* Floating WhatsApp Icon */}
+          {/* Floating WhatsApp Button */}
           <a
-            href="https://wa.me/8319212779"
+            href="https://wa.me/8319212779?text=Hi%2C%20I%27m%20interested%20in%20building%20a%20custom%20web%20or%20mobile%20app."
             target="_blank"
             rel="noopener noreferrer"
-            className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-green-500 text-white rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 hover:shadow-green-500/50"
+            className="fixed bottom-6 right-6 z-50 group flex items-center justify-center w-14 h-14 bg-green-500 text-white rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 hover:shadow-green-500/50"
             aria-label="Chat with us on WhatsApp"
           >
-            <FaWhatsapp className="w-8 h-8" aria-hidden="true" focusable="false" />
+            {/* Ping animation rings */}
+            <span className="absolute inline-flex w-full h-full rounded-full bg-green-400 opacity-60 animate-ping" />
+            <FaWhatsapp className="w-8 h-8 relative z-10" aria-hidden="true" focusable="false" />
+            {/* Tooltip */}
+            <span className="absolute right-16 whitespace-nowrap bg-foreground text-background text-xs font-bold px-3 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
+              Chat on WhatsApp
+            </span>
           </a>
         </ThemeProvider>
       </body>
