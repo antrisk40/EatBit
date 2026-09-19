@@ -13,6 +13,13 @@ const TOOLS = [
     icon: "✨",
   },
   {
+    id: "bulk-gemini-watermark-remover",
+    title: "Bulk Gemini Watermark Remover",
+    desc: "Batch remove Gemini watermarks from multiple images and videos at once.",
+    path: "/tools/bulk-gemini-watermark-remover",
+    icon: "📂",
+  },
+  {
     id: "image-cropper-and-resizer",
     title: "Image Cropper & Resizer",
     desc: "Securely crop and resize images locally in your browser. Zero uploads.",

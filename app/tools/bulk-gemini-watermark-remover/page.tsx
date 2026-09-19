@@ -65,22 +65,22 @@ interface FileItem {
 const FEATURES = [
   {
     icon: <FaShieldAlt className="w-6 h-6" />,
-    title: "100% Private",
-    desc: "Files never leave your browser. Zero uploads, zero privacy risk.",
+    title: "100% Private Bulk Processing",
+    desc: "Batch process unlimited files directly in your browser. Zero uploads, zero privacy risk.",
     color: "text-green-400",
     bg: "bg-green-400/10 border-green-400/20",
   },
   {
     icon: <FaBolt className="w-6 h-6" />,
-    title: "Precision Algorithm",
+    title: "Batch Precision Algorithm",
     desc: "Reverse Alpha Blending — mathematically exact, not AI guesswork.",
     color: "text-primary",
     bg: "bg-primary/10 border-primary/20",
   },
   {
     icon: <FaFilm className="w-6 h-6" />,
-    title: "Images & Videos",
-    desc: "Both image and video Gemini outputs are fully supported.",
+    title: "Bulk Images & Videos",
+    desc: "Process hundreds of Gemini image and video outputs simultaneously.",
     color: "text-blue-400",
     bg: "bg-blue-400/10 border-blue-400/20",
   },
@@ -94,14 +94,14 @@ const FEATURES = [
 ];
 
 const FAQS = [
-  { q: "What file types are supported?", a: "Images: JPG, PNG, WebP. Videos: MP4, WebM, MOV — the same formats Gemini uses when generating media." },
+  { q: "What file types are supported for batch processing?", a: "You can batch process Images (JPG, PNG, WebP) and Videos (MP4, WebM, MOV) at the same time. The tool handles mixed batches seamlessly." },
   { q: "Is my file uploaded to any server?", a: "No. Everything runs locally in your browser. Your files never leave your device." },
-  { q: "How does video watermark removal work?", a: "The tool processes your video frame-by-frame to smoothly erase the watermark entirely in your browser, without needing to upload the file anywhere." },
+  { q: "How does bulk video watermark removal work?", a: "The tool queues up multiple videos and processes them frame-by-frame in your browser, smoothly erasing the watermark without any uploads." },
   { q: "Do I need to create an account or pay?", a: "Absolutely not. The tool is 100% free with no signup required." },
   { q: "What if the watermark isn't fully removed?", a: "Our tool handles all standard Gemini outputs. In rare edge cases, use the feedback form below the result to let us know." },
   { q: "Does this remove the SynthID invisible watermark?", a: "No. SynthID is Google DeepMind's cryptographic provenance watermark embedded in the pixel data at a level invisible to the human eye. Our tool removes only the visible Gemini overlay watermark — the semi-transparent logo you can see in the bottom-right corner. SynthID cannot be removed by any browser-based tool." },
   { q: "What is Reverse Alpha Blending and why does it matter?", a: "Alpha blending is how Gemini composites its watermark onto your image: result = foreground × alpha + background × (1 − alpha). Reverse alpha blending inverts this formula — given the composited result and known watermark pixels, we can solve for the original background with pixel-perfect accuracy. Unlike AI inpainting (which guesses), this is a mathematical reconstruction — deterministic and lossless." },
-  { q: "How do I remove the Gemini logo?", a: "Simply upload your image or video directly to our tool. It automatically detects the position of the Gemini watermark and uses reverse alpha blending to smoothly remove it without uploading your files anywhere." },
+  { q: "How do I remove the Gemini logo from multiple files?", a: "Drag and drop all your images and videos at once. Our tool automatically processes the entire batch, removing the Gemini watermark from each file using reverse alpha blending." },
   { q: "Does this Gemini watermark remover keep my data private?", a: "Yes. All processing happens entirely inside your browser (client-side). Your files are never uploaded to any server, making this the most secure and private way to erase Gemini watermarks." },
   { q: "How do I remove the Gemini watermark from a video?", a: "Upload your Gemini-generated video (MP4, WebM, or MOV) directly to this tool. It will automatically detect the Gemini logo watermark, process every frame using Reverse Alpha Blending inside your browser, and let you download a clean MP4 — all without uploading your file to any server." },
   { q: "Is there a free Gemini video watermark remover with no sign-up?", a: "Yes — this tool is completely free and requires no account or sign-up. Just open the page, drop your Gemini video onto the upload area, and download the watermark-free version in minutes. There are no file limits, no watermarks on the output, and no hidden fees." },
@@ -111,7 +111,7 @@ const FAQS = [
 ];
 
 const USE_CASES = [
-  { emoji: "📱", title: "Social Media Creators", desc: "Remove the Gemini logo before posting AI-generated thumbnails, reels covers, and carousel images to Instagram, X, or YouTube." },
+  { emoji: "📱", title: "Social Media Agencies", desc: "Batch clean hundreds of Gemini-generated thumbnails, reels covers, and carousel images for multiple client accounts." },
   { emoji: "🎬", title: "Video Editors", desc: "Clean up Gemini-generated B-roll or stock-style clips before adding them to your edit — without the visible AI watermark breaking the shot." },
   { emoji: "🏢", title: "Businesses & Marketers", desc: "Use Gemini-generated visuals in professional presentations, ad creatives, or brand collateral without the watermark distracting from your message." },
   { emoji: "🎨", title: "Designers", desc: "Generate concept art or mood board images with Gemini, then remove the overlay before sharing with clients or incorporating into mockups." },
@@ -405,7 +405,7 @@ function FileItemCard({ item, onRemove, onDownload }: FileItemCardProps) {
   );
 }
 
-export default function GeminiWatermarkRemoverPage() {
+export default function BulkGeminiWatermarkRemoverPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const engineRef = useRef<any>(null);
@@ -644,7 +644,7 @@ export default function GeminiWatermarkRemoverPage() {
         })()}
       </AnimatePresence>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebApplication", name: "Gemini Watermark Remover", applicationCategory: "MultimediaApplication", operatingSystem: "Any", browserRequirements: "Requires a modern browser with JavaScript enabled", url: "https://eatbit.in/tools/gemini-watermark-remover", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: "Free browser tool to remove visible Google Gemini AI watermarks from images and videos. Supports batch/multi-file processing with ZIP download. No signup, no upload.", featureList: ["Remove visible Gemini watermark from images", "Remove visible Gemini watermark from videos", "Batch multi-file processing", "Download all as ZIP", "Reverse alpha blending algorithm", "100% local browser processing", "No account required", "Supports JPG, PNG, WebP, MP4, WebM, MOV"], screenshot: "https://eatbit.in/og-gemini-watermark-remover.png", softwareVersion: "2.0", creator: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" } }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebApplication", name: "Bulk Gemini Watermark Remover", applicationCategory: "MultimediaApplication", operatingSystem: "Any", browserRequirements: "Requires a modern browser with JavaScript enabled", url: "https://eatbit.in/tools/bulk-gemini-watermark-remover", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: "Free browser tool to batch remove visible Google Gemini AI watermarks from multiple images and videos simultaneously. Perfect for bulk processing.", featureList: ["Remove visible Gemini watermark from images", "Remove visible Gemini watermark from videos", "Batch multi-file processing", "Download all as ZIP", "Reverse alpha blending algorithm", "100% local browser processing", "No account required", "Supports JPG, PNG, WebP, MP4, WebM, MOV"], screenshot: "https://eatbit.in/og-gemini-watermark-remover.png", softwareVersion: "2.0", creator: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" } }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQS.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) }) }} />
 
       {/* HERO */}
@@ -657,14 +657,14 @@ export default function GeminiWatermarkRemoverPage() {
             Free · No Signup · Images &amp; Videos · Batch + ZIP Download
           </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-            <span className="text-primary">Gemini</span> Watermark
+            <span className="text-primary">Bulk Gemini</span> Watermark
             <br /><span className="text-foreground">Remover</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            Remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from images and videos directly in your browser. Process multiple files at once and download them all as a ZIP.
+            Batch remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from hundreds of images and videos at once directly in your browser. Download the clean files as a single ZIP.
           </p>
           <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground mb-12">
-            {["Images & Videos", "Batch Upload", "Download as ZIP", "100% Private"].map((b) => (
+            {["Bulk Images & Videos", "Batch Upload", "Download as ZIP", "100% Private Bulk Processing"].map((b) => (
               <span key={b} className="flex items-center gap-1.5"><FaCheck className="text-primary w-3 h-3" /> {b}</span>
             ))}
           </div>
@@ -878,7 +878,7 @@ export default function GeminiWatermarkRemoverPage() {
       <section className="bg-background py-20 border-b border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="text-3xl font-extrabold text-foreground mb-6">Remove Google Gemini Watermarks — <span className="text-primary">Free &amp; Private</span></h2>
+            <h2 className="text-3xl font-extrabold text-foreground mb-6">Batch Remove Google Gemini Watermarks — <span className="text-primary">Fast Bulk Processing</span></h2>
             <div className="text-muted-foreground space-y-4 text-sm leading-7">
               <p>When Google Gemini generates images or videos, it embeds a visible semi-transparent logo watermark in the bottom-right corner. This tool uses an open-source <strong className="text-foreground">Reverse Alpha Blending</strong> algorithm to mathematically reconstruct the original pixels beneath the watermark — not AI inpainting — for lossless, pixel-perfect results.</p>
               <p>For <strong className="text-foreground">videos</strong>, each frame is processed individually using Canvas API and an optional ONNX AI denoising model (running via WebAssembly), then remuxed back into MP4. No data ever leaves your browser tab.</p>
@@ -959,7 +959,7 @@ export default function GeminiWatermarkRemoverPage() {
       <section className="bg-card py-16 border-b border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="text-xl font-extrabold text-foreground mb-6">Learn More About <span className="text-primary">Gemini Watermarks</span></h2>
+            <h2 className="text-xl font-extrabold text-foreground mb-6">Learn More About <span className="text-primary">Bulk Watermark Removal</span></h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
                 { href: "/blog/how-to-remove-gemini-watermark", title: "How to Remove a Gemini Watermark", desc: "Step-by-step guide to using this tool and understanding what gets removed." },
