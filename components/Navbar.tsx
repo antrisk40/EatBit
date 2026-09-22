@@ -43,7 +43,7 @@ export default function Navbar() {
             <Link className={getLinkClass("/samples")} href="/samples">Samples</Link>
             <Link className={getLinkClass("/blogs")} href="/blogs">Blog</Link>
             <div className="relative group py-2">
-              <span className={`cursor-pointer ${getLinkClass("/tools")}`}>🛠 Tools</span>
+              <Link href="/tools" className={getLinkClass("/tools")}>🛠 Tools</Link>
               <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-80 bg-background border border-border rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col p-2 gap-0.5 z-50 max-h-[80vh] overflow-y-auto">
                 <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Image Tools</div>
                 <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/gemini-watermark-remover")}`} href="/tools/gemini-watermark-remover">✨ Watermark Remover</Link>
@@ -59,8 +59,11 @@ export default function Navbar() {
                 <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/png-to-webp-converter")}`} href="/tools/png-to-webp-converter">⚡ PNG to WebP</Link>
                 <div className="my-1 border-t border-border" />
                 <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">PDF Tools</div>
-                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/free-pdf-editor-no-signup")}`} href="/tools/free-pdf-editor-no-signup">✏️ Free PDF Editor (No Sign-up)</Link>
-                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/merge-and-split-pdf")}`} href="/tools/merge-and-split-pdf">📑 PDF Merger (Free, No Sign-up)</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/edit-pdf-text-online")}`} href="/tools/edit-pdf-text-online">✏️ Edit PDF Text</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/add-text-to-pdf")}`} href="/tools/add-text-to-pdf">📝 Add Text to PDF</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/sign-pdf-online")}`} href="/tools/sign-pdf-online">✍️ Sign PDF</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/annotate-pdf")}`} href="/tools/annotate-pdf">🔗 Annotate PDF</Link>
+                <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/merge-and-split-pdf")}`} href="/tools/merge-and-split-pdf">📑 PDF Merger & Split</Link>
                 <div className="my-1 border-t border-border" />
                 <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">QR Codes</div>
                 <Link className={`block px-3 py-2 rounded-lg text-sm hover:bg-muted ${getLinkClass("/tools/qr-code-generator")}`} href="/tools/qr-code-generator">📱 QR Generator (All Types)</Link>
@@ -105,12 +108,34 @@ export default function Navbar() {
               
               <div className="flex flex-col space-y-2">
                 <div className="font-medium text-muted-foreground">🛠 Tools</div>
-                <div className="pl-4 flex flex-col space-y-2 border-l-2 border-border">
-                  <Link className={`text-sm ${getLinkClass("/tools/gemini-watermark-remover")}`} href="/tools/gemini-watermark-remover" onClick={closeMenu}>✨ Watermark Remover</Link>
-                  <Link className={`text-sm ${getLinkClass("/tools/image-cropper-and-resizer")}`} href="/tools/image-cropper-and-resizer" onClick={closeMenu}>🖼️ Image Cropper</Link>
-                  <Link className={`text-sm ${getLinkClass("/tools/image-converter")}`} href="/tools/image-converter" onClick={closeMenu}>🔄 Image Converter</Link>
-                  <Link className={`text-sm ${getLinkClass("/tools/pdf-qr-code-generator")}`} href="/tools/pdf-qr-code-generator" onClick={closeMenu}>📄 QR Generators</Link>
-                  <Link className={`text-sm ${getLinkClass("/tools")}`} href="/tools" onClick={closeMenu}>Explore All Tools →</Link>
+                <div className="pl-4 flex flex-col space-y-1 border-l-2 border-border">
+                  <div className="py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-2">Image Tools</div>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/gemini-watermark-remover")}`} href="/tools/gemini-watermark-remover" onClick={closeMenu}>✨ Watermark Remover</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/image-cropper-and-resizer")}`} href="/tools/image-cropper-and-resizer" onClick={closeMenu}>🖼️ Image Cropper</Link>
+
+                  <div className="py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-2">Image Converters</div>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/image-converter")}`} href="/tools/image-converter" onClick={closeMenu}>🔄 Image Converter (All)</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/heic-to-jpg-converter")}`} href="/tools/heic-to-jpg-converter" onClick={closeMenu}>📱 HEIC to JPG</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/webp-to-jpg-converter")}`} href="/tools/webp-to-jpg-converter" onClick={closeMenu}>🌐 WebP to JPG</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/png-to-jpg-converter")}`} href="/tools/png-to-jpg-converter" onClick={closeMenu}>🔵 PNG to JPG</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/jpg-to-png-converter")}`} href="/tools/jpg-to-png-converter" onClick={closeMenu}>🟠 JPG to PNG</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/jpg-to-webp-converter")}`} href="/tools/jpg-to-webp-converter" onClick={closeMenu}>⚡ JPG to WebP</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/png-to-webp-converter")}`} href="/tools/png-to-webp-converter" onClick={closeMenu}>⚡ PNG to WebP</Link>
+
+                  <div className="py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-2">PDF Tools</div>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/edit-pdf-text-online")}`} href="/tools/edit-pdf-text-online" onClick={closeMenu}>✏️ Edit PDF Text</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/add-text-to-pdf")}`} href="/tools/add-text-to-pdf" onClick={closeMenu}>📝 Add Text to PDF</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/sign-pdf-online")}`} href="/tools/sign-pdf-online" onClick={closeMenu}>✍️ Sign PDF</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/annotate-pdf")}`} href="/tools/annotate-pdf" onClick={closeMenu}>🔗 Annotate PDF</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/merge-and-split-pdf")}`} href="/tools/merge-and-split-pdf" onClick={closeMenu}>📑 PDF Merger & Split</Link>
+
+                  <div className="py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-2">QR Codes</div>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/qr-code-generator")}`} href="/tools/qr-code-generator" onClick={closeMenu}>📱 QR Generator (All Types)</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/wifi-qr-code-generator")}`} href="/tools/wifi-qr-code-generator" onClick={closeMenu}>📶 WiFi QR Code</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/whatsapp-qr-code-generator")}`} href="/tools/whatsapp-qr-code-generator" onClick={closeMenu}>🟢 WhatsApp QR Code</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/vcard-qr-code-generator")}`} href="/tools/vcard-qr-code-generator" onClick={closeMenu}>👤 vCard QR Code</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/email-qr-code-generator")}`} href="/tools/email-qr-code-generator" onClick={closeMenu}>📧 Email QR Code</Link>
+                  <Link className={`block py-1.5 text-sm ${getLinkClass("/tools/pdf-qr-code-generator")}`} href="/tools/pdf-qr-code-generator" onClick={closeMenu}>📄 PDF QR Code</Link>
                 </div>
               </div>
 
