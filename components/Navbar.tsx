@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
@@ -10,6 +11,10 @@ import { ModeToggle } from "@/components/ModeToggle";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const closeMenu = () => setIsMobileMenuOpen(false);
 
   const getLinkClass = (path: string) => {
     const isActive = pathname === path || pathname.startsWith(path + '/');
@@ -75,12 +80,49 @@ export default function Navbar() {
           </div>
           <div className="md:hidden flex items-center gap-2">
             <ModeToggle />
-            <Button variant="ghost" size="icon" className="text-muted-foreground">
-              <span className="material-symbols-outlined text-[24px]">menu</span>
+            <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={toggleMenu}>
+              <span className="material-symbols-outlined text-[24px]">
+                {isMobileMenuOpen ? "close" : "menu"}
+              </span>
             </Button>
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden overflow-hidden bg-background border-b border-border"
+          >
+            <div className="flex flex-col px-4 py-4 space-y-4 max-h-[80vh] overflow-y-auto">
+              <Link className={getLinkClass("/services")} href="/services" onClick={closeMenu}>Services</Link>
+              <Link className={getLinkClass("/plans")} href="/plans" onClick={closeMenu}>Plans</Link>
+              <Link className={getLinkClass("/samples")} href="/samples" onClick={closeMenu}>Samples</Link>
+              <Link className={getLinkClass("/blogs")} href="/blogs" onClick={closeMenu}>Blog</Link>
+              
+              <div className="flex flex-col space-y-2">
+                <div className="font-medium text-muted-foreground">🛠 Tools</div>
+                <div className="pl-4 flex flex-col space-y-2 border-l-2 border-border">
+                  <Link className={`text-sm ${getLinkClass("/tools/gemini-watermark-remover")}`} href="/tools/gemini-watermark-remover" onClick={closeMenu}>✨ Watermark Remover</Link>
+                  <Link className={`text-sm ${getLinkClass("/tools/image-cropper-and-resizer")}`} href="/tools/image-cropper-and-resizer" onClick={closeMenu}>🖼️ Image Cropper</Link>
+                  <Link className={`text-sm ${getLinkClass("/tools/image-converter")}`} href="/tools/image-converter" onClick={closeMenu}>🔄 Image Converter</Link>
+                  <Link className={`text-sm ${getLinkClass("/tools/pdf-qr-code-generator")}`} href="/tools/pdf-qr-code-generator" onClick={closeMenu}>📄 QR Generators</Link>
+                  <Link className={`text-sm ${getLinkClass("/tools")}`} href="/tools" onClick={closeMenu}>Explore All Tools →</Link>
+                </div>
+              </div>
+
+              <Link className={getLinkClass("/careers")} href="/careers" onClick={closeMenu}>Careers</Link>
+              <Link className={getLinkClass("/contact-us")} href="/contact-us" onClick={closeMenu}>Contact Us</Link>
+              <Button className="w-full rounded-none shadow-lg shadow-orange-500/30 font-semibold" asChild onClick={closeMenu}>
+                <Link href="/contact-us">Get Started</Link>
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
