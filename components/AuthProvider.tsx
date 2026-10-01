@@ -1,23 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { getMe, login, register, loginWithGoogle, logout, getSubscriptionStatus } from "@/lib/api";
+import { getMe, login, register, loginWithGoogle, logout, getSubscriptionStatus, User } from "@/lib/api";
 import FeedbackModal from "./FeedbackModal";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  avatar: string | null;
-  provider: string;
-  plan: "free" | "monthly" | "yearly";
-  is_premium: boolean;
-  premium_until: string | null;
-  created_at: string | null;
-  last_login_at: string | null;
-  total_payments: number;
-}
 
 interface AuthContextValue {
   user: User | null;
