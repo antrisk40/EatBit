@@ -21,7 +21,7 @@ const FEATURES = [
 ];
 
 export default function UpgradeModal() {
-  const { showUpgradeModal, setShowUpgradeModal, refreshUser, openLogin, user } = useAuth();
+  const { showUpgradeModal, setShowUpgradeModal, refreshUser, openLogin, user, upgradeMessage } = useAuth();
   const [plans, setPlans] = useState<PlanOption[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<PlanType>("monthly");
   const [loading, setLoading] = useState(false);
@@ -150,8 +150,12 @@ export default function UpgradeModal() {
                     <div className="w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/30">
                       <FaCrown className="text-primary text-xl" />
                     </div>
-                    <h2 className="text-2xl font-bold text-foreground mb-1">EatBit Pro</h2>
-                    <p className="text-sm text-muted-foreground">Unlimited tools, no ads, bulk processing</p>
+                    <h2 className="text-2xl font-bold text-foreground mb-1">
+                      {upgradeMessage ? upgradeMessage.title : "EatBit Pro"}
+                    </h2>
+                    <p className={`text-sm ${upgradeMessage ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+                      {upgradeMessage ? upgradeMessage.subtitle : "Unlimited tools, no ads, bulk processing"}
+                    </p>
                   </div>
 
                   {/* Plan toggle */}

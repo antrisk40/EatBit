@@ -525,14 +525,22 @@ export default function GeminiWatermarkRemoverPage() {
     
     if (!limits.downloads.unlimited) {
       if (limits.downloads.remaining <= 0) {
-        window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
+        if (limits.tier === "anonymous") {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
+        } else {
+          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
+        }
         return;
       }
       
       // Enforce limit per file dropped
       if (arr.length > limits.downloads.remaining) {
-        window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} more file(s). Please login to continue.` } }));
-        arr = arr.slice(0, limits.downloads.remaining);
+        if (limits.tier === "anonymous") {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} more file(s). Please login to continue.` } }));
+        } else {
+          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
+        }
+        return;
       }
     }
 

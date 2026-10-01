@@ -36,6 +36,7 @@ interface AuthContextValue {
   setShowLoginModal: (v: boolean) => void;
   setShowUpgradeModal: (v: boolean) => void;
   loginMessage: { title: string; subtitle: string } | null;
+  upgradeMessage: { title: string; subtitle: string } | null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -47,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [loginMessage, setLoginMessage] = useState<{ title: string; subtitle: string } | null>(null);
+  const [upgradeMessage, setUpgradeMessage] = useState<{ title: string; subtitle: string } | null>(null);
 
   const refreshUser = useCallback(async () => {
     try {
@@ -78,7 +80,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setShowLoginModal(true);
     };
-    const onOpenUpgrade = () => setShowUpgradeModal(true);
+    const onOpenUpgrade = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.title) {
+        setUpgradeMessage(customEvent.detail);
+      } else {
+        setUpgradeMessage(null);
+      }
+      setShowUpgradeModal(true);
+    };
     const onOpenFeedback = () => setShowFeedbackModal(true);
     window.addEventListener("eatbit:open-login", onOpenLogin);
     window.addEventListener("eatbit:open-upgrade", onOpenUpgrade);
@@ -128,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setShowLoginModal,
         setShowUpgradeModal,
         loginMessage,
+        upgradeMessage,
       }}
     >
       {children}
