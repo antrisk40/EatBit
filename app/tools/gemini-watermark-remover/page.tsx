@@ -28,6 +28,7 @@ import {
   FaFileArchive,
   FaTrash,
   FaPlus,
+  FaStar,
 } from "react-icons/fa";
 
 const GOOGLE_SCRIPT_URL =
@@ -393,6 +394,10 @@ function FileItemCard({ item, onRemove, onDownload }: FileItemCardProps) {
           <button onClick={() => onDownload(item.id)} id={`download-btn-${item.id}`}
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-bold text-xs hover:opacity-90 transition-all hover:scale-105 shadow-lg shadow-primary/20">
             <FaDownload /> {item.kind === "image" ? "Download Image" : "Download Video"}
+          </button>
+          <button onClick={() => window.dispatchEvent(new CustomEvent("eatbit:ask-feedback"))}
+            className="flex items-center gap-2 px-4 py-2 border border-border bg-background text-foreground font-bold text-xs hover:border-primary/50 transition-all hover:scale-105">
+            <FaStar className="text-yellow-400" /> Give Feedback
           </button>
           {item.result && item.kind === "image" && (
             <span className="text-xs text-muted-foreground">

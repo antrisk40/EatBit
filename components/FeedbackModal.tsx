@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaStar } from "react-icons/fa";
 import { submitFeedback } from "@/lib/api";
 
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbwLnyGXKrgLTdkMgXnwL38DafnGxE-vhb-SzHG0gCKCl7aWrduKWGAomaiSUve4jrAY/exec";
+
 export default function FeedbackModal({ onClose }: { onClose: () => void }) {
   const [rating, setRating] = useState<number>(0);
   const [hovered, setHovered] = useState<number>(0);
@@ -19,6 +22,15 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
     setLoading(true);
     try {
       await submitFeedback({ rating, message, tool: window.location.pathname });
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ source: "Global Feedback Modal", rating, description: message, tool: window.location.pathname, submitted_at: new Date().toISOString() }),
+        });
+      } catch { /* ignore sheet errors */ }
+
       localStorage.setItem("eb_feedback", "submitted"); // Never ask again
       setSubmitted(true);
       setTimeout(onClose, 2000);
@@ -55,8 +67,10 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
 
           {/* Close */}
           <button
+            type="button"
             onClick={skip}
-            className="absolute top-4 right-4 z-10 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="absolute top-4 right-4 z-[100] p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            aria-label="Close feedback modal"
           >
             <FaTimes />
           </button>
