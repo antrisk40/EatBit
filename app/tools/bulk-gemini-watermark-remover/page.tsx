@@ -518,9 +518,28 @@ export default function BulkGeminiWatermarkRemoverPage() {
   }, [queue, activeItemId, processImageItem, processVideoItem]);
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
-    if (!(await canProcessBeforeDownload())) return;
+    const { checkLimits } = await import("@/lib/api");
+    const limits = await checkLimits();
+    
+    let arr = Array.from(files);
+    
+    if (!limits.downloads.unlimited) {
+      if (limits.downloads.remaining <= 0) {
+        if (limits.tier === "anonymous") {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login"));
+        } else {
+          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"));
+        }
+        return;
+      }
+      
+      // Enforce bulk limit per file dropped
+      if (arr.length > limits.downloads.remaining) {
+        alert(`Limit reached! You can only process ${limits.downloads.remaining} more file(s) on your current plan. Logging in or upgrading unlocks unlimited batch processing.`);
+        arr = arr.slice(0, limits.downloads.remaining);
+      }
+    }
 
-    const arr = Array.from(files);
     const newItems: FileItem[] = [];
     for (const file of arr) {
       const kind = getFileKind(file);

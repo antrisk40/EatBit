@@ -119,15 +119,13 @@ export default function RootLayout({
             gtag('config', 'G-TRB57BHFJF');
           `}
         </Script>
-        {/* Google AdSense — only injected when publisher ID is configured */}
-        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT && !process.env.NEXT_PUBLIC_ADSENSE_CLIENT.includes('XXXX') && (
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
-        )}
+        {/* Google AdSense */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4123566150896961"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         {/* Organization Structured Data */}
         <Script id="org-jsonld" type="application/ld+json" strategy="afterInteractive">
           {JSON.stringify({
