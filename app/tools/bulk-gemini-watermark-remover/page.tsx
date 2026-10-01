@@ -418,7 +418,6 @@ export default function BulkGeminiWatermarkRemoverPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [feedbackFor, setFeedbackFor] = useState<FileItem | null>(null);
   const [isZipping, setIsZipping] = useState(false);
-  const [limitAlert, setLimitAlert] = useState<string | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -526,13 +525,13 @@ export default function BulkGeminiWatermarkRemoverPage() {
     
     if (!limits.downloads.unlimited) {
       if (limits.downloads.remaining <= 0) {
-        setLimitAlert("You have reached your anonymous limit. Create a free account to continue processing files!");
+        window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
         return;
       }
       
       // Enforce bulk limit per file dropped
       if (arr.length > limits.downloads.remaining) {
-        setLimitAlert(`You can only process ${limits.downloads.remaining} more file(s) right now. Create a free account to unlock unlimited batch processing!`);
+        window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} more file(s). Please login to continue.` } }));
         arr = arr.slice(0, limits.downloads.remaining);
       }
     }
@@ -637,29 +636,7 @@ setFeedbackFor(null);
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {limitAlert && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative bg-background border border-border rounded-3xl p-8 md:p-12 shadow-2xl max-w-2xl w-full text-center overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-primary/20 blur-[100px] pointer-events-none" />
-              <button onClick={() => setLimitAlert(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground bg-muted hover:bg-muted/80 p-3 rounded-full transition-colors z-10"><FaTimes /></button>
-              
-              <FaLock className="text-5xl md:text-6xl text-primary mx-auto mb-6 drop-shadow-[0_0_15px_rgba(234,140,50,0.5)]" />
-              <h2 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4 tracking-tight leading-tight">
-                Please <span className="text-primary">Login</span><br />to continue for free
-              </h2>
-              <p className="text-base md:text-lg text-muted-foreground mb-8">
-                {limitAlert}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onClick={() => { setLimitAlert(null); window.dispatchEvent(new CustomEvent("eatbit:open-login")); }} className="px-8 py-4 bg-primary text-primary-foreground font-bold text-lg rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                  Login / Sign Up Free
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* Floating processing indicator */}
       <AnimatePresence>

@@ -35,6 +35,7 @@ interface AuthContextValue {
   showUpgradeModal: boolean;
   setShowLoginModal: (v: boolean) => void;
   setShowUpgradeModal: (v: boolean) => void;
+  loginMessage: { title: string; subtitle: string } | null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -45,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [loginMessage, setLoginMessage] = useState<{ title: string; subtitle: string } | null>(null);
 
   const refreshUser = useCallback(async () => {
     try {
@@ -65,10 +67,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser().finally(() => setLoading(false));
   }, [refreshUser]);
 
-  // Listen for download gate events from downloadWithGate utility
   // This lets any tool page trigger login/upgrade modals without importing useAuth
   useEffect(() => {
-    const onOpenLogin = () => setShowLoginModal(true);
+    const onOpenLogin = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.title) {
+        setLoginMessage(customEvent.detail);
+      } else {
+        setLoginMessage(null);
+      }
+      setShowLoginModal(true);
+    };
     const onOpenUpgrade = () => setShowUpgradeModal(true);
     const onOpenFeedback = () => setShowFeedbackModal(true);
     window.addEventListener("eatbit:open-login", onOpenLogin);
@@ -118,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         showUpgradeModal,
         setShowLoginModal,
         setShowUpgradeModal,
+        loginMessage,
       }}
     >
       {children}

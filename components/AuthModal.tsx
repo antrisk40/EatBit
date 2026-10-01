@@ -11,7 +11,7 @@ type Tab = "login" | "register";
 type ModalState = "form" | "check-email";
 
 export default function AuthModal() {
-  const { showLoginModal, setShowLoginModal, signIn, signUp, signInWithGoogle, refreshUser } = useAuth();
+  const { showLoginModal, setShowLoginModal, signIn, signUp, signInWithGoogle, refreshUser, loginMessage } = useAuth();
   const [tab, setTab] = useState<Tab>("login");
   const [modalState, setModalState] = useState<ModalState>("form");
   const [registeredEmail, setRegisteredEmail] = useState("");
@@ -197,10 +197,10 @@ export default function AuthModal() {
               /* ── Login / Register Form ─────────────────────────── */
               <div className="p-8 relative z-10">
                 <h2 className="text-2xl font-bold text-center mb-1 text-foreground">
-                  {tab === "login" ? "Welcome back" : "Create account"}
+                  {loginMessage && tab === "login" ? loginMessage.title : tab === "login" ? "Welcome back" : "Create account"}
                 </h2>
                 <p className="text-sm text-muted-foreground text-center mb-6">
-                  {tab === "login" ? "Sign in to download and save your work" : "Free account — start downloading instantly"}
+                  {loginMessage && tab === "login" ? loginMessage.subtitle : tab === "login" ? "Sign in to download and save your work" : "Free account — start downloading instantly"}
                 </p>
 
                 {/* Tabs */}
