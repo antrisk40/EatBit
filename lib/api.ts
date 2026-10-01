@@ -5,7 +5,7 @@
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "https://api.eatbit.in";
 
-export type PlanType = "free" | "monthly" | "yearly";
+export type PlanType = "free" | "monthly" | "yearly" | "pro_monthly" | "pro_yearly";
 
 export interface PlanOption {
   plan: PlanType;

@@ -23,7 +23,7 @@ const FEATURES = [
 export default function UpgradeModal() {
   const { showUpgradeModal, setShowUpgradeModal, refreshUser, openLogin, user, upgradeMessage } = useAuth();
   const [plans, setPlans] = useState<PlanOption[]>([]);
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>("monthly");
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>("pro_monthly");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -116,8 +116,10 @@ export default function UpgradeModal() {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/20 blur-3xl rounded-full pointer-events-none" />
 
             <button
+              type="button"
               onClick={() => setShowUpgradeModal(false)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="absolute top-4 right-4 z-[100] p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+              aria-label="Close modal"
             >
               <FaTimes />
             </button>
@@ -194,7 +196,7 @@ export default function UpgradeModal() {
                       <div className="flex items-baseline justify-center gap-1">
                         <span className="text-xl font-bold text-muted-foreground">₹</span>
                         <span className="text-5xl font-extrabold text-foreground">
-                          {chosen?.price_inr ?? (selectedPlan === "yearly" ? 699 : 99)}
+                          {chosen?.price_inr ?? (selectedPlan === "pro_yearly" ? 499 : 49)}
                         </span>
                       </div>
                       <div className="flex items-center justify-center gap-2 mt-1">

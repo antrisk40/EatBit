@@ -4,11 +4,13 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaStar } from "react-icons/fa";
 import { submitFeedback } from "@/lib/api";
+import { useAuth } from "@/components/AuthProvider";
 
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwLnyGXKrgLTdkMgXnwL38DafnGxE-vhb-SzHG0gCKCl7aWrduKWGAomaiSUve4jrAY/exec";
 
 export default function FeedbackModal({ onClose }: { onClose: () => void }) {
+  const { user } = useAuth();
   const [rating, setRating] = useState<number>(0);
   const [hovered, setHovered] = useState<number>(0);
   const [message, setMessage] = useState("");
@@ -27,7 +29,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ source: "Global Feedback Modal", rating, description: message, tool: window.location.pathname, submitted_at: new Date().toISOString() }),
+          body: JSON.stringify({ source: "Global Feedback Modal", email: user?.email || "", rating, description: message, tool: window.location.pathname, submitted_at: new Date().toISOString() }),
         });
       } catch { /* ignore sheet errors */ }
 
