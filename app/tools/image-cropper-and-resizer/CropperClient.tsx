@@ -1,4 +1,5 @@
 "use client";
+import { downloadWithGate } from "@/lib/downloadWithGate";
 
 import React, { useState, useRef, useEffect, ChangeEvent, DragEvent } from 'react';
 import Cropper from 'cropperjs';
@@ -122,16 +123,14 @@ export default function CropperClient() {
     const mime = activeFormat === 'jpeg' ? 'image/jpeg' : (activeFormat === 'webp' ? 'image/webp' : 'image/png');
     const q = activeFormat === 'png' ? undefined : quality / 100;
 
-    canvas.toBlob((blob) => {
+    canvas.toBlob(async (blob) => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       const ext = activeFormat === 'jpeg' ? 'jpg' : activeFormat;
       a.download = `cropped-image.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      await downloadWithGate(url, a.download);
       setTimeout(() => URL.revokeObjectURL(url), 4000);
     }, mime, q);
   };

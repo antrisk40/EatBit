@@ -1,4 +1,5 @@
 "use client";
+import { downloadWithGate } from "@/lib/downloadWithGate";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import qrcode from "qrcode-generator";
@@ -636,12 +637,12 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
 
   const doDownloadCanvas = (mime: string, ext: string) => {
     if (!canvasRef.current) return;
-    canvasRef.current.toBlob(blob => {
+    canvasRef.current.toBlob(async blob => {
       if (!blob) return;
       const objUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = objUrl; a.download = "qr-code." + ext;
-      document.body.appendChild(a); a.click(); a.remove();
+      await downloadWithGate(objUrl, "qr-code." + ext);
       setTimeout(() => URL.revokeObjectURL(objUrl), 4000);
     }, mime, 0.95);
   };
@@ -650,7 +651,7 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
     triggerDownload(() => doDownloadCanvas(mime, ext));
   };
 
-  const doDownloadSVG = () => {
+  const doDownloadSVG = async () => {
     if (!matrixData) return;
     const { matrix, count } = matrixData;
     const cell = cellSize, quiet = cell * 4, size = count * cell + quiet * 2;
@@ -711,11 +712,11 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
     const objUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = objUrl; a.download = "qr-code.svg";
-    document.body.appendChild(a); a.click(); a.remove();
+    await downloadWithGate(a.href, a.download);
     setTimeout(() => URL.revokeObjectURL(objUrl), 4000);
   };
 
-  const downloadSVG = () => {
+  const downloadSVG = async () => {
     triggerDownload(doDownloadSVG);
   };
 

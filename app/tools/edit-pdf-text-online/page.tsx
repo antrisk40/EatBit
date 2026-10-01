@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import PdfEditorClient from "@/app/tools/free-pdf-editor-no-signup/PdfEditorClient";
 import { ToolSeoWrapper } from "@/components/ToolSeoWrapper";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: "Edit PDF Text Online Free | Replace Words & Correct Typos",
@@ -27,6 +28,8 @@ export default function EditPdfTextPage() {
       <div className="pt-2">
         <PdfEditorClient />
         <ToolSeoWrapper {...pageProps} />
+      
+      <AdBanner slot="tool-bottom" className="mt-6" />
       </div>
     </>
   );

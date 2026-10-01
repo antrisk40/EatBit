@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import ImageConverter from "./ImageConverter";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: "Free Image Converter — Convert JPG, PNG, WebP, HEIC Online | EatBit",
@@ -32,6 +33,7 @@ export default function ImageConverterPage() {
         heroTitle="Free Image Converter — JPG, PNG, WebP, HEIC & more"
         heroDesc="Convert between image formats instantly in your browser. Supports JPG, PNG, WebP, BMP, GIF, HEIC (iPhone) and SVG. Batch convert up to 20 files. Your images never leave your device."
       />
+      <AdBanner slot="tool-bottom" className="mt-6" />
     </>
   );
 }

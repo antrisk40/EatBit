@@ -28,7 +28,11 @@ import '@fontsource/roboto'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/components/theme-provider'
+import { AuthProvider } from '@/components/AuthProvider'
+import AuthModal from '@/components/AuthModal'
+import UpgradeModal from '@/components/UpgradeModal'
 import { FaWhatsapp } from 'react-icons/fa'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -115,6 +119,15 @@ export default function RootLayout({
             gtag('config', 'G-TRB57BHFJF');
           `}
         </Script>
+        {/* Google AdSense — only injected when publisher ID is configured */}
+        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT && !process.env.NEXT_PUBLIC_ADSENSE_CLIENT.includes('XXXX') && (
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
         {/* Organization Structured Data */}
         <Script id="org-jsonld" type="application/ld+json" strategy="afterInteractive">
           {JSON.stringify({
@@ -141,6 +154,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}>
+          <AuthProvider>
+          {/* Global modals — available on every page */}
+          <AuthModal />
+          <UpgradeModal />
           {/* Out of the Box Global Background */}
           <div className="fixed inset-0 z-0 pointer-events-none bg-background">
             {/* Dynamic dot matrix grid */}
@@ -178,6 +196,8 @@ export default function RootLayout({
               Chat on WhatsApp
             </span>
           </a>
+          </AuthProvider>
+          </GoogleOAuthProvider>
         </ThemeProvider>
       </body>
     </html>

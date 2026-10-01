@@ -1,4 +1,5 @@
 "use client";
+import { downloadWithGate } from "@/lib/downloadWithGate";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Script from "next/script";
@@ -1349,12 +1350,7 @@ export default function PdfEditorClient() {
       const bytes = await finalDoc.save();
       const blob = new Blob([bytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = (baseFileName || "edited-document").replace(/\.pdf$/i, "") + ".pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      await downloadWithGate(url, (baseFileName || "edited-document").replace(/\.pdf$/i, "") + ".pdf");
       setTimeout(() => URL.revokeObjectURL(url), 4000);
     } catch (err) {
       console.error("Export failed:", err);

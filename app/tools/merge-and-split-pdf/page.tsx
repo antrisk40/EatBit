@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import BundleClient from "./BundleClient";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: "PDF Merger Free No Sign Up — Split & Bundle Online | EatBit",
@@ -82,7 +83,8 @@ const SEO_CONTENT = (
           </details>
         ))}
       </div>
-    </section>
+          <AdBanner slot="tool-bottom" className="mt-6" />
+      </section>
   </div>
 );
 

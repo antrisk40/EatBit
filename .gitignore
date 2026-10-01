@@ -30,8 +30,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — never commit secrets
+.env
+.env.local
+.env.production
+.env.development
+# But DO commit the example templates:
+!.env.example
+!server/.env.example
 
 # vercel
 .vercel
@@ -42,3 +48,11 @@ next-env.d.ts
 
 # AI agent skills & config
 .agents/
+
+# Python server
+server/venv/
+server/__pycache__/
+server/**/__pycache__/
+server/**/*.pyc
+server/.env.local
+server/.env.production

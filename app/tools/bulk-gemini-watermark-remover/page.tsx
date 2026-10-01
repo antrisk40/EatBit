@@ -1,10 +1,12 @@
 "use client";
+import { downloadWithGate, canProcessBeforeDownload } from "@/lib/downloadWithGate";
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import OtherToolsSidebar from "@/components/OtherToolsSidebar";
+import AdBanner from "@/components/AdBanner";
 import {
   FaDownload,
   FaCheckCircle,
@@ -515,7 +517,9 @@ export default function BulkGeminiWatermarkRemoverPage() {
     run(next).finally(() => setActiveItemId(null));
   }, [queue, activeItemId, processImageItem, processVideoItem]);
 
-  const handleFiles = useCallback((files: FileList | File[]) => {
+  const handleFiles = useCallback(async (files: FileList | File[]) => {
+    if (!(await canProcessBeforeDownload())) return;
+
     const arr = Array.from(files);
     const newItems: FileItem[] = [];
     for (const file of arr) {
@@ -565,26 +569,20 @@ export default function BulkGeminiWatermarkRemoverPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleDownload = useCallback((id: string) => {
+  const handleDownload = useCallback(async (id: string) => {
     const item = queue.find((it) => it.id === id);
     if (!item || !item.downloadUrl) return;
     if (item.kind === "video") {
       setFeedbackFor(item);
     } else {
-      const a = document.createElement("a");
-      a.href = item.downloadUrl;
-      a.download = item.downloadName;
-      a.click();
-    }
+      await downloadWithGate(item.downloadUrl, item.downloadName);
+}
   }, [queue]);
 
-  const triggerDownloadAfterFeedback = () => {
+  const triggerDownloadAfterFeedback = async () => {
     if (!feedbackFor) return;
-    const a = document.createElement("a");
-    a.href = feedbackFor.downloadUrl!;
-    a.download = feedbackFor.downloadName;
-    a.click();
-    setFeedbackFor(null);
+    await downloadWithGate(feedbackFor.downloadUrl!, feedbackFor.downloadName);
+setFeedbackFor(null);
   };
 
   const handleDownloadZip = async () => {
@@ -600,11 +598,8 @@ export default function BulkGeminiWatermarkRemoverPage() {
         zip.file(item.downloadName, blob);
       }
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(zipBlob);
-      a.download = "watermark-removed-files.zip";
-      a.click();
-    } finally {
+      await downloadWithGate(URL.createObjectURL(zipBlob), "watermark-removed-files.zip");
+} finally {
       setIsZipping(false);
     }
   };
@@ -989,6 +984,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
             </div>
           </motion.div>
         </div>
+            <AdBanner slot="tool-bottom" className="mt-6" />
       </section>
 
       <PasteHandler onFiles={handleFiles} />

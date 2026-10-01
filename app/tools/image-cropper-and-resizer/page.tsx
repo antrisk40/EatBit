@@ -1,6 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import CropperClient from './CropperClient';
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: 'Privacy-First Image Cropper & Resizer Online (No Uploads)',

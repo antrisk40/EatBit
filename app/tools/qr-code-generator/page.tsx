@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import QRCoder from "./QRCoder";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: "Free QR Code Generator Online – Create QR Codes for URL, WiFi, vCard, Instagram & More | PNG, JPG, SVG",
@@ -74,7 +75,9 @@ const SEO_CONTENT = (
   <div className="mt-24 space-y-16 border-t border-border pt-16 pb-24 px-4 max-w-5xl mx-auto">
     <div className="max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden shadow-2xl border border-border">
       <Image src="/images/qr_code_generator.webp" alt="QR Code Generator" width={1200} height={675} className="w-full h-auto object-cover" />
-    </div>
+    
+      <AdBanner slot="tool-bottom" className="mt-6" />
+      </div>
   </div>
 );
 

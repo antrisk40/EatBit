@@ -1,4 +1,5 @@
 "use client";
+import { downloadWithGate } from "@/lib/downloadWithGate";
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -262,13 +263,12 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
   const triggerDownload = (fn: () => void) => { pendingAction.current = fn; setShowFeedback(true); };
   const executePending = () => { setShowFeedback(false); pendingAction.current?.(); pendingAction.current = null; };
 
-  const downloadFile = (file: ConvertedFile) => {
+  const downloadFile = async (file: ConvertedFile) => {
     if (!file.convertedBlob) return;
-    triggerDownload(() => {
+    triggerDownload(async () => {
       const url = file.convertedUrl || URL.createObjectURL(file.convertedBlob!);
       const base = file.originalName.replace(/\.[^.]+$/, "");
-      const a = document.createElement("a"); a.href = url; a.download = `${base}.${toFmt === "jpg" ? "jpg" : toFmt}`;
-      document.body.appendChild(a); a.click(); a.remove();
+      await downloadWithGate(url, `${base}.${toFmt === "jpg" ? "jpg" : toFmt}`);
     });
   };
 

@@ -1,4 +1,5 @@
 "use client";
+import { downloadWithGate } from "@/lib/downloadWithGate";
 
 import React, { useState, useRef, useEffect } from "react";
 import Script from "next/script";
@@ -262,9 +263,7 @@ export default function BundleClient() {
         const a = document.createElement('a');
         a.href = url;
         a.download = name;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        await downloadWithGate(url, name);
         setTimeout(() => URL.revokeObjectURL(url), 4000);
         
         if (segments.length > 1) await new Promise(r => setTimeout(r, 250));

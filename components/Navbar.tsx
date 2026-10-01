@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/ModeToggle";
+import { useAuth } from "@/components/AuthProvider";
+import { FaUser, FaCrown, FaSignOutAlt, FaTachometerAlt } from "react-icons/fa";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user, isPremium, signOut, openLogin } = useAuth();
 
   const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMenu = () => setIsMobileMenuOpen(false);
@@ -80,8 +83,108 @@ export default function Navbar() {
               <Link href="/contact-us">Get Started</Link>
             </Button>
             <ModeToggle />
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 p-1 rounded-full border border-border hover:border-primary/50 transition-colors"
+                >
+                  {user.avatar
+                    ? <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                    : <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-sm font-bold text-primary">{user.name[0].toUpperCase()}</div>
+                  }
+                  {isPremium && <FaCrown className="text-primary text-xs absolute -top-1 -right-1" />}
+                </button>
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-2 w-52 bg-background border border-border rounded-xl shadow-xl z-50 overflow-hidden"
+                    >
+                      <div className="px-4 py-3 border-b border-border">
+                        <p className="text-sm font-bold text-foreground truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        {isPremium && <span className="text-[10px] font-bold text-primary">✦ Premium</span>}
+                      </div>
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                      >
+                        <FaTachometerAlt className="text-muted-foreground" /> Dashboard
+                      </Link>
+                      <button
+                        onClick={() => { signOut(); setShowUserMenu(false); }}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-400/10 transition-colors"
+                      >
+                        <FaSignOutAlt /> Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <button
+                onClick={openLogin}
+                className="flex items-center gap-2 text-sm font-semibold text-foreground border border-border px-4 py-2 rounded-full hover:border-primary/50 hover:text-primary transition-colors"
+              >
+                <FaUser className="text-xs" /> Sign In
+              </button>
+            )}
           </div>
           <div className="md:hidden flex items-center gap-2">
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 p-1 rounded-full border border-border hover:border-primary/50 transition-colors"
+                >
+                  {user.avatar
+                    ? <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                    : <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-sm font-bold text-primary">{user.name[0].toUpperCase()}</div>
+                  }
+                  {isPremium && <FaCrown className="text-primary text-xs absolute -top-1 -right-1" />}
+                </button>
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-2 w-52 bg-background border border-border rounded-xl shadow-xl z-50 overflow-hidden"
+                    >
+                      <div className="px-4 py-3 border-b border-border">
+                        <p className="text-sm font-bold text-foreground truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        {isPremium && <span className="text-[10px] font-bold text-primary">✦ Premium</span>}
+                      </div>
+                      <Link
+                        href="/dashboard"
+                        onClick={() => { setShowUserMenu(false); closeMenu(); }}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                      >
+                        <FaTachometerAlt className="text-muted-foreground" /> Dashboard
+                      </Link>
+                      <button
+                        onClick={() => { signOut(); setShowUserMenu(false); closeMenu(); }}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-400/10 transition-colors"
+                      >
+                        <FaSignOutAlt /> Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <button
+                onClick={() => { openLogin(); closeMenu(); }}
+                className="flex items-center gap-1.5 text-xs font-semibold text-foreground border border-border px-3 py-1.5 rounded-full hover:border-primary/50 hover:text-primary transition-colors"
+              >
+                <FaUser className="text-[10px]" /> Sign In
+              </button>
+            )}
             <ModeToggle />
             <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={toggleMenu}>
               <span className="material-symbols-outlined text-[24px]">

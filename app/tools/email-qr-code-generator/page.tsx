@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import QRCoder from "../qr-code-generator/QRCoder";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: "Free Email QR Code Generator — Scan to Send a Pre-filled Email | EatBit",
@@ -112,7 +113,8 @@ const SEO_CONTENT = (
           </details>
         ))}
       </div>
-    </section>
+          <AdBanner slot="tool-bottom" className="mt-6" />
+      </section>
   </div>
 );
 

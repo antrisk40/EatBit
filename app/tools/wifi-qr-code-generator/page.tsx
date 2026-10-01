@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import QRCoder from "../qr-code-generator/QRCoder";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: "Free WiFi QR Code Generator — Share Your Password Instantly | EatBit",
@@ -175,7 +176,8 @@ const SEO_CONTENT = (
           </details>
         ))}
       </div>
-    </section>
+          <AdBanner slot="tool-bottom" className="mt-6" />
+      </section>
   </div>
 );
 

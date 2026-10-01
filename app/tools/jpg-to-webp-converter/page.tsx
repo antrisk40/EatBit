@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import ImageConverter from "../image-converter/ImageConverter";
+import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
   title: "Free JPG to WebP Converter — Compress Images for the Web | EatBit",
@@ -49,7 +50,8 @@ const SEO_CONTENT = (
           </details>
         ))}
       </div>
-    </section>
+          <AdBanner slot="tool-bottom" className="mt-6" />
+      </section>
   </div>
 );
 
