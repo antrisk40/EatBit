@@ -70,6 +70,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://eatbit.in',
   },
+  other: {
+    'google-adsense-account': 'ca-pub-4123566150896961'
+  }
 }
 
 export default function RootLayout({
@@ -103,6 +106,12 @@ export default function RootLayout({
             -webkit-font-smoothing: antialiased;
           }
         `}</style>
+        {/* Google AdSense - placed in head for crawler verification */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4123566150896961"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className={`${poppins.variable} font-sans antialiased text-foreground bg-background transition-colors duration-300`}>
 
@@ -119,13 +128,7 @@ export default function RootLayout({
             gtag('config', 'G-TRB57BHFJF');
           `}
         </Script>
-        {/* Google AdSense */}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4123566150896961"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+
         {/* Organization Structured Data */}
         <Script id="org-jsonld" type="application/ld+json" strategy="afterInteractive">
           {JSON.stringify({

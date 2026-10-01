@@ -116,8 +116,10 @@ export default function AuthModal() {
 
             {/* Close */}
             <button
+              type="button"
               onClick={() => { setShowLoginModal(false); reset(); }}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="absolute top-4 right-4 z-[100] p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+              aria-label="Close modal"
             >
               <FaTimes />
             </button>
@@ -128,7 +130,8 @@ export default function AuthModal() {
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
                   <FaEnvelope className="text-green-400 text-2xl" />
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">Verify your email</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-1">Verify your email</h2>
+                <p className="text-sm font-bold text-green-400 mb-2">Email sent! Check your inbox or spam.</p>
                 <p className="text-sm text-muted-foreground mb-1">
                   We sent a 6-digit code to
                 </p>

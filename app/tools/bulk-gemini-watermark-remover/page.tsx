@@ -418,6 +418,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [feedbackFor, setFeedbackFor] = useState<FileItem | null>(null);
   const [isZipping, setIsZipping] = useState(false);
+  const [limitAlert, setLimitAlert] = useState<string | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -535,7 +536,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
       
       // Enforce bulk limit per file dropped
       if (arr.length > limits.downloads.remaining) {
-        alert(`Limit reached! You can only process ${limits.downloads.remaining} more file(s) on your current plan. Logging in or upgrading unlocks unlimited batch processing.`);
+        setLimitAlert(`Limit reached! You can only process ${limits.downloads.remaining} more file(s) on your current plan. Logging in or upgrading unlocks unlimited batch processing.`);
         arr = arr.slice(0, limits.downloads.remaining);
       }
     }
@@ -637,6 +638,18 @@ setFeedbackFor(null);
             fileName={feedbackFor.name}
             fileKind={feedbackFor.kind}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {limitAlert && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999]">
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-6 py-4 rounded-xl shadow-2xl flex items-start gap-4 max-w-md backdrop-blur-md">
+              <FaExclamationTriangle className="text-xl shrink-0 mt-0.5" />
+              <div className="flex-1 text-sm font-medium leading-relaxed">{limitAlert}</div>
+              <button onClick={() => setLimitAlert(null)} className="text-red-400 hover:text-red-300 transition-colors p-1"><FaTimes /></button>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
