@@ -10,16 +10,18 @@
 
 import { recordDownload } from "@/lib/api";
 
-export async function downloadWithGate(url: string, filename: string): Promise<boolean> {
-  const result = await recordDownload();
+export async function downloadWithGate(url: string, filename: string, skipRecording: boolean = false): Promise<boolean> {
+  if (!skipRecording) {
+    const result = await recordDownload();
 
-  if (!result.allowed) {
-    if (result.code === "signup_required") {
-      window.dispatchEvent(new CustomEvent("eatbit:open-login"));
-    } else {
-      window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"));
+    if (!result.allowed) {
+      if (result.code === "signup_required") {
+        window.dispatchEvent(new CustomEvent("eatbit:open-login"));
+      } else {
+        window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"));
+      }
+      return false;
     }
-    return false;
   }
 
   const a = document.createElement("a");

@@ -418,8 +418,23 @@ export default function GeminiWatermarkRemoverPage() {
     if (!next) return;
     setActiveItemId(next.id);
     const run = next.kind === "image" ? processImageItem : processVideoItem;
-    run(next).finally(() => setActiveItemId(null));
-  }, [queue, activeItemId, processImageItem, processVideoItem]);
+    
+    import("@/lib/api").then(({ recordDownload }) => {
+      recordDownload().then((res) => {
+        if (!res.allowed) {
+          updateItem(next.id, { status: "error", statusMsg: "Limit reached. Please login to continue processing." });
+          setActiveItemId(null);
+          if (res.code === "signup_required") {
+            window.dispatchEvent(new CustomEvent("eatbit:open-login"));
+          } else {
+            window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"));
+          }
+          return;
+        }
+        run(next).finally(() => setActiveItemId(null));
+      });
+    });
+  }, [queue, activeItemId, processImageItem, processVideoItem, updateItem]);
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     const { checkLimits } = await import("@/lib/api");
@@ -428,28 +443,23 @@ export default function GeminiWatermarkRemoverPage() {
     let arr = Array.from(files);
     
     if (!limits.downloads.unlimited) {
-      if (limits.tier === "anonymous") {
-        // Enforce a strict 1-file processing limit for anonymous users that persists across refreshes
-        const anonCount = parseInt(localStorage.getItem("eatbit_anon_processed") || "0", 10);
-        const totalRequested = anonCount + queue.length + arr.length;
-        if (totalRequested > 1) {
-          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: "You can only process 1 file for free. Please login to continue processing." } }));
-          return;
-        }
-        // Save the new count
-        localStorage.setItem("eatbit_anon_processed", totalRequested.toString());
-      } else {
-        // For logged-in users, rely on backend remaining downloads limit
-        if (limits.downloads.remaining <= 0) {
-          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process more files." } }));
-          return;
-        }
-        
-        const totalRequested = queue.length + arr.length;
-        if (totalRequested > limits.downloads.remaining) {
+      if (limits.downloads.remaining <= 0) {
+        if (limits.tier === "anonymous") {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
+        } else {
           window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
-          return;
         }
+        return;
+      }
+      
+      const totalRequested = queue.length + arr.length;
+      if (totalRequested > limits.downloads.remaining) {
+        if (limits.tier === "anonymous") {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} file(s) for free. Please login to continue.` } }));
+        } else {
+          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
+        }
+        return;
       }
     }
 
@@ -504,7 +514,7 @@ export default function GeminiWatermarkRemoverPage() {
   const handleDownload = useCallback(async (id: string) => {
     const item = queue.find((it) => it.id === id);
     if (!item || !item.downloadUrl) return;
-    const res = await downloadWithGate(item.downloadUrl, item.downloadName);
+    const res = await downloadWithGate(item.downloadUrl, item.downloadName, true);
     if (res !== false) setShowFeedback(true);
   }, [queue]);
 
@@ -521,7 +531,7 @@ export default function GeminiWatermarkRemoverPage() {
         zip.file(item.downloadName, blob);
       }
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      await downloadWithGate(URL.createObjectURL(zipBlob), "watermark-removed-files.zip");
+      await downloadWithGate(URL.createObjectURL(zipBlob), "watermark-removed-files.zip", true);
 } finally {
       setIsZipping(false);
     }

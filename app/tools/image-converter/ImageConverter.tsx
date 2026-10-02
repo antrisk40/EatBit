@@ -134,25 +134,35 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
     const arr = Array.from(rawFiles);
     
     if (!limits.downloads.unlimited) {
-      if (limits.tier === "anonymous") {
-        const anonCount = parseInt(localStorage.getItem("eatbit_anon_processed") || "0", 10);
-        const totalRequested = anonCount + files.length + arr.length;
-        if (totalRequested > 1) {
-          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: "You can only process 1 file for free. Please login to continue processing." } }));
-          return;
-        }
-        localStorage.setItem("eatbit_anon_processed", totalRequested.toString());
-      } else {
-        if (limits.downloads.remaining <= 0) {
+      if (limits.downloads.remaining <= 0) {
+        if (limits.tier === "anonymous") {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
+        } else {
           window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process more files." } }));
-          return;
         }
-        const totalRequested = files.length + arr.length;
-        if (totalRequested > limits.downloads.remaining) {
-          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
-          return;
-        }
+        return;
       }
+      
+      const totalRequested = files.length + arr.length;
+      if (totalRequested > limits.downloads.remaining) {
+        if (limits.tier === "anonymous") {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} file(s) for free. Please login to continue.` } }));
+        } else {
+          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
+        }
+        return;
+      }
+    }
+
+    const { recordDownload } = await import("@/lib/api");
+    const rec = await recordDownload();
+    if (!rec.allowed) {
+       if (rec.code === "signup_required") {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: "You can only process 1 file for free. Please login to continue." } }));
+       } else {
+          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"));
+       }
+       return;
     }
 
     const arrSliced = arr.slice(0, 20);
@@ -197,7 +207,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
     executePending(async () => {
       const url = file.convertedUrl || URL.createObjectURL(file.convertedBlob!);
       const base = file.originalName.replace(/\.[^.]+$/, "");
-      await downloadWithGate(url, `${base}.${toFmt === "jpg" ? "jpg" : toFmt}`);
+      await downloadWithGate(url, `${base}.${toFmt === "jpg" ? "jpg" : toFmt}`, true);
     });
   };
 
@@ -211,8 +221,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
       done.forEach(f => { const base = f.originalName.replace(/\.[^.]+$/, ""); zip.file(`${base}.${toFmt}`, f.convertedBlob!); });
       const blob = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href = url; a.download = `converted-images.zip`;
-      document.body.appendChild(a); a.click(); a.remove();
+      await downloadWithGate(url, "converted-images.zip", true);
       setTimeout(() => URL.revokeObjectURL(url), 5000);
     });
   };
