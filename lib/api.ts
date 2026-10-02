@@ -87,6 +87,11 @@ async function apiFetch(
     const refreshed = await tryRefresh();
     if (refreshed) return apiFetch(path, options, false);
     tokenStore.clear();
+    
+    // Redirect to login if running in browser and we got a 401 we couldn't refresh
+    if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+      window.location.href = "/login";
+    }
   }
   return res;
 }
