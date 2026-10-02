@@ -128,9 +128,35 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
     return () => { files.forEach(f => { if (f.originalUrl) URL.revokeObjectURL(f.originalUrl); if (f.convertedUrl) URL.revokeObjectURL(f.convertedUrl); }); };
   }, [files]);
 
-  const addFiles = useCallback((rawFiles: FileList | File[]) => {
-    const arr = Array.from(rawFiles).slice(0, 20);
-    const newEntries: ConvertedFile[] = arr.map(f => ({
+  const addFiles = useCallback(async (rawFiles: FileList | File[]) => {
+    const { checkLimits } = await import("@/lib/api");
+    const limits = await checkLimits();
+    const arr = Array.from(rawFiles);
+    
+    if (!limits.downloads.unlimited) {
+      if (limits.tier === "anonymous") {
+        const anonCount = parseInt(localStorage.getItem("eatbit_anon_processed") || "0", 10);
+        const totalRequested = anonCount + files.length + arr.length;
+        if (totalRequested > 1) {
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: "You can only process 1 file for free. Please login to continue processing." } }));
+          return;
+        }
+        localStorage.setItem("eatbit_anon_processed", totalRequested.toString());
+      } else {
+        if (limits.downloads.remaining <= 0) {
+          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process more files." } }));
+          return;
+        }
+        const totalRequested = files.length + arr.length;
+        if (totalRequested > limits.downloads.remaining) {
+          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
+          return;
+        }
+      }
+    }
+
+    const arrSliced = arr.slice(0, 20);
+    const newEntries: ConvertedFile[] = arrSliced.map(f => ({
       id: Math.random().toString(36).slice(2),
       originalName: f.name,
       originalSize: f.size,
@@ -152,7 +178,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
         setFiles(prev => prev.map(f => f.id === entry.id ? { ...f, status: "error", error: err.message } : f));
       });
     });
-  }, [toFmt, quality]);
+  }, [toFmt, quality, files]);
 
   const reconvertAll = useCallback(() => {
     // Re-convert all existing files with new settings
