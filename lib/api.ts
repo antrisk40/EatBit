@@ -88,9 +88,9 @@ async function apiFetch(
     if (refreshed) return apiFetch(path, options, false);
     tokenStore.clear();
     
-    // Redirect to login if running in browser and we got a 401 we couldn't refresh
-    if (typeof window !== "undefined" && window.location.pathname !== "/login") {
-      window.location.href = "/login";
+    // Dispatch a custom event so the React AuthContext can show the login modal
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("auth_unauthorized"));
     }
   }
   return res;
