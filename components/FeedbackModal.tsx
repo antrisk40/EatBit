@@ -150,12 +150,27 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
                   </div>
 
                   {/* Feedback Text */}
-                  <textarea
-                    placeholder="Tell us what you loved or how we can improve... (optional)"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="w-full h-20 p-3 bg-muted border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-colors resize-none"
-                  />
+                  {rating > 0 && rating < 3 ? (
+                    <div className="space-y-1.5">
+                      <label className="block text-[11px] font-bold text-red-500 uppercase tracking-wider px-1">
+                        We're sorry to hear that! What went wrong?
+                      </label>
+                      <textarea
+                        required
+                        placeholder="Please tell us why so we can fix it... *"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        className="w-full h-20 p-3 bg-red-500/5 border border-red-500/30 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-red-500/70 transition-colors resize-none"
+                      />
+                    </div>
+                  ) : (
+                    <textarea
+                      placeholder="Tell us what you loved or how we can improve... (optional)"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className="w-full h-20 p-3 bg-muted border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-colors resize-none"
+                    />
+                  )}
 
                   {/* Custom Software Ask */}
                   <div className="pt-2 border-t border-border">
