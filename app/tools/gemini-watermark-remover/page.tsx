@@ -437,10 +437,11 @@ export default function GeminiWatermarkRemoverPage() {
         return;
       }
       
-      // Enforce limit per file dropped
-      if (arr.length > limits.downloads.remaining) {
+      // Enforce limit per total files in queue + new files dropped
+      const totalRequested = queue.length + arr.length;
+      if (totalRequested > limits.downloads.remaining) {
         if (limits.tier === "anonymous") {
-          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} more file(s). Please login to continue.` } }));
+          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} file(s) for free. Please login to continue.` } }));
         } else {
           window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
         }
@@ -469,7 +470,7 @@ export default function GeminiWatermarkRemoverPage() {
       });
     }
     if (newItems.length > 0) setQueue((prev) => [...prev, ...newItems]);
-  }, []);
+  }, [queue]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
