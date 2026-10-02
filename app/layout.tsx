@@ -33,6 +33,7 @@ import AuthModal from '@/components/AuthModal'
 import UpgradeModal from '@/components/UpgradeModal'
 import { FaWhatsapp } from 'react-icons/fa'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import ClarityInit from '@/components/ClarityInit'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -203,6 +204,7 @@ export default function RootLayout({
         >
           <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}>
           <AuthProvider>
+          <ClarityInit />
           {/* Global modals — available on every page */}
           <AuthModal />
           <UpgradeModal />
