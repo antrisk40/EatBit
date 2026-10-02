@@ -32,6 +32,7 @@
     "@fontsource/pt-serif-caption": "^5.3.0",
     "@fontsource/roboto": "^5.3.0",
     "@fontsource/scheherazade-new": "^5.3.0",
+    "@microsoft/clarity": "^1.0.2",
     "@pilio/gemini-watermark-remover": "^1.0.43",
     "@radix-ui/react-slot": "^1.2.4",
     "@react-oauth/google": "^0.13.5",
