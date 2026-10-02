@@ -1,5 +1,6 @@
 "use client";
 import { downloadWithGate, canProcessBeforeDownload } from "@/lib/downloadWithGate";
+import FeedbackModal from "@/components/FeedbackModal";
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -132,109 +133,7 @@ function makeId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-interface FeedbackModalProps {
-  onProceed: () => void;
-  onClose: () => void;
-  fileName: string;
-  fileKind: FileKind;
-}
 
-function FeedbackModal({ onProceed, onClose, fileName, fileKind }: FeedbackModalProps) {
-  const [improvements, setImprovements] = useState("");
-  const [needsCustom, setNeedsCustom] = useState<"yes" | "no" | "">("");
-  const [usagePurpose, setUsagePurpose] = useState("");
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const descriptionParts = [
-        improvements ? `Improvements: ${improvements}` : null,
-        usagePurpose ? `Usage Purpose: ${usagePurpose === "fun" ? "Just for Fun" : "Business / Professional"}` : null,
-        needsCustom ? `Needs Custom Software: ${needsCustom === "yes" ? "Yes" : "No"}` : null,
-        fileName ? `File Name: ${fileName}` : null,
-        fileKind ? `File Type: ${fileKind}` : null,
-      ].filter(Boolean);
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ source: "Gemini Watermark Remover Tool", email, description: descriptionParts.join("\n\n"), improvements, needsCustomSoftware: needsCustom, usagePurpose, fileName, fileKind, submitted_at: new Date().toISOString() }),
-      });
-    } catch { /* no-cors */ } finally {
-      setSubmitting(false);
-      setSubmitted(true);
-      setTimeout(onProceed, 1200);
-    }
-  };
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-      <motion.div initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }} transition={{ type: "spring", damping: 22 }} className="bg-background border border-border w-full max-w-lg shadow-2xl shadow-black/50">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <FaCheckCircle className="text-green-400" />
-            <span className="font-bold text-foreground text-sm">Your file is ready to download!</span>
-          </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Close dialog"><FaTimes /></button>
-        </div>
-        <div className="px-6 py-5">
-          {submitted ? (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-center py-6">
-              <FaCheckCircle className="text-green-400 text-3xl mx-auto mb-3" />
-              <p className="font-bold text-foreground">Thanks for your feedback!</p>
-              <p className="text-sm text-muted-foreground mt-1">Starting your download…</p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <p className="text-sm text-muted-foreground leading-relaxed">Before you download, we&apos;d love 30 seconds of your feedback to make this tool better.</p>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-2">What improvements or new tools would you like to see?</label>
-                <textarea value={improvements} onChange={(e) => setImprovements(e.target.value)} rows={3} placeholder="e.g. faster processing, batch support, an AI image generator…" className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 resize-none outline-none focus:border-primary/60 transition-colors placeholder:text-muted-foreground/50" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-2">Are you using this for fun or business?</label>
-                <select required value={usagePurpose} onChange={(e) => setUsagePurpose(e.target.value)} className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary/60 transition-colors">
-                  <option value="" disabled>Select an option</option>
-                  <option value="fun">Just for Fun</option>
-                  <option value="business">Business / Professional</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-3">Do you need custom software built for your business?</label>
-                <div className="flex gap-3">
-                  {(["yes", "no"] as const).map((val) => (
-                    <button key={val} type="button" onClick={() => setNeedsCustom(val)} className={`flex-1 py-2.5 border text-sm font-bold transition-all duration-200 ${needsCustom === val ? (val === "yes" ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" : "bg-muted text-foreground border-foreground/30") : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}>
-                      {val === "yes" ? "✓ Yes, I do!" : "No, thanks"}
-                    </button>
-                  ))}
-                </div>
-                {needsCustom === "yes" && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3 p-3 bg-primary/10 border border-primary/20 text-xs text-primary">
-                    🚀 Great! EatBit builds custom AI tools, SaaS platforms & web apps. We&apos;ll reach out after you submit.
-                  </motion.div>
-                )}
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-2">Email</label>
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary/60 transition-colors placeholder:text-muted-foreground/50" />
-              </div>
-              <div className="flex gap-3 pt-1">
-                <button type="submit" disabled={submitting} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 disabled:opacity-60">
-                  {submitting ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
-                  {submitting ? "Sending…" : "Submit & Download"}
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 interface FileItemCardProps {
   item: FileItem;
@@ -421,7 +320,7 @@ export default function GeminiWatermarkRemoverPage() {
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  const [feedbackFor, setFeedbackFor] = useState<FileItem | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
 
   useEffect(() => {
@@ -600,18 +499,9 @@ export default function GeminiWatermarkRemoverPage() {
   const handleDownload = useCallback(async (id: string) => {
     const item = queue.find((it) => it.id === id);
     if (!item || !item.downloadUrl) return;
-    if (item.kind === "video") {
-      setFeedbackFor(item);
-    } else {
-      await downloadWithGate(item.downloadUrl, item.downloadName);
-}
+    const res = await downloadWithGate(item.downloadUrl, item.downloadName);
+    if (res !== false) setShowFeedback(true);
   }, [queue]);
-
-  const triggerDownloadAfterFeedback = async () => {
-    if (!feedbackFor) return;
-    await downloadWithGate(feedbackFor.downloadUrl!, feedbackFor.downloadName);
-setFeedbackFor(null);
-  };
 
   const handleDownloadZip = async () => {
     const doneItems = queue.filter((it) => it.status === "done" && it.downloadUrl);
@@ -639,13 +529,8 @@ setFeedbackFor(null);
   return (
     <>
       <AnimatePresence>
-        {feedbackFor && (
-          <FeedbackModal
-            onProceed={triggerDownloadAfterFeedback}
-            onClose={() => setFeedbackFor(null)}
-            fileName={feedbackFor.name}
-            fileKind={feedbackFor.kind}
-          />
+        {showFeedback && (
+          <FeedbackModal onClose={() => setShowFeedback(false)} />
         )}
       </AnimatePresence>
 

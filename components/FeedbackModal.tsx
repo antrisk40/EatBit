@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTimes, FaStar } from "react-icons/fa";
+import { FaTimes, FaStar, FaBriefcase, FaPaperPlane, FaSpinner } from "react-icons/fa";
 import { submitFeedback } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
 
@@ -14,6 +14,12 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
   const [rating, setRating] = useState<number>(0);
   const [hovered, setHovered] = useState<number>(0);
   const [message, setMessage] = useState("");
+  const [needsCustom, setNeedsCustom] = useState<"yes" | "no" | "">("");
+  const [budget, setBudget] = useState("");
+  const [requirements, setRequirements] = useState("");
+  const [timeline, setTimeline] = useState("");
+  const [phone, setPhone] = useState("");
+  const [emailOverride, setEmailOverride] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -22,20 +28,46 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
     if (rating === 0) return;
     
     setLoading(true);
+    const isCustom = needsCustom === "yes";
+    const finalEmail = user?.email || emailOverride;
+
     try {
-      await submitFeedback({ rating, message, tool: window.location.pathname });
+      const payload = {
+        rating, message, 
+        tool: window.location.pathname,
+        feedback_type: isCustom ? "custom_software" : "general",
+        budget: isCustom ? budget : undefined,
+        requirements: isCustom ? requirements : undefined,
+        timeline: isCustom ? timeline : undefined,
+        phone: isCustom ? phone : undefined,
+        email_override: emailOverride || undefined
+      };
+      
+      // Submit to Backend CRM
+      await submitFeedback(payload);
+      
+      // Submit to Google Sheet
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ source: "Global Feedback Modal", email: user?.email || "", rating, description: message, tool: window.location.pathname, submitted_at: new Date().toISOString() }),
+          body: JSON.stringify({ 
+            source: "Global Feedback Modal", 
+            email: finalEmail, 
+            rating, 
+            description: message, 
+            needsCustomSoftware: needsCustom,
+            ...(isCustom ? { budget, requirements, timeline, phone } : {}),
+            tool: window.location.pathname, 
+            submitted_at: new Date().toISOString() 
+          }),
         });
       } catch { /* ignore sheet errors */ }
 
       localStorage.setItem("eb_feedback", "submitted"); // Never ask again
       setSubmitted(true);
-      setTimeout(onClose, 2000);
+      setTimeout(onClose, 2500);
     } catch (err) {
       console.error(err);
       setLoading(false);
@@ -43,7 +75,6 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
   };
 
   const skip = () => {
-    // Keep it as a timestamp so it asks again in 3 days
     onClose();
   };
 
@@ -61,7 +92,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-md bg-background border border-border rounded-2xl shadow-2xl overflow-hidden"
+          className="relative w-full max-w-lg bg-background border border-border rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Glow */}
@@ -77,9 +108,9 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
             <FaTimes />
           </button>
 
-          <div className="p-8 relative z-10 text-center">
+          <div className="p-6 md:p-8 relative z-10">
             {submitted ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-6">
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
                   <FaStar className="text-green-400 text-2xl" />
                 </div>
@@ -90,12 +121,12 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
               </motion.div>
             ) : (
               <>
-                <h2 className="text-2xl font-bold text-foreground mb-2">How was your experience?</h2>
-                <p className="text-sm text-muted-foreground mb-6">
+                <h2 className="text-2xl font-bold text-foreground mb-2 text-center">How was your experience?</h2>
+                <p className="text-sm text-muted-foreground mb-6 text-center">
                   We&apos;d love to hear your thoughts on EatBit.
                 </p>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Star Rating */}
                   <div className="flex justify-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -123,10 +154,66 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
                     placeholder="Tell us what you loved or how we can improve... (optional)"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full h-24 p-3 bg-muted border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors resize-none"
+                    className="w-full h-20 p-3 bg-muted border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-colors resize-none"
                   />
 
-                  <div className="flex gap-3">
+                  {/* Custom Software Ask */}
+                  <div className="pt-2 border-t border-border">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-3 text-center">
+                      Do you need custom software built for your business?
+                    </label>
+                    <div className="flex gap-3">
+                      {(["yes", "no"] as const).map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setNeedsCustom(val)}
+                          className={`flex-1 py-2.5 border text-sm font-bold transition-all duration-200 rounded-lg ${
+                            needsCustom === val
+                              ? (val === "yes" ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" : "bg-muted text-foreground border-foreground/30")
+                              : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                          }`}
+                        >
+                          {val === "yes" ? "✓ Yes, I do!" : "No, thanks"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {needsCustom === "yes" && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3 pt-2">
+                      <div className="p-3 bg-primary/10 border border-primary/20 text-xs text-primary rounded-lg flex gap-2 items-center">
+                        <FaBriefcase className="w-4 h-4" /> EatBit builds custom AI tools, SaaS platforms & web apps. Tell us about your project!
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-foreground mb-1">Budget (₹)</label>
+                          <input type="text" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. 50,000 – 2,00,000" className="w-full bg-muted border border-border text-foreground text-xs px-3 py-2 outline-none focus:border-primary/60 transition-colors rounded-lg" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-foreground mb-1">Timeline</label>
+                          <input type="text" value={timeline} onChange={(e) => setTimeline(e.target.value)} placeholder="e.g. 1 month" className="w-full bg-muted border border-border text-foreground text-xs px-3 py-2 outline-none focus:border-primary/60 transition-colors rounded-lg" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-foreground mb-1">Phone (for quick follow-up)</label>
+                        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="w-full bg-muted border border-border text-foreground text-xs px-3 py-2 outline-none focus:border-primary/60 transition-colors rounded-lg" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-foreground mb-1">Describe your requirements</label>
+                        <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} rows={2} placeholder="Describe the app, features, integrations you need…" className="w-full bg-muted border border-border text-foreground text-xs px-3 py-2 resize-none outline-none focus:border-primary/60 transition-colors rounded-lg placeholder:text-muted-foreground/50" />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {!user && (
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-2">Email</label>
+                      <input type="email" required={needsCustom === "yes"} value={emailOverride} onChange={(e) => setEmailOverride(e.target.value)} placeholder="you@example.com" className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary/60 transition-colors rounded-lg placeholder:text-muted-foreground/50" />
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 pt-2">
                     <button
                       type="button"
                       onClick={skip}
@@ -137,9 +224,10 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
                     <button
                       type="submit"
                       disabled={loading || rating === 0}
-                      className="flex-1 py-3 bg-primary text-primary-foreground font-bold rounded-xl text-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground font-bold rounded-xl text-sm hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      {loading ? "Submitting..." : "Submit"}
+                      {loading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
+                      {loading ? "Submitting..." : "Submit Feedback"}
                     </button>
                   </div>
                 </form>

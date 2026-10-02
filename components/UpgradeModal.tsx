@@ -37,7 +37,6 @@ export default function UpgradeModal() {
     }
   }, [showUpgradeModal]);
 
-  if (!showUpgradeModal) return null;
 
   const chosen = plans.find((p) => p.plan === selectedPlan);
 
@@ -202,15 +201,15 @@ export default function UpgradeModal() {
                       <div className="flex items-center justify-center gap-2 mt-1">
                         <FaCalendarAlt className="text-muted-foreground text-xs" />
                         <p className="text-sm text-muted-foreground">
-                          {selectedPlan === "yearly"
-                            ? `per year · ~₹${Math.round((chosen?.price_inr ?? 699) / 12)}/month`
+                          {selectedPlan.includes("yearly")
+                            ? `per year · ~₹${Math.round((chosen?.price_inr ?? 499) / 12)}/month`
                             : "per month · cancel anytime"}
                         </p>
                       </div>
-                      {selectedPlan === "yearly" && (
+                      {selectedPlan.includes("yearly") && (
                         <p className="text-xs text-green-400 font-semibold mt-1 flex items-center justify-center gap-1">
                           <FaTag />
-                          You save ₹{((plans.find(p => p.plan === 'monthly')?.price_inr ?? 99) * 12) - (chosen?.price_inr ?? 699)} vs monthly
+                          You save ₹{((plans.find(p => p.plan.includes('monthly'))?.price_inr ?? 49) * 12) - (chosen?.price_inr ?? 499)} vs monthly
                         </p>
                       )}
                     </motion.div>
@@ -241,7 +240,7 @@ export default function UpgradeModal() {
                     {loading
                       ? "Opening payment…"
                       : user
-                        ? `Get ${selectedPlan === "yearly" ? "Yearly" : "Monthly"} — ₹${chosen?.price_inr ?? ""}`
+                        ? `Get ${selectedPlan.includes("yearly") ? "Yearly" : "Monthly"} — ₹${chosen?.price_inr ?? ""}`
                         : "Sign in to Upgrade"}
                   </button>
                   <p className="text-[10px] text-muted-foreground text-center mt-3">

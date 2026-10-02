@@ -1,5 +1,6 @@
 "use client";
 import { downloadWithGate } from "@/lib/downloadWithGate";
+import FeedbackModal from "@/components/FeedbackModal";
 
 import React, { useState, useRef, useEffect } from "react";
 import Script from "next/script";
@@ -24,105 +25,6 @@ interface PageEntry {
   splitAfter: boolean;
 }
 
-// ─── FEEDBACK MODAL ──────────────────────────────────────────────────────────
-function FeedbackModal({ onProceed, onClose }: { onProceed: () => void; onClose: () => void }) {
-  const [improvements, setImprovements] = useState("");
-  const [usagePurpose, setUsagePurpose] = useState("");
-  const [needsCustom, setNeedsCustom] = useState<"yes" | "no" | "">("");
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST", mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source: "PDF Bundle Tool", email, improvements, usagePurpose, needsCustomSoftware: needsCustom, submitted_at: new Date().toISOString() }),
-      });
-    } catch { /* no-cors always throws */ } finally {
-      setSubmitting(false); setSubmitted(true);
-      setTimeout(onProceed, 1200);
-    }
-  };
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-      <motion.div initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}
-        transition={{ type: "spring", damping: 22 }}
-        className="bg-background border border-border w-full max-w-lg shadow-2xl rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <svg className="text-green-400 w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-            <span className="font-bold text-foreground text-sm">Your PDF is ready to download!</span>
-          </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-        <div className="px-6 py-5">
-          {submitted ? (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-center py-6">
-              <svg className="text-green-400 w-10 h-10 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-              <p className="font-bold text-foreground">Thanks for your feedback!</p>
-              <p className="text-sm text-muted-foreground mt-1">Starting your download…</p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <p className="text-sm text-muted-foreground">Before you download, we'd love 30 seconds of feedback to make this tool better.</p>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-2">What improvements would you like to see?</label>
-                <textarea value={improvements} onChange={e => setImprovements(e.target.value)} rows={3}
-                  placeholder="e.g. compress PDF, add watermarks, password protect…"
-                  className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 resize-none outline-none focus:border-primary/60 rounded-lg placeholder:text-muted-foreground/50" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-2">Are you using this for fun or business?</label>
-                <select required value={usagePurpose} onChange={e => setUsagePurpose(e.target.value)}
-                  className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary/60 rounded-lg">
-                  <option value="" disabled>Select an option</option>
-                  <option value="fun">Just for Fun</option>
-                  <option value="business">Business / Professional</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-3">Do you need custom software built for your business?</label>
-                <div className="flex gap-3">
-                  {(["yes", "no"] as const).map(val => (
-                    <label key={val} className={`flex-1 flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${needsCustom === val ? 'bg-primary/10 border-primary text-primary' : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'}`}>
-                      <input type="radio" name="custom_software" value={val} checked={needsCustom === val} onChange={() => setNeedsCustom(val)} className="hidden" />
-                      <span className="text-sm font-semibold capitalize">{val}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <AnimatePresence>
-                {needsCustom === "yes" && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                    <div className="pt-2">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-2">Leave your email and we'll reach out</label>
-                      <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="hello@company.com"
-                        className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary/60 rounded-lg placeholder:text-muted-foreground/50" />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <div className="pt-2">
-                <button type="submit" disabled={submitting}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2">
-                  {submitting ? <RefreshCw className="w-5 h-5 animate-spin" /> : <><Download className="w-5 h-5" /> Download PDF</>}
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 // ─── MAIN COMPONENT ────────────────────────────────────────────────────────
 export default function BundleClient() {
@@ -222,13 +124,13 @@ export default function BundleClient() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleExportClick = () => {
+  const handleExportClick = async () => {
     if (pages.length === 0) return;
+    await executeExport();
     setShowFeedback(true);
   };
 
   const executeExport = async () => {
-    setShowFeedback(false);
     if (pages.length === 0) return;
 
     // @ts-ignore
@@ -462,7 +364,7 @@ export default function BundleClient() {
       {/* Render Feedback Modal on export */}
       <AnimatePresence>
         {showFeedback && (
-          <FeedbackModal onProceed={executeExport} onClose={() => setShowFeedback(false)} />
+          <FeedbackModal onClose={() => setShowFeedback(false)} />
         )}
       </AnimatePresence>
     </div>

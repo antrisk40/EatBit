@@ -1,5 +1,6 @@
 "use client";
 import { downloadWithGate } from "@/lib/downloadWithGate";
+import FeedbackModal from "@/components/FeedbackModal";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Script from "next/script";
@@ -301,203 +302,6 @@ function sampleHitColors(
 }
 
 // ─── FEEDBACK MODAL ───────────────────────────────────────────────────────────
-function FeedbackModal({
-  onProceed,
-  onClose,
-}: {
-  onProceed: () => void;
-  onClose: () => void;
-}) {
-  const [improvements, setImprovements] = useState("");
-  const [usagePurpose, setUsagePurpose] = useState("");
-  const [needsCustom, setNeedsCustom] = useState<"yes" | "no" | "">("");
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("eatbit_feedback_prefs");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.email) setEmail(parsed.email);
-        if (parsed.usagePurpose) setUsagePurpose(parsed.usagePurpose);
-        if (parsed.needsCustom) setNeedsCustom(parsed.needsCustom);
-      }
-    } catch (e) {}
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    
-    try {
-      localStorage.setItem("eatbit_feedback_prefs", JSON.stringify({ email, usagePurpose, needsCustom }));
-    } catch (e) {}
-
-    try {
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          source: "Free PDF Editor No Signup",
-          email,
-          improvements,
-          usagePurpose,
-          needsCustomSoftware: needsCustom,
-          submitted_at: new Date().toISOString(),
-        }),
-      });
-    } catch {
-      // no-cors always throws
-    } finally {
-      setSubmitting(false);
-      setSubmitted(true);
-      setTimeout(onProceed, 1200);
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm px-4"
-    >
-      <motion.div
-        initial={{ scale: 0.92, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.92, y: 20 }}
-        transition={{ type: "spring", damping: 22 }}
-        className="bg-background border border-border w-full max-w-lg shadow-2xl rounded-2xl overflow-hidden"
-      >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/40">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <span className="font-bold text-foreground text-sm">Your Edited PDF is Ready!</span>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="px-6 py-5">
-          {submitted ? (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-6"
-            >
-              <div className="w-12 h-12 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <p className="font-bold text-foreground text-lg">Thanks for your feedback!</p>
-              <p className="text-sm text-muted-foreground mt-1">Starting your download now…</p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Before downloading, please take 20 seconds to share your thoughts so we can keep this editor 100% free.
-              </p>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-1.5">
-                  What features would you like next?
-                </label>
-                <textarea
-                  value={improvements}
-                  onChange={(e) => setImprovements(e.target.value)}
-                  rows={2}
-                  placeholder="e.g. signature drawing, OCR, form filler…"
-                  className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 resize-none outline-none focus:border-primary rounded-lg placeholder:text-muted-foreground/50"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-1.5">
-                  Personal or business?
-                </label>
-                <select
-                  required
-                  value={usagePurpose}
-                  onChange={(e) => setUsagePurpose(e.target.value)}
-                  className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary rounded-lg"
-                >
-                  <option value="" disabled>Select…</option>
-                  <option value="fun">Personal / Fun</option>
-                  <option value="school">Student / Academic</option>
-                  <option value="business">Work / Business</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-2">
-                  Need custom software built?
-                </label>
-                <div className="flex gap-3">
-                  {(["yes", "no"] as const).map((val) => (
-                    <label
-                      key={val}
-                      className={`flex-1 flex items-center justify-center gap-2 p-2.5 border rounded-lg cursor-pointer transition-all ${
-                        needsCustom === val
-                          ? "bg-primary/15 border-primary text-primary font-bold"
-                          : "bg-muted border-border text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="custom_software"
-                        value={val}
-                        checked={needsCustom === val}
-                        onChange={() => setNeedsCustom(val)}
-                        className="hidden"
-                      />
-                      <span className="text-sm capitalize">{val}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-foreground mb-1.5">
-                  Your work email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@company.com"
-                  className="w-full bg-muted border border-border text-foreground text-sm px-3 py-2 outline-none focus:border-primary rounded-lg placeholder:text-muted-foreground/50"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-3 px-4 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2 mt-2"
-              >
-                {submitting ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    <Download className="w-4 h-4" /> Download Edited PDF
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 // ─── LINK DIALOG ──────────────────────────────────────────────────────────────
 function LinkDialog({
@@ -1357,7 +1161,6 @@ export default function PdfEditorClient() {
       alert("Export failed. Check the console for details.");
     } finally {
       setIsExporting(false);
-      setShowFeedback(false);
     }
   };
 
@@ -1513,7 +1316,7 @@ export default function PdfEditorClient() {
                 className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-background hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground">
                 <Upload className="w-3.5 h-3.5" /> Open New
               </button>
-              <button onClick={() => setShowFeedback(true)} disabled={isExporting}
+              <button onClick={async () => { await executeExport(); setShowFeedback(true); }} disabled={isExporting}
                 className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-primary/20 transition-all active:scale-95 disabled:opacity-60">
                 {isExporting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                 <span>Download PDF</span>
@@ -1817,7 +1620,7 @@ export default function PdfEditorClient() {
       )}
 
       <AnimatePresence>
-        {showFeedback && <FeedbackModal onProceed={executeExport} onClose={() => setShowFeedback(false)} />}
+        {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
       </AnimatePresence>
     </div>
   );
