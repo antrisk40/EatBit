@@ -67,6 +67,16 @@ export const tokenStore = {
   },
 };
 
+const getAnonId = () => {
+  if (typeof window === "undefined") return "unknown";
+  let id = localStorage.getItem("eb_anon_id");
+  if (!id) {
+    id = "anon_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem("eb_anon_id", id);
+  }
+  return id;
+};
+
 // ── Base fetch with auto-refresh ──────────────────────────────────────────────
 
 async function apiFetch(
@@ -77,6 +87,7 @@ async function apiFetch(
   const token = tokenStore.getAccess();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "X-Anonymous-Id": getAnonId(),
     ...(options.headers as Record<string, string>),
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
