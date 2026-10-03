@@ -211,12 +211,12 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-foreground mb-1">Phone (for quick follow-up)</label>
-                        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="w-full bg-muted border border-border text-foreground text-xs px-3 py-2 outline-none focus:border-primary/60 transition-colors rounded-lg" />
+                        <label className="block text-xs font-semibold text-foreground mb-1">Phone (for quick follow-up) <span className="text-red-500">*</span></label>
+                        <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="w-full bg-muted border border-border text-foreground text-xs px-3 py-2 outline-none focus:border-primary/60 transition-colors rounded-lg" />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-foreground mb-1">Describe your requirements</label>
-                        <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} rows={2} placeholder="Describe the app, features, integrations you need…" className="w-full bg-muted border border-border text-foreground text-xs px-3 py-2 resize-none outline-none focus:border-primary/60 transition-colors rounded-lg placeholder:text-muted-foreground/50" />
+                        <label className="block text-xs font-semibold text-foreground mb-1">Describe your requirements <span className="text-red-500">*</span></label>
+                        <textarea required value={requirements} onChange={(e) => setRequirements(e.target.value)} rows={2} placeholder="Describe the app, features, integrations you need…" className="w-full bg-muted border border-border text-foreground text-xs px-3 py-2 resize-none outline-none focus:border-primary/60 transition-colors rounded-lg placeholder:text-muted-foreground/50" />
                       </div>
                     </motion.div>
                   )}
