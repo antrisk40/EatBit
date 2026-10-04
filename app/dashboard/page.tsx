@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
-  FaUser, FaCrown, FaSignOutAlt, FaCalendarAlt, FaTools, FaCheckCircle,
+  FaUser, FaCrown, FaSignOutAlt, FaCalendarAlt, FaTools, FaCheckCircle, FaReceipt
 } from "react-icons/fa";
 import { useAuth } from "@/components/AuthProvider";
 
@@ -135,6 +135,50 @@ export default function DashboardPage() {
             ))}
           </div>
         </motion.div>
+
+        {/* Payment History */}
+        {user.payment_history && user.payment_history.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="rounded-2xl border border-border bg-muted/30 p-6"
+          >
+            <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <FaReceipt className="text-primary" /> Payment History
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-3 rounded-l-lg">Date</th>
+                    <th className="px-4 py-3">Plan</th>
+                    <th className="px-4 py-3">Amount</th>
+                    <th className="px-4 py-3 rounded-r-lg">Transaction ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {user.payment_history.map((payment) => (
+                    <tr key={payment.payment_id} className="border-b border-border/50 last:border-0">
+                      <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">
+                        {new Date(payment.paid_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      </td>
+                      <td className="px-4 py-3 capitalize">
+                        {payment.plan.replace('_', ' ')}
+                      </td>
+                      <td className="px-4 py-3 text-green-400 font-semibold">
+                        ₹{(payment.amount_inr / 100).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs font-mono">
+                        {payment.payment_id}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        )}
 
         {/* Sign out */}
         <motion.div
