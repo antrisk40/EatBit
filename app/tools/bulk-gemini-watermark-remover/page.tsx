@@ -431,7 +431,19 @@ export default function BulkGeminiWatermarkRemoverPage() {
           }
           return;
         }
-        run(next).finally(() => setActiveItemId(null));
+        const start = Date.now();
+        run(next).finally(() => {
+          setActiveItemId(null);
+          import("@/lib/api").then(({ trackUsage }) => {
+            trackUsage({
+              tool: window.location.pathname.split('/').pop() || "unknown",
+              file_name: next.name,
+              file_type: next.kind || "image",
+              file_size_bytes: next.file.size,
+              processing_ms: Date.now() - start
+            });
+          }).catch(() => {});
+        });
       });
     });
   }, [queue, activeItemId, processImageItem, processVideoItem, updateItem]);

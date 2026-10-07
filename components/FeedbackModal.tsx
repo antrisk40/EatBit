@@ -14,6 +14,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
   const [rating, setRating] = useState<number>(0);
   const [hovered, setHovered] = useState<number>(0);
   const [message, setMessage] = useState("");
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [needsCustom, setNeedsCustom] = useState<"yes" | "no" | "">("");
   const [budget, setBudget] = useState("");
   const [requirements, setRequirements] = useState("");
@@ -44,7 +45,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
       };
       
       // Submit to Backend CRM
-      await submitFeedback(payload);
+      await submitFeedback(payload, mediaFile || undefined);
       
       // Submit to Google Sheet
       try {
@@ -162,6 +163,17 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
                         onChange={(e) => setMessage(e.target.value)}
                         className="w-full h-20 p-3 bg-red-500/5 border border-red-500/30 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-red-500/70 transition-colors resize-none"
                       />
+                      <div className="pt-2">
+                        <label className="block text-[11px] font-bold text-red-500 uppercase tracking-wider px-1 mb-1">
+                          (Optional) Add a screenshot or video
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*,video/*"
+                          onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
+                          className="w-full text-xs text-foreground file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-red-500/10 file:text-red-500 hover:file:bg-red-500/20 cursor-pointer"
+                        />
+                      </div>
                     </div>
                   ) : (
                     <textarea

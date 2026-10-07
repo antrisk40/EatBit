@@ -278,13 +278,61 @@ export type DownloadResult =
   | { allowed: true;  limits: UsageLimits }
   | { allowed: false; code: "signup_required" | "upgrade_required"; message: string; limits: UsageLimits };
 
-export async function submitFeedback(payload: { rating: number; message?: string; tool?: string }) {
-  const res = await apiFetch("/tools/feedback", {
+export async function submitFeedback(payload: { rating: number; message?: string; tool?: string }, file?: File) {
+  let body: any;
+  let headers: any = {};
+  
+  if (file && payload.rating <= 2) {
+    body = new FormData();
+    body.append("rating", payload.rating.toString());
+    if (payload.message) body.append("message", payload.message);
+    if (payload.tool) body.append("tool", payload.tool);
+    body.append("media_file", file);
+    // When using FormData, let the browser set the Content-Type with the boundary
+    headers = { "Content-Type": undefined };
+  } else {
+    body = JSON.stringify(payload);
+    headers = { "Content-Type": "application/json" };
+  }
+  
+  const token = tokenStore.getAccess();
+  const reqHeaders: any = {
+    "X-Anonymous-Id": getAnonId(),
+    ...headers
+  };
+  if (token) reqHeaders["Authorization"] = `Bearer ${token}`;
+  if (reqHeaders["Content-Type"] === undefined) {
+    delete reqHeaders["Content-Type"];
+  }
+
+  const res = await fetch(`${API_BASE}/tools/feedback`, {
     method: "POST",
-    body: JSON.stringify(payload),
+    headers: reqHeaders,
+    body,
   });
   if (!res.ok) throw new Error("Failed to submit feedback");
   return res.json();
+}
+
+export interface TrackUsagePayload {
+  tool: string;
+  file_name: string;
+  file_type: "image" | "video" | "other";
+  file_size_bytes?: number;
+  processing_ms?: number;
+  output_format?: string;
+  session_id?: string;
+}
+
+export async function trackUsage(payload: TrackUsagePayload) {
+  try {
+    await apiFetch("/tools/track-usage", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  } catch (e) {
+    console.error("Failed to track usage", e);
+  }
 }
 
 export async function recordDownload(): Promise<DownloadResult> {

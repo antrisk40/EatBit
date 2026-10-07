@@ -180,10 +180,14 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
     // Start converting
     newEntries.forEach((entry, i) => {
       const file = arr[i];
+      const start = Date.now();
       setFiles(prev => prev.map(f => f.id === entry.id ? { ...f, status: "converting" } : f));
       convertFile(file, toFmt, quality).then(blob => {
         const url = URL.createObjectURL(blob);
         setFiles(prev => prev.map(f => f.id === entry.id ? { ...f, status: "done", convertedBlob: blob, convertedUrl: url, convertedSize: blob.size } : f));
+        import("@/lib/api").then(({ trackUsage }) => trackUsage({
+           tool: window.location.pathname.split('/').pop() || "image-converter", file_name: file.name, file_type: "image", file_size_bytes: file.size, processing_ms: Date.now() - start, output_format: toFmt
+        })).catch(() => {});
       }).catch(err => {
         setFiles(prev => prev.map(f => f.id === entry.id ? { ...f, status: "error", error: err.message } : f));
       });
