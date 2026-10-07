@@ -470,6 +470,16 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
       const a = document.createElement("a");
       a.href = objUrl; a.download = "qr-code." + ext;
       await downloadWithGate(objUrl, "qr-code." + ext);
+      
+      const toolName = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() || "qr-code-generator" : "qr-code-generator";
+      import("@/lib/api").then(m => m.trackUsage({
+        tool: toolName,
+        file_name: "qr-code." + ext,
+        file_type: "image",
+        file_size_bytes: blob.size,
+        processing_ms: 300
+      }).catch(()=>{}));
+
       setTimeout(() => URL.revokeObjectURL(objUrl), 4000);
     }, mime, 0.95);
   };
@@ -540,6 +550,16 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
     const a = document.createElement("a");
     a.href = objUrl; a.download = "qr-code.svg";
     await downloadWithGate(a.href, a.download);
+
+    const toolName = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() || "qr-code-generator" : "qr-code-generator";
+    import("@/lib/api").then(m => m.trackUsage({
+      tool: toolName,
+      file_name: a.download,
+      file_type: "image",
+      file_size_bytes: blob.size,
+      processing_ms: 300
+    }).catch(()=>{}));
+
     setTimeout(() => URL.revokeObjectURL(objUrl), 4000);
   };
 

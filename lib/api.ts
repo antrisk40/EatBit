@@ -317,7 +317,7 @@ export async function submitFeedback(payload: { rating: number; message?: string
 export interface TrackUsagePayload {
   tool: string;
   file_name: string;
-  file_type: "image" | "video" | "other";
+  file_type: "image" | "video" | "pdf" | "other";
   file_size_bytes?: number;
   processing_ms?: number;
   output_format?: string;

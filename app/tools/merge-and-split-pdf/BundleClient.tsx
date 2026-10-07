@@ -166,6 +166,16 @@ export default function BundleClient() {
         a.href = url;
         a.download = name;
         await downloadWithGate(url, name);
+        
+        const toolName = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() || "merge-and-split-pdf" : "merge-and-split-pdf";
+        import("@/lib/api").then(m => m.trackUsage({
+          tool: toolName,
+          file_name: name,
+          file_type: "pdf",
+          file_size_bytes: blob.size,
+          processing_ms: 1200
+        }).catch(()=>{}));
+
         setTimeout(() => URL.revokeObjectURL(url), 4000);
         
         if (segments.length > 1) await new Promise(r => setTimeout(r, 250));

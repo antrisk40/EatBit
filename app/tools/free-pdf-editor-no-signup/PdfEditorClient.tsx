@@ -1155,6 +1155,16 @@ export default function PdfEditorClient() {
       const blob = new Blob([bytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       await downloadWithGate(url, (baseFileName || "edited-document").replace(/\.pdf$/i, "") + ".pdf");
+      
+      const toolName = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() || "pdf-editor" : "pdf-editor";
+      import("@/lib/api").then(m => m.trackUsage({
+        tool: toolName,
+        file_name: (baseFileName || "edited-document").replace(/\.pdf$/i, "") + ".pdf",
+        file_type: "pdf",
+        file_size_bytes: blob.size,
+        processing_ms: 1500
+      }).catch(()=>{}));
+
       setTimeout(() => URL.revokeObjectURL(url), 4000);
     } catch (err) {
       console.error("Export failed:", err);
