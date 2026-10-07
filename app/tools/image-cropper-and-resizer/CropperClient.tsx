@@ -131,6 +131,16 @@ export default function CropperClient() {
       const ext = activeFormat === 'jpeg' ? 'jpg' : activeFormat;
       a.download = `cropped-image.${ext}`;
       await downloadWithGate(url, a.download);
+      
+      // Track usage
+      import("@/lib/api").then(({ trackUsage }) => trackUsage({
+        tool: "image-cropper",
+        file_name: a.download,
+        file_type: "image",
+        file_size_bytes: blob.size,
+        output_format: ext
+      })).catch(console.error);
+
       setTimeout(() => URL.revokeObjectURL(url), 4000);
     }, mime, q);
   };
