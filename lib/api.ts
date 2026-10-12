@@ -278,37 +278,41 @@ export type DownloadResult =
   | { allowed: true;  limits: UsageLimits }
   | { allowed: false; code: "signup_required" | "upgrade_required"; message: string; limits: UsageLimits };
 
-export async function submitFeedback(payload: { rating: number; message?: string; tool?: string }, file?: File) {
-  let body: any;
-  let headers: any = {};
-  
+export interface FeedbackPayload {
+  rating: number;
+  message?: string;
+  tool?: string;
+  feedback_type?: string;
+  budget?: string;
+  requirements?: string;
+  timeline?: string;
+  phone?: string;
+  email_override?: string;
+}
+
+export async function submitFeedback(payload: FeedbackPayload, file?: File) {
+  // Backend uses Form(...) — always send multipart/form-data, never JSON
+  const form = new FormData();
+  Object.entries(payload).forEach(([key, val]) => {
+    if (val !== undefined && val !== null && val !== "") {
+      form.append(key, String(val));
+    }
+  });
   if (file && payload.rating <= 2) {
-    body = new FormData();
-    body.append("rating", payload.rating.toString());
-    if (payload.message) body.append("message", payload.message);
-    if (payload.tool) body.append("tool", payload.tool);
-    body.append("media_file", file);
-    // When using FormData, let the browser set the Content-Type with the boundary
-    headers = { "Content-Type": undefined };
-  } else {
-    body = JSON.stringify(payload);
-    headers = { "Content-Type": "application/json" };
+    form.append("media_file", file);
   }
-  
+
   const token = tokenStore.getAccess();
-  const reqHeaders: any = {
+  const reqHeaders: Record<string, string> = {
     "X-Anonymous-Id": getAnonId(),
-    ...headers
   };
   if (token) reqHeaders["Authorization"] = `Bearer ${token}`;
-  if (reqHeaders["Content-Type"] === undefined) {
-    delete reqHeaders["Content-Type"];
-  }
+  // Do NOT set Content-Type — browser sets it automatically with the multipart boundary
 
   const res = await fetch(`${API_BASE}/tools/feedback`, {
     method: "POST",
     headers: reqHeaders,
-    body,
+    body: form,
   });
   if (!res.ok) throw new Error("Failed to submit feedback");
   return res.json();
