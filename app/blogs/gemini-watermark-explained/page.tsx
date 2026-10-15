@@ -222,8 +222,8 @@ export default function GeminiWatermarkExplainedPage() {
             <h2 className="text-lg font-extrabold text-foreground mb-4">Related reading</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { href: "/blog/how-to-remove-gemini-watermark", title: "How to Remove a Gemini Watermark", desc: "Step-by-step guide using the free EatBit browser tool." },
-                { href: "/blog/gemini-watermark-vs-synthid", title: "Gemini Watermark vs SynthID", desc: "The critical distinction between visible and invisible AI watermarks." },
+                { href: "/blogs/how-to-remove-gemini-watermark", title: "How to Remove a Gemini Watermark", desc: "Step-by-step guide using the free EatBit browser tool." },
+                { href: "/blogs/gemini-watermark-vs-synthid", title: "Gemini Watermark vs SynthID", desc: "The critical distinction between visible and invisible AI watermarks." },
               ].map((a) => (
                 <Link key={a.href} href={a.href} className="group border border-border bg-background p-5 hover:border-primary/40 transition-all duration-200">
                   <p className="font-bold text-foreground text-sm mb-1 group-hover:text-primary transition-colors">{a.title}</p>

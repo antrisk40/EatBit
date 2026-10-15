@@ -819,7 +819,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
             <div className="text-muted-foreground space-y-4 text-sm leading-7">
               <p>When Google Gemini generates images or videos, it embeds a visible semi-transparent logo watermark in the bottom-right corner. This tool uses an open-source <strong className="text-foreground">Reverse Alpha Blending</strong> algorithm to mathematically reconstruct the original pixels beneath the watermark — not AI inpainting — for lossless, pixel-perfect results.</p>
               <p>For <strong className="text-foreground">videos</strong>, each frame is processed individually using Canvas API and an optional ONNX AI denoising model (running via WebAssembly), then remuxed back into MP4. No data ever leaves your browser tab.</p>
-              <p>It&apos;s important to note: this tool targets the <strong className="text-foreground">visible Gemini overlay watermark only</strong>. It does not remove SynthID — Google DeepMind&apos;s invisible cryptographic provenance watermark, which is embedded at the pixel level and cannot be removed by any browser-based tool. Want to understand the difference in depth?{" "}<Link href="/blog/gemini-watermark-vs-synthid" className="text-primary underline underline-offset-4 hover:opacity-80 transition-opacity">Read our explainer →</Link></p>
+              <p>It&apos;s important to note: this tool targets the <strong className="text-foreground">visible Gemini overlay watermark only</strong>. It does not remove SynthID — Google DeepMind&apos;s invisible cryptographic provenance watermark, which is embedded at the pixel level and cannot be removed by any browser-based tool. Want to understand the difference in depth?{" "}<Link href="/blogs/gemini-watermark-vs-synthid" className="text-primary underline underline-offset-4 hover:opacity-80 transition-opacity">Read our explainer →</Link></p>
             </div>
           </motion.div>
         </div>
@@ -899,9 +899,9 @@ export default function BulkGeminiWatermarkRemoverPage() {
             <h2 className="text-xl font-extrabold text-foreground mb-6">Learn More About <span className="text-primary">Bulk Watermark Removal</span></h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { href: "/blog/how-to-remove-gemini-watermark", title: "How to Remove a Gemini Watermark", desc: "Step-by-step guide to using this tool and understanding what gets removed." },
-                { href: "/blog/gemini-watermark-explained", title: "What Is the Gemini Watermark?", desc: "Where it appears, why Google adds it, and what it looks like." },
-                { href: "/blog/gemini-watermark-vs-synthid", title: "Gemini Watermark vs SynthID", desc: "The critical distinction between the visible overlay and invisible cryptographic provenance." },
+                { href: "/blogs/how-to-remove-gemini-watermark", title: "How to Remove a Gemini Watermark", desc: "Step-by-step guide to using this tool and understanding what gets removed." },
+                { href: "/blogs/gemini-watermark-explained", title: "What Is the Gemini Watermark?", desc: "Where it appears, why Google adds it, and what it looks like." },
+                { href: "/blogs/gemini-watermark-vs-synthid", title: "Gemini Watermark vs SynthID", desc: "The critical distinction between the visible overlay and invisible cryptographic provenance." },
               ].map((article) => (
                 <Link key={article.href} href={article.href} className="group border border-border bg-background p-5 hover:border-primary/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
                   <h3 className="font-bold text-foreground text-sm mb-2 group-hover:text-primary transition-colors">{article.title}</h3>
