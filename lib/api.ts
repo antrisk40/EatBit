@@ -318,6 +318,33 @@ export async function submitFeedback(payload: FeedbackPayload, file?: File) {
   return res.json();
 }
 
+export interface FeedbackReview {
+  id: string;
+  rating: number;
+  message: string | null;
+  name: string | null;
+  created_at: string;
+}
+
+export interface ToolFeedbackSummary {
+  average: number;
+  total: number;
+  distribution: Record<string, number>; // e.g. { "5": 120, "4": 40, ... }
+  reviews: FeedbackReview[];
+}
+
+export async function getToolFeedback(toolSlug: string): Promise<ToolFeedbackSummary | null> {
+  try {
+    const res = await fetch(`${API_BASE}/tools/feedback/${toolSlug}`, {
+      next: { revalidate: 300 }, // cache 5 min
+    } as RequestInit);
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 export interface TrackUsagePayload {
   tool: string;
   file_name: string;

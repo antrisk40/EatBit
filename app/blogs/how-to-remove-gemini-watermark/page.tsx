@@ -112,6 +112,36 @@ export default function HowToRemoveGeminiWatermarkPage() {
             <p>
               The result? Zero blur, zero smudge, and 100% original quality.
             </p>
+
+            {/* Proof Images Showcase */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6 not-prose">
+              <div className="rounded-xl overflow-hidden border border-border bg-card shadow-md">
+                <Image
+                  src="/assets/gemini-watermark-remover/watermark-removed-cartoon.webp"
+                  alt="Proof of Gemini watermark cleanly removed from AI cartoon illustration with squirrel and bear using EatBit Reverse Alpha Blending"
+                  width={1024}
+                  height={572}
+                  className="w-full h-auto object-cover"
+                />
+                <div className="p-3 text-xs text-muted-foreground flex items-center justify-between border-t border-border">
+                  <span className="font-medium text-foreground">3D Cartoon Generation</span>
+                  <span className="text-green-400 font-semibold">✓ Zero Blur Artifacts</span>
+                </div>
+              </div>
+              <div className="rounded-xl overflow-hidden border border-border bg-card shadow-md">
+                <Image
+                  src="/assets/gemini-watermark-remover/watermark-removed-students.webp"
+                  alt="Proof of Gemini watermark cleanly removed from photorealistic university students AI generation using EatBit Reverse Alpha Blending"
+                  width={1024}
+                  height={687}
+                  className="w-full h-auto object-cover"
+                />
+                <div className="p-3 text-xs text-muted-foreground flex items-center justify-between border-t border-border">
+                  <span className="font-medium text-foreground">Photorealistic Generation</span>
+                  <span className="text-green-400 font-semibold">✓ Grain & Texture Restored</span>
+                </div>
+              </div>
+            </div>
           </section>
 
           <section>
