@@ -1,75 +1,56 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { CANONICAL_TOOLS } from "@/lib/tools-catalog";
 
 export const metadata: Metadata = {
-  title: "Free Online PDF & Image Tools | EatBit",
-  description: "Edit, merge, split, compress, sign, and convert PDF and image files directly in your browser. 100% free and secure.",
+  title: "Free Browser Tools for Images, PDFs & QR Codes | EatBit",
+  description:
+    "Use EatBit’s privacy-first image converter, PDF editor, QR generator, and Gemini watermark remover. Files stay on your device. Maintained as real products, not keyword pages.",
+  alternates: { canonical: "https://eatbit.in/tools" },
 };
 
-export default function ToolsHubPage() {
-  const toolCategories = [
-    {
-      title: "Popular PDF Tools",
-      tools: [
-        { name: "Edit PDF Online", path: "/tools/edit-pdf-text-online", icon: "✏️", desc: "Edit text and images directly in your browser." },
-        { name: "Add Text to PDF", path: "/tools/add-text-to-pdf", icon: "📝", desc: "Type on any PDF document." },
-        { name: "Sign PDF", path: "/tools/sign-pdf-online", icon: "✍️", desc: "Draw or upload your signature." },
-        { name: "Annotate PDF", path: "/tools/annotate-pdf", icon: "🔗", desc: "Highlight text and add shapes." },
-        { name: "Merge & Split PDF", path: "/tools/merge-and-split-pdf", icon: "📑", desc: "Combine or separate PDF pages." },
-      ]
-    },
-    {
-      title: "Image Converters",
-      tools: [
-        { name: "JPG to PNG", path: "/tools/jpg-to-png-converter", icon: "🟠", desc: "Convert JPG to transparent PNG." },
-        { name: "PNG to JPG", path: "/tools/png-to-jpg-converter", icon: "🔵", desc: "Convert PNG to optimized JPG." },
-        { name: "WebP to JPG", path: "/tools/webp-to-jpg-converter", icon: "🌐", desc: "Convert WebP images to JPG." },
-        { name: "HEIC to JPG", path: "/tools/heic-to-jpg-converter", icon: "📱", desc: "Convert iPhone photos to JPG." },
-      ]
-    },
-    {
-      title: "Image Tools",
-      tools: [
-        { name: "Watermark Remover", path: "/tools/gemini-watermark-remover", icon: "✨", desc: "AI-powered watermark removal." },
-        { name: "Image Cropper", path: "/tools/image-cropper-and-resizer", icon: "🖼️", desc: "Crop and resize images instantly." },
-      ]
-    },
-    {
-      title: "QR Code Generators",
-      tools: [
-        { name: "All QR Codes", path: "/tools/qr-code-generator", icon: "📱", desc: "Generate any type of QR code." },
-        { name: "WiFi QR", path: "/tools/wifi-qr-code-generator", icon: "📶", desc: "Share your WiFi network." },
-        { name: "WhatsApp QR", path: "/tools/whatsapp-qr-code-generator", icon: "🟢", desc: "Start WhatsApp chats easily." },
-        { name: "PDF QR", path: "/tools/pdf-qr-code-generator", icon: "📄", desc: "Link directly to a PDF file." },
-      ]
-    }
-  ];
+const categories = ["Image", "PDF", "QR"] as const;
 
+export default function ToolsHubPage() {
   return (
     <div className="pt-24 pb-20 min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
-            Free Online PDF & Image Tools
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Edit, merge, split, compress, sign, and convert PDF and image files directly in your browser. No installation or registration required.
+        <div className="text-center mb-16 max-w-3xl mx-auto">
+          <p className="text-xs font-bold uppercase tracking-widest text-primary mb-3">
+            Last reviewed 15 October 2026
           </p>
-          <Button size="lg" className="rounded-none font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-transform" asChild>
-            <Link href="/tools/free-pdf-editor-no-signup">Launch PDF Editor</Link>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
+            Tools we actually maintain
+          </h1>
+          <p className="text-lg text-muted-foreground mb-8">
+            Each listing below is a distinct product with its own interface and code path.
+            Conversion, PDF edits, and QR generation run in your browser — files are not uploaded
+            to EatBit servers. We collapsed lookalike landing pages so you land on the real tool
+            instead of a keyword wrapper.
+          </p>
+          <Button size="lg" className="rounded-none font-bold shadow-xl shadow-primary/20" asChild>
+            <Link href="/tools/free-pdf-editor-no-signup">Open the PDF editor</Link>
           </Button>
         </div>
 
         <div className="space-y-16">
-          {toolCategories.map((category, idx) => (
-            <div key={idx}>
-              <h2 className="text-2xl font-bold mb-6 text-foreground border-b border-border pb-2">{category.title}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {category.tools.map((tool, i) => (
-                  <Link href={tool.path} key={i} className="group block bg-card border border-border p-6 rounded-2xl hover:border-primary/50 hover:shadow-md transition-all">
-                    <div className="text-3xl mb-4 group-hover:scale-110 transition-transform origin-left">{tool.icon}</div>
-                    <h3 className="font-bold text-foreground mb-2 group-hover:text-primary transition-colors">{tool.name}</h3>
+          {categories.map((category) => (
+            <div key={category}>
+              <h2 className="text-2xl font-bold mb-6 text-foreground border-b border-border pb-2">
+                {category} tools
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {CANONICAL_TOOLS.filter((tool) => tool.category === category).map((tool) => (
+                  <Link
+                    key={tool.id}
+                    href={tool.path}
+                    className="group block bg-card border border-border p-6 rounded-2xl hover:border-primary/50 hover:shadow-md transition-all"
+                  >
+                    <div className="text-3xl mb-4">{tool.icon}</div>
+                    <h3 className="font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                      {tool.title}
+                    </h3>
                     <p className="text-sm text-muted-foreground">{tool.desc}</p>
                   </Link>
                 ))}
@@ -77,6 +58,39 @@ export default function ToolsHubPage() {
             </div>
           ))}
         </div>
+
+        <section className="mt-20 max-w-3xl mx-auto space-y-6 text-muted-foreground leading-relaxed">
+          <h2 className="text-2xl font-bold text-foreground text-center">How these tools work</h2>
+          <p>
+            Image conversion uses the Canvas API (and heic2any for iPhone photos). PDF editing uses
+            pdf.js for rendering and pdf-lib for export. QR codes are drawn with qrcode-generator in
+            the page. That is why conversions start immediately and why we can say we do not receive
+            the file contents.
+          </p>
+          <p>
+            If you need a format pair such as HEIC to JPG or PNG to WebP, open the{" "}
+            <Link href="/tools/image-converter" className="text-primary underline">
+              image converter
+            </Link>{" "}
+            and set both dropdowns. WiFi, WhatsApp, vCard, email, and PDF codes live as tabs on the{" "}
+            <Link href="/tools/qr-code-generator" className="text-primary underline">
+              QR generator
+            </Link>
+            . Signing, annotating, and editing PDF text are tools inside the{" "}
+            <Link href="/tools/free-pdf-editor-no-signup" className="text-primary underline">
+              PDF editor
+            </Link>
+            .
+          </p>
+          <p>
+            We keep this hub short on purpose. Guides with original write-ups live on the{" "}
+            <Link href="/blogs" className="text-primary underline">
+              blog
+            </Link>
+            — watermark detection, SynthID vs visible sparkles, privacy-first cropping, and how the
+            PDF editor compares to upload-based products.
+          </p>
+        </section>
       </div>
     </div>
   );

@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { servicesData } from "@/lib/data/services";
 import { portfolioData } from "@/lib/data/portfolio";
-import { faqData, blogTopics, usps, localSeo } from "@/lib/data/faqs-blogs";
+import { faqData, usps } from "@/lib/data/faqs-blogs";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiNodedotjs, SiExpress, SiNestjs, SiPython, SiAndroid, SiIos, SiSwift, SiPostgresql, SiMongodb, SiRedis, SiMysql, SiDocker, SiGooglecloud, SiOpenai } from "react-icons/si";
-import { FaAws, FaLaptopCode, FaMobileAlt, FaRobot, FaCloud, FaDatabase, FaCogs, FaShoppingCart, FaHospital, FaHamburger, FaPaintBrush, FaStar, FaCode, FaUsers, FaLock, FaRocket, FaHandshake, FaChartLine, FaSearch, FaClipboardList, FaBug, FaHeadset, FaMapMarkerAlt, FaQuoteRight, FaChevronDown, FaArrowRight, FaServer, FaCheck } from "react-icons/fa";
+import { FaAws, FaLaptopCode, FaMobileAlt, FaRobot, FaCloud, FaDatabase, FaCogs, FaShoppingCart, FaHospital, FaHamburger, FaPaintBrush, FaStar, FaCode, FaUsers, FaLock, FaRocket, FaHandshake, FaChartLine, FaSearch, FaClipboardList, FaBug, FaHeadset, FaQuoteRight, FaChevronDown, FaArrowRight, FaServer, FaCheck } from "react-icons/fa";
 
 const getUspIcon = (idx: number) => {
    const icons = [
@@ -105,9 +105,11 @@ export default function Home() {
                      <Button className="rounded-none font-bold px-6 py-5 shadow-xl shadow-primary/20 hover:scale-105 transition-all" asChild>
                         <Link href="/contact-us">Get Free Consultation</Link>
                      </Button>
-                     <Button variant="outline" className="bg-background rounded-none font-bold px-6 py-5 gap-2 group hover:border-primary/50 transition-all">
-                        View Case Studies
-                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                     <Button variant="outline" className="bg-background rounded-none font-bold px-6 py-5 gap-2 group hover:border-primary/50 transition-all" asChild>
+                        <Link href="/samples">
+                          View Case Studies
+                          <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                        </Link>
                      </Button>
                   </motion.div>
 
@@ -513,23 +515,6 @@ export default function Home() {
          </div>
       </section>
 
-      {/* ----------------- LOCAL SEO SECTION ----------------- */}
-      <section className="py-16 bg-muted/30 border-y border-border">
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center lg:text-left">
-               {localSeo.map((item, idx) => (
-                  <div key={idx}>
-                     <h4 className="font-bold text-foreground mb-2 flex flex-col sm:flex-row items-center lg:items-start gap-2">
-                        <FaMapMarkerAlt className="text-red-500" size={20} />
-                        {item.service} in {item.location}
-                     </h4>
-                     <p className="text-sm text-muted-foreground">{item.desc}</p>
-                  </div>
-               ))}
-            </div>
-         </div>
-      </section>
-
       {/* ----------------- FAQ SECTION ----------------- */}
       <section className="py-24 bg-transparent">
          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -582,20 +567,24 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-               {blogTopics.slice(0, 4).map((topic, idx) => (
+               {[
+                  { title: "How to Remove the Gemini Watermark Free with Zero Blur", href: "/blogs/how-to-remove-gemini-watermark" },
+                  { title: "SynthID vs. Visible Sparkles: Understanding Gemini Watermarks", href: "/blogs/gemini-watermark-vs-synthid" },
+                  { title: "The Best Free PDF Editor with No Sign-Up Required", href: "/blogs/best-free-pdf-editor-no-signup" },
+                  { title: "Why Your Image Tools Should Be Privacy-First", href: "/blogs/why-privacy-first-image-cropper" },
+               ].map((topic) => (
+                  <Link key={topic.href} href={topic.href}>
                   <motion.div 
-                     key={idx}
                      initial={{ opacity: 0, scale: 0.95 }}
                      whileInView={{ opacity: 1, scale: 1 }}
                      viewport={{ once: true }}
-                     className="bg-background rounded-none overflow-hidden border border-border hover:border-primary/50 transition-all cursor-pointer group flex flex-col"
+                     className="bg-background rounded-none overflow-hidden border border-border hover:border-primary/50 transition-all group flex flex-col h-full"
                   >
-
                      <div className="p-6 flex-1 flex flex-col justify-between">
                         <div>
                            <div className="text-xs font-bold text-primary mb-3 uppercase tracking-wider">Article</div>
                            <h4 className="font-bold text-foreground group-hover:text-primary transition-colors mb-4 line-clamp-3">
-                              {topic}
+                              {topic.title}
                            </h4>
                         </div>
                         <div className="flex items-center text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
@@ -603,10 +592,13 @@ export default function Home() {
                         </div>
                      </div>
                   </motion.div>
+                  </Link>
                ))}
             </div>
             <div className="mt-12 text-center">
-               <Button variant="outline" className="rounded-none px-8">View All {blogTopics.length} Articles</Button>
+               <Button variant="outline" className="rounded-none px-8" asChild>
+                  <Link href="/blogs">View all articles</Link>
+               </Button>
             </div>
          </div>
       </section>

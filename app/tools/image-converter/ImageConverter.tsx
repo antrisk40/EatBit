@@ -242,25 +242,27 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
         {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
       </AnimatePresence>
 
-      <div className="min-h-screen bg-background text-foreground py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[90rem] mx-auto">
+      <div className="relative min-h-screen bg-background text-foreground">
+        {/* Background dot pattern across full page */}
+        <div className="absolute inset-0 z-0 opacity-[0.05] bg-[radial-gradient(#EA8C32_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+        <div className="absolute top-0 left-0 w-[600px] h-[350px] bg-primary/8 blur-[140px] rounded-full pointer-events-none" />
+        <div className="relative z-10 max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
             <div className="flex-1 min-w-0">
 
               {/* Hero */}
-              <div className="mb-12 text-center md:text-left">
-                <div className="flex flex-wrap gap-2 items-center justify-center md:justify-start mb-6">
-                  {["No sign-up", "Runs in your browser", "Images never uploaded", "Batch up to 20 files"].map(t => (
-                    <span key={t} className="px-3 py-1 text-xs font-medium border border-border rounded-full bg-secondary/50 text-secondary-foreground">{t}</span>
-                  ))}
+              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="mb-10">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-muted border border-border font-bold text-[10px] mb-5 uppercase tracking-wider text-foreground">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  No sign-up &nbsp;&middot;&nbsp; Runs in your browser &nbsp;&middot;&nbsp; Images never uploaded &nbsp;&middot;&nbsp; Batch up to 20 files
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 max-w-3xl">
-                  {heroTitle ?? "Free Image Converter — JPG, PNG, WebP, HEIC & more"}
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 leading-tight">
+                  <span className="text-primary">{heroTitle ? heroTitle.split(' ')[0] : 'Free'}</span> {heroTitle ? heroTitle.split(' ').slice(1).join(' ') : 'Image Converter — JPG, PNG, WebP, HEIC & more'}
                 </h1>
-                <p className="text-lg text-muted-foreground max-w-2xl">
+                <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
                   {heroDesc ?? <>Convert images between <strong className="text-foreground">JPG, PNG, WebP, BMP, GIF, HEIC and SVG</strong> formats instantly. Supports <strong className="text-foreground">batch conversion</strong> of up to 20 files at once. All processing happens in your browser — your images are never uploaded to any server.</>}
                 </p>
-              </div>
+              </motion.div>
 
               {/* Controls */}
               <div className="bg-card border border-border rounded-2xl p-6 mb-6">
@@ -381,7 +383,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
               )}
             </div>
 
-            <div className="w-full lg:w-80 shrink-0">
+            <div className="w-full lg:w-80 shrink-0 self-start">
               <OtherToolsSidebar />
             </div>
           </div>
@@ -393,37 +395,64 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
 
 function DefaultSEOContent() {
   const faqs = [
-    { q: "Is this image converter free?", a: "Yes — completely free, no sign-up, no watermark, no file limit per session. Convert as many images as you need." },
-    { q: "Are my images uploaded to a server?", a: "No. All conversion happens inside your browser using the Canvas API. Your images never leave your device." },
-    { q: "What formats can I convert to?", a: "You can convert to JPG, PNG, WebP, and BMP. Input supports JPG, PNG, WebP, BMP, GIF, HEIC (iPhone) and SVG." },
-    { q: "How do I convert multiple images at once?", a: "Drag and drop up to 20 images onto the drop zone, or click to open a file picker and select multiple files. All files are converted simultaneously and can be downloaded individually or as a ZIP." },
-    { q: "Does HEIC conversion work offline?", a: "The HEIC decoder (heic2any) downloads once on first use, then works entirely in your browser. After the first conversion you can use it offline." },
-    { q: "What quality setting should I use for JPG or WebP?", a: "90% is a good default — visually indistinguishable from 100% but significantly smaller file size. For web thumbnails, 75–80% is sufficient. For print, use 95–100%." },
+    { q: "Is this image converter free?", a: "Yes. There is no account, watermark, or per-session file cap beyond the 20-file batch. Convert as many batches as you need." },
+    { q: "Are my images uploaded to a server?", a: "No. Conversion uses the Canvas API in this tab. HEIC uses heic2any in the same tab. EatBit does not receive the pixels." },
+    { q: "What formats can I convert?", a: "Input: JPG, PNG, WebP, BMP, GIF, HEIC/HEIF, SVG. Output: JPG, PNG, WebP, BMP. Pick both formats in the dropdowns above — there are not separate converter sites." },
+    { q: "Does converting JPG to PNG restore quality?", a: "No. JPEG artefacts are already in the pixels. PNG stores those pixels losslessly so further saves will not add more loss, but it cannot invent missing detail." },
+    { q: "What happens to transparency when converting PNG to JPG?", a: "JPEG has no alpha channel. Transparent pixels are filled with white. If you need another fill colour, composite it before converting." },
+    { q: "What quality should I use for JPG or WebP?", a: "90% is the default: usually indistinguishable from 100% and much smaller. Thumbnails can sit at 75–80%. Print-bound files should stay at 95–100%." },
+    { q: "Does HEIC conversion work offline?", a: "The HEIC decoder downloads once on first use, then runs locally. After that first load you can convert iPhone photos without a network." },
   ];
   return (
     <div className="mt-24 space-y-16 border-t border-border pt-16 pb-24">
       <div className="max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden shadow-2xl border border-border">
-        <NextImage src="/images/image_converter.webp" alt="Image Converter Tool" width={1200} height={675} className="w-full h-auto object-cover" />
+        <NextImage src="/images/image_converter.webp" alt="EatBit image converter running in a browser" width={1200} height={675} className="w-full h-auto object-cover" />
       </div>
+      <section className="max-w-3xl mx-auto space-y-4 text-muted-foreground leading-relaxed">
+        <h2 className="text-3xl font-bold text-center text-foreground">One converter, not a folder of clones</h2>
+        <p>
+          Older search pages on this site each wrapped the same widget with a different title (JPG to PNG, HEIC to JPG, and so on).
+          Those URLs now redirect here. Choose the source and target formats in the controls above. That is the whole product.
+        </p>
+        <p>
+          Processing is local because photographs, receipts, and ID scans should not need a third-party disk. The trade-off is
+          that very large batches are limited by this device&apos;s memory, not by a server queue.
+        </p>
+      </section>
       <section>
-        <h2 className="text-3xl font-bold mb-10 text-center">Supported conversions</h2>
+        <h2 className="text-3xl font-bold mb-10 text-center">When to pick each format</h2>
         <div className="overflow-x-auto rounded-2xl border border-border">
           <table className="w-full text-sm">
-            <thead><tr className="bg-muted/50"><th className="text-left px-5 py-3 font-semibold">From</th><th className="text-left px-5 py-3 font-semibold">To</th><th className="text-left px-5 py-3 font-semibold">Best use</th></tr></thead>
+            <thead><tr className="bg-muted/50"><th className="text-left px-5 py-3 font-semibold">From</th><th className="text-left px-5 py-3 font-semibold">To</th><th className="text-left px-5 py-3 font-semibold">Use it when</th></tr></thead>
             <tbody className="divide-y divide-border">
               {[
-                { from: "HEIC (iPhone)", to: "JPG / PNG", use: "Share iPhone photos on Windows or Android" },
-                { from: "WebP", to: "JPG / PNG", use: "Open Chrome screenshots anywhere" },
-                { from: "PNG", to: "JPG", use: "Reduce file size, remove transparency" },
-                { from: "JPG", to: "PNG", use: "Add transparency, better for logos" },
-                { from: "JPG / PNG", to: "WebP", use: "Optimise images for websites" },
-                { from: "SVG", to: "PNG / JPG", use: "Rasterise vector graphics for social media" },
+                { from: "HEIC (iPhone)", to: "JPG / PNG", use: "A Windows PC, Android phone, or printer cannot open the original." },
+                { from: "WebP", to: "JPG / PNG", use: "A client, CMS, or older app rejects Chrome/Edge screenshots." },
+                { from: "PNG", to: "JPG", use: "A photo is too large for email or a CMS, and you can drop transparency." },
+                { from: "JPG", to: "PNG", use: "You need a lossless container for further edits (it will not add a real alpha channel unless you erase the background separately)." },
+                { from: "JPG / PNG", to: "WebP", use: "You are shipping images on a website and want smaller files with modern browser support." },
+                { from: "SVG", to: "PNG / JPG", use: "A social network or slide deck cannot take a vector file." },
               ].map(r => (
                 <tr key={r.from + r.to}><td className="px-5 py-3 font-medium text-foreground">{r.from}</td><td className="px-5 py-3 text-primary font-semibold">{r.to}</td><td className="px-5 py-3 text-muted-foreground">{r.use}</td></tr>
               ))}
             </tbody>
           </table>
         </div>
+      </section>
+      <section className="max-w-3xl mx-auto space-y-4 text-muted-foreground leading-relaxed">
+        <h2 className="text-3xl font-bold text-center text-foreground">Practical notes from using this tool</h2>
+        <p>
+          PNG files of photographs are often 5–10× larger than a JPEG at 90% quality. Convert those for sharing, not for logos
+          with sharp type. JPEG of a logo re-introduces ringing around edges; keep logos in PNG or SVG.
+        </p>
+        <p>
+          WebP is usually 25–35% smaller than JPEG at a matched visual quality and can keep transparency, unlike JPEG.
+          If a stakeholder must open the file in an older Office build, export JPEG or PNG instead.
+        </p>
+        <p>
+          Animated GIFs: this converter takes the first frame. It is not a video encoder. For iPhone Live Photos, export a still
+          in Photos first, then convert the HEIC here.
+        </p>
       </section>
       <section className="max-w-3xl mx-auto">
         <h2 className="text-3xl font-bold mb-10 text-center">Frequently asked questions</h2>

@@ -111,10 +111,10 @@ export function ToolSeoWrapper({ title, description, imageUrl, howToSteps, faqs 
       <section className="max-w-4xl mx-auto text-center border-t border-border pt-16">
           <h2 className="text-2xl font-bold mb-8 text-foreground">Explore Related PDF Tools</h2>
           <div className="flex flex-wrap justify-center gap-4">
-             <Link href="/tools/edit-pdf-text-online" className="px-4 py-2 bg-muted hover:bg-primary/10 hover:text-primary rounded-lg text-sm font-medium transition-colors">Edit PDF</Link>
+             <Link href="/tools/free-pdf-editor-no-signup" className="px-4 py-2 bg-muted hover:bg-primary/10 hover:text-primary rounded-lg text-sm font-medium transition-colors">PDF Editor</Link>
              <Link href="/tools/merge-and-split-pdf" className="px-4 py-2 bg-muted hover:bg-primary/10 hover:text-primary rounded-lg text-sm font-medium transition-colors">Merge PDF</Link>
-             <Link href="/tools/sign-pdf-online" className="px-4 py-2 bg-muted hover:bg-primary/10 hover:text-primary rounded-lg text-sm font-medium transition-colors">Sign PDF</Link>
-             <Link href="/tools/add-text-to-pdf" className="px-4 py-2 bg-muted hover:bg-primary/10 hover:text-primary rounded-lg text-sm font-medium transition-colors">Add Text to PDF</Link>
+             <Link href="/tools/image-converter" className="px-4 py-2 bg-muted hover:bg-primary/10 hover:text-primary rounded-lg text-sm font-medium transition-colors">Image Converter</Link>
+             <Link href="/tools/qr-code-generator" className="px-4 py-2 bg-muted hover:bg-primary/10 hover:text-primary rounded-lg text-sm font-medium transition-colors">QR Generator</Link>
           </div>
       </section>
     </div>

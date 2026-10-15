@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import OtherToolsSidebar from "@/components/OtherToolsSidebar";
 import AdBanner from "@/components/AdBanner";
+import WatermarkProofCard from "@/components/WatermarkProofCard";
 import {
   FaDownload,
   FaCheckCircle,
@@ -225,13 +226,16 @@ function FileItemCard({ item, onRemove, onDownload }: FileItemCardProps) {
         </div>
       )}
 
-      {/* Image comparison slider */}
+      {/* Image comparison slider — original stays on the right so the Gemini logo (bottom-right) remains visible */}
       {item.kind === "image" && item.originalSrc && (
         <div ref={containerRef} className="relative w-full overflow-hidden select-none border-b border-border" style={{ aspectRatio: "16/9", background: "#111" }}>
-          <img src={item.originalSrc} alt="Original with watermark" className="absolute inset-0 w-full h-full object-contain" />
+          <img src={item.originalSrc} alt="Original with watermark" className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none" draggable={false} />
           {item.processedSrc && (
-            <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 0 0 ${sliderX}%)` }}>
-              <img src={item.processedSrc} alt="Watermark removed" className="absolute inset-0 w-full h-full object-contain" />
+            <div
+              className="absolute inset-0 overflow-hidden pointer-events-none"
+              style={{ clipPath: `inset(0 ${100 - sliderX}% 0 0)`, WebkitClipPath: `inset(0 ${100 - sliderX}% 0 0)` }}
+            >
+              <img src={item.processedSrc} alt="Watermark removed" className="absolute inset-0 w-full h-full max-w-none object-contain pointer-events-none select-none" draggable={false} />
             </div>
           )}
           {item.processedSrc && (
@@ -248,8 +252,8 @@ function FileItemCard({ item, onRemove, onDownload }: FileItemCardProps) {
               </div>
             </div>
           )}
-          <div className="absolute top-2 left-2 bg-black/70 text-white text-[10px] px-2 py-0.5 font-bold">BEFORE</div>
-          {item.processedSrc && <div className="absolute top-2 right-2 bg-primary/90 text-white text-[10px] px-2 py-0.5 font-bold">AFTER</div>}
+          {item.processedSrc && <div className="absolute top-2 left-2 bg-primary/90 text-white text-[10px] px-2 py-0.5 font-bold">AFTER</div>}
+          <div className="absolute top-2 right-2 bg-black/70 text-white text-[10px] px-2 py-0.5 font-bold">BEFORE</div>
           {isProcessing && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
               <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
@@ -352,12 +356,12 @@ export default function BulkGeminiWatermarkRemoverPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const meta = (resultCanvas as any).__watermarkMeta;
       const processedBlob: Blob = await new Promise((res, rej) => {
-        if (resultCanvas.convertToBlob) { resultCanvas.convertToBlob({ type: "image/png" }).then(res).catch(rej); }
-        else if (resultCanvas.toBlob) { resultCanvas.toBlob((b: Blob | null) => (b ? res(b) : rej(new Error("Blob failed"))), "image/png"); }
+        if (resultCanvas.convertToBlob) { resultCanvas.convertToBlob({ type: "image/webp", quality: 0.95 }).then(res).catch(rej); }
+        else if (resultCanvas.toBlob) { resultCanvas.toBlob((b: Blob | null) => (b ? res(b) : rej(new Error("Blob failed"))), "image/webp", 0.95); }
         else { rej(new Error("No blob conversion method available")); }
       });
       const procUrl = URL.createObjectURL(processedBlob);
-      const downloadName = `watermark-removed-${file.name.replace(/\.[^.]+$/, "")}.png`;
+      const downloadName = `watermark-removed-${file.name.replace(/\.[^.]+$/, "")}.webp`;
       updateItem(id, { status: "done", processedSrc: procUrl, downloadUrl: procUrl, downloadName, result: { applied: meta?.applied ?? false, skipReason: meta?.skipReason ?? null, size: meta?.size ?? null }, statusMsg: meta?.applied ? "✓ Watermark removed successfully" : "No removable watermark detected — original preserved" });
     } catch (err) {
       console.error(err);
@@ -490,7 +494,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
         originalSrc: null,
         processedSrc: null,
         downloadUrl: null,
-        downloadName: `watermark-removed-${file.name.replace(/\.[^.]+$/, "")}${kind === "image" ? ".png" : ".mp4"}`,
+        downloadName: `watermark-removed-${file.name.replace(/\.[^.]+$/, "")}${kind === "image" ? ".webp" : ".mp4"}`,
         result: null,
         videoProgress: null,
       });
@@ -584,35 +588,33 @@ export default function BulkGeminiWatermarkRemoverPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebApplication", name: "Bulk Gemini Watermark Remover", applicationCategory: "MultimediaApplication", operatingSystem: "Any", browserRequirements: "Requires a modern browser with JavaScript enabled", url: "https://eatbit.in/tools/bulk-gemini-watermark-remover", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: "Free browser tool to batch remove visible Google Gemini AI watermarks from multiple images and videos simultaneously. Perfect for bulk processing.", featureList: ["Remove visible Gemini watermark from images", "Remove visible Gemini watermark from videos", "Batch multi-file processing", "Download all as ZIP", "Reverse alpha blending algorithm", "100% local browser processing", "No account required", "Supports JPG, PNG, WebP, MP4, WebM, MOV"], screenshot: "https://eatbit.in/og-gemini-watermark-remover.png", softwareVersion: "2.0", creator: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" } }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQS.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) }) }} />
 
-      {/* HERO */}
-      <header className="relative overflow-hidden pt-28 pb-16 border-b border-border bg-background">
-        <div className="absolute inset-0 z-0 opacity-10 bg-[radial-gradient(#EA8C32_1px,transparent_1px)] [background-size:20px_20px]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-muted border border-border font-bold text-[10px] mb-6 uppercase tracking-wider text-foreground">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            Free · No Signup · Images &amp; Videos · Batch + ZIP Download
-          </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-            <span className="text-primary">Bulk Gemini</span> Watermark
-            <br /><span className="text-foreground">Remover</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            Batch remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from hundreds of images and videos at once directly in your browser. Download the clean files as a single ZIP.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground mb-12">
-            {["Bulk Images & Videos", "Batch Upload", "Download as ZIP", "100% Private Bulk Processing"].map((b) => (
-              <span key={b} className="flex items-center gap-1.5"><FaCheck className="text-primary w-3 h-3" /> {b}</span>
-            ))}
-          </div>
-        </motion.div>
-      </header>
-
-      {/* TOOL */}
-      <section className="bg-card py-16 border-b border-border" id="tool">
-        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+      {/* HERO + TOOL — merged into one 2-col layout so sidebar is visible from the top */}
+      <section className="relative overflow-hidden bg-card border-b border-border" id="tool">
+        {/* Background dot pattern */}
+        <div className="absolute inset-0 z-0 opacity-[0.06] bg-[radial-gradient(#EA8C32_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+        <div className="absolute top-0 left-0 w-[500px] h-[300px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
             <div className="flex-1 min-w-0 space-y-6">
+
+              {/* Hero content */}
+              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="relative z-10">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-muted border border-border font-bold text-[10px] mb-5 uppercase tracking-wider text-foreground">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  Free · No Signup · Images &amp; Videos · Batch + ZIP Download
+                </div>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 leading-tight">
+                  <span className="text-primary">Bulk Gemini</span> Watermark <span className="text-foreground">Remover</span>
+                </h1>
+                <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed mb-5">
+                  Batch remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from hundreds of images and videos at once directly in your browser. Download the clean files as a single ZIP.
+                </p>
+                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                  {["Bulk Images & Videos", "Batch Upload", "Download as ZIP", "100% Private Bulk Processing"].map((b) => (
+                    <span key={b} className="flex items-center gap-1.5"><FaCheck className="text-primary w-3 h-3" /> {b}</span>
+                  ))}
+                </div>
+              </motion.div>
 
               {/* Upload zone — always visible */}
               <div
@@ -705,7 +707,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
             </div>
 
             {/* Right Sidebar */}
-            <div className="w-full lg:w-80 shrink-0"><OtherToolsSidebar /></div>
+            <div className="w-full lg:w-80 shrink-0 self-start"><OtherToolsSidebar /></div>
           </div>
         </div>
       </section>
@@ -734,132 +736,48 @@ export default function BulkGeminiWatermarkRemoverPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
             {/* Proof Card 1: 3D Cartoon */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="group bg-card border border-border hover:border-primary/40 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl flex flex-col"
-            >
-              {/* Card Header */}
-              <div className="p-5 border-b border-border flex items-center justify-between gap-4 bg-muted/20">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25">
-                      Sample 01 · Digital Art
-                    </span>
-                    <span className="text-xs text-muted-foreground">Gemini 2.0 / Imagen 3</span>
-                  </div>
-                  <h3 className="font-extrabold text-foreground text-base">
-                    Vibrant 3D Cartoon Forest Illustration
-                  </h3>
-                </div>
-                <div className="hidden sm:flex items-center gap-1.5 text-xs text-green-400 font-semibold bg-green-500/10 border border-green-500/25 px-2.5 py-1 rounded-md shrink-0">
-                  <FaCheck className="w-3 h-3" />
-                  <span>Clean Output</span>
-                </div>
-              </div>
-
-              {/* Image Container with Bottom-Right Highlight */}
-              <div className="relative aspect-[1024/572] w-full overflow-hidden bg-muted/40">
-                <Image
-                  src="/assets/gemini-watermark-remover/watermark-removed-cartoon.webp"
-                  alt="Google Gemini watermark cleanly removed from 3D cartoon forest illustration with squirrel and bear using EatBit Reverse Alpha Blending proof"
-                  width={1024}
-                  height={572}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-
-                {/* Bottom-right watermark removal indicator badge */}
-                <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/85 backdrop-blur-md border border-green-500/50 shadow-2xl text-xs font-semibold text-green-400">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                  </span>
-                  <span>Watermark Erased (Bottom Right)</span>
-                </div>
-              </div>
-
-              {/* Card Footer / Details */}
-              <div className="p-5 flex-1 flex flex-col justify-between bg-card space-y-4">
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  The Google Gemini star logo in the lower-right corner was completely inverted and restored.
-                  Delicate foliage textures, ground moss, and illuminated sparkle particles are preserved without any smearing or AI inpainting artifacts.
-                </p>
-                <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-2 py-1 rounded bg-muted text-muted-foreground font-mono">1024 × 572 px</span>
-                    <span className="px-2 py-1 rounded bg-muted text-muted-foreground font-mono">Lossless Alpha Inversion</span>
-                    <span className="px-2 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/20 font-medium">Zero Residual Blur</span>
-                  </div>
-                  <span className="text-muted-foreground text-[11px]">100% Client-Side</span>
-                </div>
-              </div>
-            </motion.div>
+            <WatermarkProofCard
+              sampleNumber="Sample 01 · Digital Art"
+              modelBadge="Gemini 2.0 / Imagen 3"
+              title="Vibrant 3D Cartoon Forest Illustration"
+              categoryBadgeClass="bg-primary/15 text-primary border-primary/25"
+              originalSrc="/assets/gemini-watermark-remover/watermark-original-cartoon.webp"
+              removedSrc="/assets/gemini-watermark-remover/watermark-removed-cartoon.webp"
+              altOriginal="Original Google Gemini 3D cartoon forest illustration with visible star watermark in the bottom right corner"
+              altRemoved="Google Gemini watermark cleanly removed from 3D cartoon forest illustration with squirrel and bear using EatBit Reverse Alpha Blending proof"
+              aspectRatioClass="aspect-[1024/572]"
+              width={1024}
+              height={572}
+              description="The Google Gemini star logo in the lower-right corner was completely inverted and restored. Delicate foliage textures, ground moss, and illuminated sparkle particles are preserved without any smearing or AI inpainting artifacts."
+              metaTags={[
+                "1024 × 572 px",
+                "Lossless Alpha Inversion",
+                "Zero Residual Blur",
+              ]}
+              initialDelay={0}
+            />
 
             {/* Proof Card 2: Photorealistic Students */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="group bg-card border border-border hover:border-primary/40 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl flex flex-col"
-            >
-              {/* Card Header */}
-              <div className="p-5 border-b border-border flex items-center justify-between gap-4 bg-muted/20">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
-                      Sample 02 · Photorealism
-                    </span>
-                    <span className="text-xs text-muted-foreground">Imagen 3 Photorealistic</span>
-                  </div>
-                  <h3 className="font-extrabold text-foreground text-base">
-                    University Students Studying on Campus
-                  </h3>
-                </div>
-                <div className="hidden sm:flex items-center gap-1.5 text-xs text-green-400 font-semibold bg-green-500/10 border border-green-500/25 px-2.5 py-1 rounded-md shrink-0">
-                  <FaCheck className="w-3 h-3" />
-                  <span>Clean Output</span>
-                </div>
-              </div>
-
-              {/* Image Container with Bottom-Right Highlight */}
-              <div className="relative aspect-[1024/687] w-full overflow-hidden bg-muted/40">
-                <Image
-                  src="/assets/gemini-watermark-remover/watermark-removed-students.webp"
-                  alt="Google Gemini watermark removed from photorealistic AI photo of university students studying on lawn using EatBit precision watermark eraser"
-                  width={1024}
-                  height={687}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-
-                {/* Bottom-right watermark removal indicator badge */}
-                <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/85 backdrop-blur-md border border-green-500/50 shadow-2xl text-xs font-semibold text-green-400">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                  </span>
-                  <span>Watermark Erased (Bottom Right)</span>
-                </div>
-              </div>
-
-              {/* Card Footer / Details */}
-              <div className="p-5 flex-1 flex flex-col justify-between bg-card space-y-4">
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Real photographic grain, complex blades of grass, and denim jean fabric fibers directly beneath where the semi-transparent Gemini overlay sat are mathematically restored without blurry patches or edge discoloration.
-                </p>
-                <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-2 py-1 rounded bg-muted text-muted-foreground font-mono">1024 × 687 px</span>
-                    <span className="px-2 py-1 rounded bg-muted text-muted-foreground font-mono">Texture Preserved</span>
-                    <span className="px-2 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/20 font-medium">Natural Grain Retained</span>
-                  </div>
-                  <span className="text-muted-foreground text-[11px]">100% Client-Side</span>
-                </div>
-              </div>
-            </motion.div>
+            <WatermarkProofCard
+              sampleNumber="Sample 02 · Photorealism"
+              modelBadge="Imagen 3 Photorealistic"
+              title="University Students Studying on Campus"
+              categoryBadgeClass="bg-blue-500/15 text-blue-400 border-blue-500/25"
+              originalSrc="/assets/gemini-watermark-remover/watermark-original-students.webp"
+              removedSrc="/assets/gemini-watermark-remover/watermark-removed-students.webp"
+              altOriginal="Original Google Gemini photorealistic photo of university students studying on lawn with star watermark in bottom right corner"
+              altRemoved="Google Gemini watermark removed from photorealistic AI photo of university students studying on lawn using EatBit precision watermark eraser"
+              aspectRatioClass="aspect-[1024/687]"
+              width={1024}
+              height={687}
+              description="Real photographic grain, complex blades of grass, and denim jean fabric fibers directly beneath where the semi-transparent Gemini overlay sat are mathematically restored without blurry patches or edge discoloration."
+              metaTags={[
+                "1024 × 687 px",
+                "Texture Preserved",
+                "Natural Grain Retained",
+              ]}
+              initialDelay={0.1}
+            />
           </div>
 
           {/* Trust Banner beneath the proof cards */}

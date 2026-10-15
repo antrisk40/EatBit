@@ -591,25 +591,27 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
         )}
       </AnimatePresence>
 
-      <div className="min-h-screen bg-background text-foreground py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-[90rem] mx-auto">
+        <div className="relative min-h-screen bg-background text-foreground">
+        {/* Background dot pattern */}
+        <div className="absolute inset-0 z-0 opacity-[0.05] bg-[radial-gradient(#EA8C32_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+        <div className="absolute top-0 left-0 w-[600px] h-[350px] bg-primary/8 blur-[140px] rounded-full pointer-events-none" />
+      <div className="relative z-10 max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           <div className="flex-1 min-w-0">
 
             {/* Hero */}
-            <div className="mb-12 text-center md:text-left">
-              <div className="flex flex-wrap gap-2 items-center justify-center md:justify-start mb-6">
-                {["No sign-up", "Runs in your browser", "PNG · JPG · SVG"].map(t => (
-                  <span key={t} className="px-3 py-1 text-xs font-medium border border-border rounded-full bg-secondary/50 text-secondary-foreground">{t}</span>
-                ))}
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="mb-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-muted border border-border font-bold text-[10px] mb-5 uppercase tracking-wider text-foreground">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                No sign-up &nbsp;&middot;&nbsp; Runs in your browser &nbsp;&middot;&nbsp; PNG &middot; JPG &middot; SVG
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 max-w-3xl">
-                {heroTitle ?? "Create custom QR codes for links, WiFi, contacts and social profiles"}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 leading-tight">
+                <span className="text-primary">{heroTitle ? heroTitle.split(' ')[0] : 'Create'}</span> {heroTitle ? heroTitle.split(' ').slice(1).join(' ') : 'custom QR codes for links, WiFi, contacts and social profiles'}
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl">
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
                 {heroDesc ?? <>A free <strong className="text-foreground">online QR code generator</strong> that supports <strong className="text-foreground">website URLs</strong>, <strong className="text-foreground">WiFi passwords</strong>, <strong className="text-foreground">vCard contact cards</strong>, <strong className="text-foreground">Instagram and social profiles</strong>. Pick colors, eye styles, gradients, a logo and a border template, then download as PNG, JPG or SVG.</>}
               </p>
-            </div>
+            </motion.div>
 
             <div className="grid grid-cols-1 xl:grid-cols-[460px_1fr] gap-8 items-start">
 
@@ -1011,7 +1013,7 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
             )}
           </div>
 
-          <div className="w-full lg:w-80 shrink-0">
+          <div className="w-full lg:w-80 shrink-0 self-start">
             <OtherToolsSidebar />
           </div>
           </div>

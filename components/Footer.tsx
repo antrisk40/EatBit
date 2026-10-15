@@ -16,12 +16,13 @@ export default function Footer() {
             </p>
           </div>
           <div>
-            <h4 className="font-bold text-foreground mb-6">Services</h4>
+            <h4 className="font-bold text-foreground mb-6">Tools</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/services" className="hover:text-primary transition-colors">Web Development</Link></li>
-              <li><Link href="/services" className="hover:text-primary transition-colors">Mobile Apps</Link></li>
-              <li><Link href="/services" className="hover:text-primary transition-colors">UI/UX Design</Link></li>
-              <li><Link href="/services" className="hover:text-primary transition-colors">Consulting</Link></li>
+              <li><Link href="/tools" className="hover:text-primary transition-colors">All tools</Link></li>
+              <li><Link href="/tools/image-converter" className="hover:text-primary transition-colors">Image converter</Link></li>
+              <li><Link href="/tools/free-pdf-editor-no-signup" className="hover:text-primary transition-colors">PDF editor</Link></li>
+              <li><Link href="/tools/qr-code-generator" className="hover:text-primary transition-colors">QR generator</Link></li>
+              <li><Link href="/tools/gemini-watermark-remover" className="hover:text-primary transition-colors">Watermark remover</Link></li>
             </ul>
           </div>
           <div>

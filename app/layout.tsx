@@ -107,39 +107,12 @@ export default function RootLayout({
             -webkit-font-smoothing: antialiased;
           }
         `}</style>
-        {/* Google AdSense - placed in head for crawler verification */}
+        {/* Google AdSense — site verification + units on tool pages that have real products */}
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4123566150896961"
           crossOrigin="anonymous"
         />
-        {/* Right-click & DevTools protection */}
-        <script dangerouslySetInnerHTML={{ __html: `
-          (function() {
-            // Block right-click on media elements only
-            document.addEventListener('contextmenu', function(e) {
-              var t = e.target;
-              if (t && (t.tagName === 'IMG' || t.tagName === 'VIDEO' || t.tagName === 'CANVAS' || t.tagName === 'AUDIO')) {
-                e.preventDefault();
-              }
-            });
-            // Disable F12 and common DevTools shortcuts
-            document.addEventListener('keydown', function(e) {
-              if (e.key === 'F12') { e.preventDefault(); return false; }
-              if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
-              if ((e.ctrlKey || e.metaKey) && e.key === 'U') { e.preventDefault(); return false; }
-            });
-            // Detect DevTools open via size difference
-            var devtoolsOpen = false;
-            var threshold = 160;
-            setInterval(function() {
-              var widthDiff = window.outerWidth - window.innerWidth > threshold;
-              var heightDiff = window.outerHeight - window.innerHeight > threshold;
-              if ((widthDiff || heightDiff) && !devtoolsOpen) { devtoolsOpen = true; }
-              else { devtoolsOpen = false; }
-            }, 1000);
-          })();
-        `}} />
       </head>
       <body className={`${poppins.variable} font-sans antialiased text-foreground bg-background transition-colors duration-300`}>
 

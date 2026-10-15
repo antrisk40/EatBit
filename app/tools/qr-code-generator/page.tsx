@@ -4,91 +4,149 @@ import QRCoder from "./QRCoder";
 import AdBanner from "@/components/AdBanner";
 
 export const metadata: Metadata = {
-  title: "Free QR Code Generator Online – Create QR Codes for URL, WiFi, vCard, Instagram & More | PNG, JPG, SVG",
-  description: "Generate free QR codes for websites, WiFi passwords, contact cards (vCard), Instagram and social profiles, email, phone and SMS. Instagram, TikTok, Facebook, X, YouTube and LinkedIn codes auto-match each platform's real brand colors. Choose dot styles, logos and border templates, then download as PNG, JPG or SVG. No sign-up, no watermark.",
-  keywords: "qr code generator, free qr code generator, wifi qr code, vcard qr code, instagram qr code, instagram qr code design, qr code maker, custom qr code, qr code with logo, qr code svg download, qr code for business card, generate qr code online, qr code no sign up, scan me qr code, social media qr code, brand colored qr code",
-  alternates: {
-    canonical: "https://example.com/qr-code-generator" // To be updated to your actual domain
-  },
+  title: "Free QR Code Generator — URL, WiFi, vCard, WhatsApp | EatBit",
+  description:
+    "Create QR codes for links, WiFi, contacts, WhatsApp, email, phone, SMS and PDFs. Customise colours and logos, then download PNG, JPG or SVG. Runs in the browser.",
+  alternates: { canonical: "https://eatbit.in/tools/qr-code-generator" },
   openGraph: {
     type: "website",
-    title: "Free QR Code Generator – URL, WiFi, vCard, Instagram & More",
-    description: "Create custom QR codes with colors, logos and border templates. Supports URLs, WiFi, contact cards, email, phone, SMS and social profiles. Download as PNG, JPG or SVG — free, no sign-up.",
-    url: "https://example.com/qr-code-generator", // To be updated to your actual domain
-    siteName: "QR Code Generator",
-    images: [
-      {
-        url: "https://example.com/og-qr-generator.png", // To be updated to your actual domain
-        width: 1200,
-        height: 630,
-        alt: "Free QR Code Generator Online"
-      }
-    ]
+    title: "Free QR Code Generator — URL, WiFi, vCard, WhatsApp",
+    description:
+      "Create custom QR codes with colours, logos and frames. Download PNG, JPG or SVG. No account.",
+    url: "https://eatbit.in/tools/qr-code-generator",
+    siteName: "EatBit",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Free QR Code Generator Online",
-    description: "Make QR codes for links, WiFi, vCards, Instagram and more. Custom colors, logos and border templates. Download PNG, JPG or SVG for free.",
-    images: ["https://example.com/og-qr-generator.png"] // To be updated to your actual domain
-  }
 };
+
+const TABS = ["url", "text", "wifi", "social", "vcard", "email", "phone", "sms", "whatsapp", "pdf"] as const;
+type TabState = (typeof TABS)[number];
 
 const JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "WebApplication",
-      "name": "QR Code Generator",
-      "url": "https://example.com/qr-code-generator", // To be updated to your actual domain
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Any (runs in web browser)",
-      "description": "Free online QR code generator for URLs, WiFi networks, vCards, email, phone, SMS and social profiles like Instagram, TikTok and X. Customize colors, dot styles, logos and border templates, then export as PNG, JPG or SVG.",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-      "featureList": [
-        "URL, plain text, WiFi, vCard, email, phone, SMS and social profile QR codes",
-        "Automatic brand-color and style matching for Instagram, TikTok, Facebook, X, YouTube and LinkedIn",
-        "Custom foreground/background colors and gradients",
-        "Square, rounded and dot module styles",
-        "Logo upload with automatic high error-correction",
-        "Scan Me banner, badge and colored card border templates",
-        "Export to PNG, JPG or SVG",
-        "No sign up, no watermark, processed entirely in the browser"
-      ]
+      name: "EatBit QR Code Generator",
+      url: "https://eatbit.in/tools/qr-code-generator",
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Any (runs in web browser)",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      description:
+        "Browser QR generator for URLs, WiFi, vCards, WhatsApp, email, phone, SMS and PDF links, with colour, logo and SVG export.",
     },
     {
       "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "How do I make a QR code for my WiFi password?", "acceptedAnswer": { "@type": "Answer", "text": "Switch to the WiFi tab, enter your network name (SSID), password and security type, then generate. Anyone who scans the code connects automatically without typing the password." } },
-        { "@type": "Question", "name": "Can I add my logo to a QR code?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Upload a logo image and it's placed in the center of the code. Error correction automatically switches to High so the code still scans reliably around the logo." } },
-        { "@type": "Question", "name": "What is a vCard QR code?", "acceptedAnswer": { "@type": "Answer", "text": "A vCard QR code stores a contact card — name, phone, email, company and website — so scanning it offers to save the contact directly to the phone, instead of opening a link." } },
-        { "@type": "Question", "name": "Which file format should I download for printing?", "acceptedAnswer": { "@type": "Answer", "text": "SVG is best for print because it's vector-based and stays sharp at any size, from a business card to a poster. PNG and JPG are better for screens, apps and social posts." } },
-        { "@type": "Question", "name": "Do QR codes expire?", "acceptedAnswer": { "@type": "Answer", "text": "No. A QR code generated here encodes your data directly (a URL, WiFi credentials, text, etc.) and works for as long as that data stays valid — for example, a URL QR code stops working only if the destination link is taken down." } },
-        { "@type": "Question", "name": "Is this QR code generator really free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — unlimited QR codes, no account, no watermark, and no expiration on dynamic tracking, because the code is generated locally in your browser." } },
-        { "@type": "Question", "name": "Does the Instagram QR code match Instagram's real design?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Selecting Instagram on the Social tab automatically applies Instagram's actual brand gradient and a dotted module style, along with a matching preview card, so the code reads as an Instagram code at a glance." } }
-      ]
-    }
-  ]
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "How do I make a WiFi QR code?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Open the WiFi tab, enter SSID, password and security type (usually WPA/WPA2), then download. iOS Camera and recent Android Wi-Fi settings can join without typing the password.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Does EatBit store my WiFi password?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No. The WIFI: payload is encoded in this tab. The password is inside the image you download; anyone who can scan that image can join the network.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Which download format should I use for print?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "SVG. It stays sharp from a table card to a poster. PNG and JPG are for screens.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Do these QR codes expire?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No tracking layer. A URL code works until the link dies. A WiFi code works until you change the password or SSID.",
+          },
+        },
+      ],
+    },
+  ],
 };
-
 
 const SEO_CONTENT = (
   <div className="mt-24 space-y-16 border-t border-border pt-16 pb-24 px-4 max-w-5xl mx-auto">
-    <div className="max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden shadow-2xl border border-border">
-      <Image src="/images/qr_code_generator.webp" alt="QR Code Generator" width={1200} height={675} className="w-full h-auto object-cover" />
-    
-      <AdBanner slot="tool-bottom" className="mt-6" />
+    <div className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl border border-border">
+      <Image src="/images/qr_code_generator.webp" alt="QR code generator with live preview" width={1200} height={675} className="w-full h-auto object-cover" />
+    </div>
+
+    <section className="max-w-3xl mx-auto space-y-4 text-muted-foreground leading-relaxed">
+      <h2 className="text-3xl font-bold text-foreground text-center">What this generator actually encodes</h2>
+      <p>
+        Every tab writes a standard payload: a URL, plain text, a <code className="text-xs bg-muted px-1">WIFI:</code> string,
+        a vCard, <code className="text-xs bg-muted px-1">mailto:</code>, <code className="text-xs bg-muted px-1">tel:</code>,{" "}
+        <code className="text-xs bg-muted px-1">sms:</code>, a WhatsApp click-to-chat link, or a URL that points at a PDF you
+        already host. There is no EatBit shortener and no scan analytics, which is why codes do not expire on our side.
+      </p>
+      <p>
+        Separate WiFi / WhatsApp / vCard landing pages used to wrap this same editor. They now redirect here with the matching
+        tab open so the site is not a stack of near-duplicate URLs.
+      </p>
+    </section>
+
+    <section>
+      <h2 className="text-3xl font-bold mb-8 text-center">Tabs and when to use them</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+        {[
+          { title: "URL & text", body: "Menus, tickets, GitHub repos, or any string. Keep URLs on HTTPS; many cameras warn on plain HTTP." },
+          { title: "WiFi", body: "Guest networks for cafés, Airbnbs and meeting rooms. Print at least 5×5 cm. Laminate table cards if they will be handled daily." },
+          { title: "vCard", body: "Name, phone, email, company, site. Scanning offers Save Contact instead of opening a website. Useful on badges." },
+          { title: "WhatsApp", body: "Builds a wa.me link with an optional pre-filled message so a poster can start the right conversation." },
+          { title: "Email / phone / SMS", body: "Opens the default mail or dialer with fields filled. Confirm the country code on phone numbers." },
+          { title: "PDF", body: "The QR only stores a link. Host the file (Drive, your site, a menu URL) first, then paste that URL here." },
+        ].map((item) => (
+          <div key={item.title} className="p-5 bg-card border border-border rounded-2xl">
+            <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{item.body}</p>
+          </div>
+        ))}
       </div>
+    </section>
+
+    <section className="max-w-3xl mx-auto space-y-4 text-muted-foreground leading-relaxed">
+      <h2 className="text-3xl font-bold text-foreground text-center">Design that still scans</h2>
+      <p>
+        Dark modules on a light background are the reliable default. A logo is fine if error correction is High — the generator
+        switches that automatically when you add a logo. Do not cover finder patterns in the three corners. For print, leave a
+        quiet zone (plain margin) around the code.
+      </p>
+      <p>
+        Brand-coloured Instagram or TikTok styles are cosmetic. Phones still decode the bits; they do not require the official
+        in-app QR. If a scan fails, increase contrast and size before changing the URL.
+      </p>
+    </section>
+
+    <AdBanner slot="tool-bottom" className="mt-6" />
   </div>
 );
 
-export default function QRCodeGeneratorPage() {
+export default async function QRCodeGeneratorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const sp = await searchParams;
+  const tab = TABS.includes(sp.tab as TabState) ? (sp.tab as TabState) : "url";
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
+      <QRCoder
+        defaultTab={tab}
+        heroTitle="QR Code Generator — URL, WiFi, vCard, WhatsApp and more"
+        heroDesc="Encode a link, guest WiFi, contact card, or chat in this browser. Colour, logo and frame options. Download PNG, JPG or SVG. No account and no EatBit tracking on scans."
+        seoContent={SEO_CONTENT}
       />
-      <QRCoder seoContent={SEO_CONTENT} />
     </>
   );
 }

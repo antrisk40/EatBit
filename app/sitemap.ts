@@ -1,63 +1,57 @@
 import { MetadataRoute } from "next";
-import fs from "fs";
-import path from "path";
+import { CANONICAL_TOOLS } from "@/lib/tools-catalog";
 
-const BASE_URL = "https://eatbit.in"; // Update this to your production domain
+const BASE_URL = "https://eatbit.in";
+
+const STATIC_ROUTES = [
+  "",
+  "/about",
+  "/services",
+  "/plans",
+  "/samples",
+  "/careers",
+  "/careers/bda",
+  "/contact-us",
+  "/blogs",
+  "/tools",
+  "/privacy-policy",
+  "/terms-of-service",
+];
+
+const BLOG_SLUGS = [
+  "why-privacy-first-image-cropper",
+  "how-to-remove-gemini-watermark",
+  "gemini-watermark-vs-synthid",
+  "gemini-watermark-explained",
+  "best-free-pdf-editor-no-signup",
+  "ultimate-free-image-converter",
+  "how-to-merge-and-split-pdf-files",
+  "create-custom-qr-codes-free",
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const now = new Date();
+  const now = new Date();
 
-    const staticRoutes = [
-        "",
-        "/about",
-        "/services",
-        "/plans",
-        "/samples",
-        "/careers",
-        "/careers/bda",
-        "/contact-us",
-        "/blogs",
-        "/tools",
-        "/privacy-policy",
-        "/terms-of-service",
-    ].map((route) => ({
-        url: `${BASE_URL}${route}`,
-        lastModified: now,
-        changeFrequency: "weekly" as const,
-        priority: route === "" ? 1.0 : 0.8,
-    }));
+  const staticRoutes = STATIC_ROUTES.map((route) => ({
+    url: `${BASE_URL}${route}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: route === "" ? 1.0 : 0.8,
+  }));
 
-    // Dynamically get tools
-    let tools: MetadataRoute.Sitemap = [];
-    try {
-        const toolsDir = path.join(process.cwd(), "app/tools");
-        tools = fs.readdirSync(toolsDir, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => ({
-                url: `${BASE_URL}/tools/${dirent.name}`,
-                lastModified: now,
-                changeFrequency: "weekly" as const,
-                priority: 0.9,
-            }));
-    } catch (e) {
-        console.error("Failed to read tools directory for sitemap", e);
-    }
+  const tools = CANONICAL_TOOLS.map((tool) => ({
+    url: `${BASE_URL}${tool.path}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.9,
+  }));
 
-    // Dynamically get blogs
-    let blogs: MetadataRoute.Sitemap = [];
-    try {
-        const blogsDir = path.join(process.cwd(), "app/blogs");
-        blogs = fs.readdirSync(blogsDir, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => ({
-                url: `${BASE_URL}/blogs/${dirent.name}`,
-                lastModified: now,
-                changeFrequency: "monthly" as const,
-                priority: 0.8,
-            }));
-    } catch (e) {
-        console.error("Failed to read blog directory for sitemap", e);
-    }
+  const blogs = BLOG_SLUGS.map((slug) => ({
+    url: `${BASE_URL}/blogs/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
 
-    return [...staticRoutes, ...tools, ...blogs];
+  return [...staticRoutes, ...tools, ...blogs];
 }
