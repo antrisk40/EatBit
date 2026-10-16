@@ -1,8 +1,10 @@
 "use client";
 import { downloadWithGate } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
-import { getToolFeedback, checkLimits, type ToolFeedbackSummary, type UsageLimits } from "@/lib/api";
+import { getToolFeedback, type ToolFeedbackSummary } from "@/lib/api";
 import { trackEvent, useProcessDownloadFunnel, trackFileSelected, trackDownloadClick, trackDownloadComplete, trackLimitReached, trackCompareSlider } from "@/lib/analytics";
+import { ANON_FREE_LIMIT, VIDEO_ANON_DAILY_LIMIT, VIDEO_FREE_DAILY_LIMIT, getAnonProcessCount, getAnonRemaining, incrementAnonProcessCount, isLoggedIn, canProcessVideo, incrementVideoCount, getVideoRemaining, openVideoLimitModal } from "@/lib/processGate";
+import { useAuth } from "@/components/AuthProvider";
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,7 +31,6 @@ import {
   FaPause,
   FaTimes,
   FaPaperPlane,
-  FaFileArchive,
   FaTrash,
   FaPlus,
   FaStar,
@@ -93,8 +94,8 @@ const FEATURES = [
   },
   {
     icon: <FaLock className="w-6 h-6" />,
-    title: "1 Free Download/Day",
-    desc: "1 free download per day with no sign-up. Upgrade to Pro for unlimited downloads.",
+    title: "3 Free · No Login",
+    desc: "3 free images without login (2 videos/day). Sign in free for unlimited images and 4 videos/day.",
     color: "text-purple-400",
     bg: "bg-purple-400/10 border-purple-400/20",
   },
@@ -104,14 +105,14 @@ const FAQS = [
   { q: "What file types are supported?", a: "Images: JPG, PNG, WebP. Videos: MP4, WebM, MOV — the same formats Gemini uses when generating media." },
   { q: "Is my file uploaded to any server?", a: "No. Everything runs locally in your browser. Your files never leave your device." },
   { q: "How does video watermark removal work?", a: "The tool processes your video frame-by-frame to smoothly erase the watermark entirely in your browser, without needing to upload the file anywhere." },
-  { q: "Do I need to create an account or pay?", a: "No account is needed. You get 1 free download per day without signing in — no credit card, no sign-up. If you need more, creating a free account gives you 3 downloads per day. Upgrade to EatBit Pro for unlimited downloads and bulk processing." },
+  { q: "Do I need to create an account or pay?", a: "No account is needed to start — you get 3 free image processes without logging in, one at a time. Sign in free for unlimited image processing. Videos are limited to 2/day without login and 4/day with a free account — upgrade to Premium for unlimited videos, priority processing, and longer video support." },
   { q: "What if the watermark isn't fully removed?", a: "Our tool handles all standard Gemini outputs. In rare edge cases, use the feedback form below the result to let us know." },
   { q: "Does this remove the SynthID invisible watermark?", a: "No. SynthID is Google DeepMind's cryptographic provenance watermark embedded in the pixel data at a level invisible to the human eye. Our tool removes only the visible Gemini overlay watermark — the semi-transparent logo you can see in the bottom-right corner. SynthID cannot be removed by any browser-based tool." },
   { q: "What is Reverse Alpha Blending and why does it matter?", a: "Alpha blending is how Gemini composites its watermark onto your image: result = foreground × alpha + background × (1 − alpha). Reverse alpha blending inverts this formula — given the composited result and known watermark pixels, we can solve for the original background with pixel-perfect accuracy. Unlike AI inpainting (which guesses), this is a mathematical reconstruction — deterministic and lossless." },
   { q: "How do I remove the Gemini logo?", a: "Simply upload your image or video directly to our tool. It automatically detects the position of the Gemini watermark and uses reverse alpha blending to smoothly remove it without uploading your files anywhere." },
   { q: "Does this Gemini watermark remover keep my data private?", a: "Yes. All processing happens entirely inside your browser (client-side). Your files are never uploaded to any server, making this the most secure and private way to erase Gemini watermarks." },
   { q: "How do I remove the Gemini watermark from a video?", a: "Upload your Gemini-generated video (MP4, WebM, or MOV) directly to this tool. It will automatically detect the Gemini logo watermark, process every frame using Reverse Alpha Blending inside your browser, and let you download a clean MP4 — all without uploading your file to any server." },
-  { q: "Is there a free Gemini video watermark remover with no sign-up?", a: "Yes — this tool is completely free and requires no account or sign-up. Just open the page, drop your Gemini video onto the upload area, and download the watermark-free version in minutes. You get 1 free download per day without signing in. Create a free account for 3 downloads/day, or upgrade to Pro for unlimited." },
+  { q: "Is there a free Gemini video watermark remover with no sign-up?", a: "Yes — process 2 videos per day free without logging in, one file at a time. Sign in free for 4 videos/day, or upgrade to Premium for unlimited videos." },
   { q: "Does removing the Gemini watermark work on MP4 video files?", a: "Yes. MP4 is the primary supported video format. WebM and MOV are also supported. The tool decodes your video frame-by-frame using the Canvas API, applies Reverse Alpha Blending to each frame to erase the Gemini logo, then remuxes the clean frames back into a downloadable MP4 file — all in your browser." },
   { q: "Can I remove the Gemini watermark from a video online without downloading any software?", a: "Yes. This is a 100% browser-based tool — no downloads, no installations, no extensions required. Open the page in any modern browser (Chrome, Safari, Firefox, Edge), upload your video, and the watermark removal happens entirely online inside your browser tab." },
   { q: "Why does my Google Gemini video have a watermark, and can it be removed?", a: "Google Gemini adds a visible semi-transparent logo watermark to the bottom-right corner of every image and video it generates. This is a visual brand mark, not a cryptographic watermark. Our tool removes this visible overlay using a mathematical algorithm (Reverse Alpha Blending) that reconstructs the original pixels beneath the logo — completely free, with no sign-up and no uploads." },
@@ -442,22 +443,30 @@ export default function GeminiWatermarkRemoverPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const engineRef = useRef<any>(null);
 
+  const { user, isPremium } = useAuth();
+  const loggedIn = !!user || isLoggedIn();
+  const premium = isPremium || !!user?.is_premium;
   const [queue, setQueue] = useState<FileItem[]>([]);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [isZipping, setIsZipping] = useState(false);
   const [ratings, setRatings] = useState<ToolFeedbackSummary | null>(null);
-  const [dailyLimits, setDailyLimits] = useState<UsageLimits | null>(null);
+  const [anonRemaining, setAnonRemaining] = useState<number>(ANON_FREE_LIMIT);
+  const [videoRemaining, setVideoRemaining] = useState<number>(VIDEO_ANON_DAILY_LIMIT);
+  const [busyNotice, setBusyNotice] = useState<string | null>(null);
   const { markDownloaded, flushSkips } = useProcessDownloadFunnel(queue);
+
+  useEffect(() => {
+    if (!loggedIn) setAnonRemaining(getAnonRemaining());
+    if (!premium) setVideoRemaining(getVideoRemaining(loggedIn ? "free" : "anon"));
+  }, [loggedIn, premium, queue.length, activeItemId]);
 
   // Fetch published reviews for this tool
   useEffect(() => {
     getToolFeedback("gemini-watermark-remover").then((data) => {
       if (data && data.total > 0) setRatings(data);
     });
-    checkLimits().then(setDailyLimits).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -552,102 +561,136 @@ export default function GeminiWatermarkRemoverPage() {
     }
   }, [updateItem]);
 
-  // Sequential processor — picks next queued item
+  // Single-file sequential processor — one file at a time.
+  // Images — Anonymous: 3 free total. Logged in: unlimited.
+  // Videos — Anonymous: 2/day. Logged-in free: 4/day. Premium: unlimited.
+  const premiumRef = useRef(premium);
+  premiumRef.current = premium;
   useEffect(() => {
     if (activeItemId) return;
     const next = queue.find((it) => it.status === "queued");
     if (!next) return;
+
+    const authed = !!localStorage.getItem("eb_access_token");
+    const isPrem = premiumRef.current;
+
+    if (next.kind === "video" && !isPrem) {
+      const gate = canProcessVideo({ loggedIn: authed });
+      if (!gate.allowed) {
+        updateItem(next.id, {
+          status: "error",
+          statusMsg: gate.reason === "anon_video_limit"
+            ? `You've used all ${VIDEO_ANON_DAILY_LIMIT} free videos today. Sign in free for ${VIDEO_FREE_DAILY_LIMIT}/day.`
+            : `You've used all ${VIDEO_FREE_DAILY_LIMIT} free videos today. Upgrade to Premium for unlimited videos.`,
+        });
+        setActiveItemId(null);
+        trackEvent("limit_hit", { gate: gate.reason === "anon_video_limit" ? "login" : "upgrade", action: "process" });
+        openVideoLimitModal(gate.reason);
+        return;
+      }
+    } else if (next.kind === "image" && !authed && getAnonProcessCount() >= ANON_FREE_LIMIT) {
+      updateItem(next.id, { status: "error", statusMsg: "You've used all 3 free processes. Sign in free for unlimited one-at-a-time processing." });
+      setActiveItemId(null);
+      trackEvent("limit_hit", { gate: "login", action: "process" });
+      window.dispatchEvent(new CustomEvent("eatbit:open-login", {
+        detail: { title: "Free limit reached (3/3 used)", subtitle: "Sign in free for unlimited one-at-a-time processing." },
+      }));
+      return;
+    }
+
     setActiveItemId(next.id);
     const run = next.kind === "image" ? processImageItem : processVideoItem;
-    
-    import("@/lib/api").then(({ recordDownload }) => {
-      recordDownload().then((res) => {
-        if (!res.allowed) {
-          updateItem(next.id, { status: "error", statusMsg: "Limit reached. Please login to continue processing." });
-          setActiveItemId(null);
-          trackEvent("limit_hit", { gate: res.code === "signup_required" ? "login" : "upgrade", action: "process" });
-          if (res.code === "signup_required") {
-            window.dispatchEvent(new CustomEvent("eatbit:open-login"));
-          } else {
-            window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"));
-          }
-          return;
+    if (next.kind === "video") {
+      if (!isPrem) {
+        const gate = canProcessVideo({ loggedIn: authed });
+        if (gate.allowed) {
+          incrementVideoCount(gate.tier);
+          setVideoRemaining(getVideoRemaining(gate.tier));
         }
-        trackEvent("tool_process_start", { file_kind: next.kind, file_size_bytes: next.file.size });
-        const start = Date.now();
-        run(next).finally(() => {
-          setActiveItemId(null);
-          import("@/lib/api").then(({ trackUsage }) => {
-            trackUsage({
-              tool: window.location.pathname.split('/').pop() || "unknown",
-              file_name: next.name,
-              file_type: next.kind || "image",
-              file_size_bytes: next.file.size,
-              processing_ms: Date.now() - start
-            });
-          }).catch(() => {});
+      }
+    } else if (!authed) {
+      incrementAnonProcessCount();
+      setAnonRemaining(getAnonRemaining());
+    }
+    trackEvent("tool_process_start", { file_kind: next.kind, file_size_bytes: next.file.size });
+    const start = Date.now();
+    run(next).finally(() => {
+      setActiveItemId(null);
+      import("@/lib/api").then(({ trackUsage }) => {
+        trackUsage({
+          tool: window.location.pathname.split('/').pop() || "unknown",
+          file_name: next.name,
+          file_type: next.kind || "image",
+          file_size_bytes: next.file.size,
+          processing_ms: Date.now() - start
         });
-      });
+      }).catch(() => {});
     });
   }, [queue, activeItemId, processImageItem, processVideoItem, updateItem]);
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
-    const { checkLimits } = await import("@/lib/api");
-    const limits = await checkLimits();
-    
-    let arr = Array.from(files);
+    // Strict one-at-a-time: block while anything is queued/processing/done
+    if (activeItemId) {
+      setBusyNotice("Please wait — finish the current file first. One file at a time.");
+      return;
+    }
+    if (queue.length > 0) {
+      setBusyNotice("Remove or clear the current file before adding a new one. One file at a time.");
+      return;
+    }
+    setBusyNotice(null);
+
+    // Take only the FIRST valid file — never multiple, even if dropped together
+    const arr = Array.from(files).slice(0, 1);
+    if (arr.length === 0) return;
 
     // Track file_selected BEFORE the gate — so we see the true top-of-funnel
     arr.forEach((f) => trackFileSelected(f));
-    
-    if (!limits.downloads.unlimited) {
-      if (limits.downloads.remaining <= 0) {
-        trackLimitReached(limits.tier === "anonymous" ? "login" : "upgrade", "upload");
-        if (limits.tier === "anonymous") {
-          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
-        } else {
-          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
-        }
-        return;
-      }
-      
-      const totalRequested = queue.length + arr.length;
-      if (totalRequested > limits.downloads.remaining) {
-        trackLimitReached(limits.tier === "anonymous" ? "login" : "upgrade", "upload");
-        if (limits.tier === "anonymous") {
-          window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} file(s) for free. Please login to continue.` } }));
-        } else {
-          window.dispatchEvent(new CustomEvent("eatbit:open-upgrade", { detail: { title: "Upgrade Required", subtitle: "A Premium plan is needed to process multiple files simultaneously." } }));
-        }
+
+    const file = arr[0];
+    const kind = getFileKind(file);
+    if (!kind) return;
+    if (kind === "image" && file.size > 20 * 1024 * 1024) return;
+
+    const authed = !!localStorage.getItem("eb_access_token");
+
+    // Videos: 2/day anon → login, 4/day free → premium, premium unlimited
+    if (kind === "video" && !premiumRef.current) {
+      const gate = canProcessVideo({ loggedIn: authed });
+      if (!gate.allowed) {
+        trackLimitReached(gate.reason === "anon_video_limit" ? "login" : "upgrade", "upload");
+        openVideoLimitModal(gate.reason);
         return;
       }
     }
 
-    const newItems: FileItem[] = [];
-    for (const file of arr) {
-      const kind = getFileKind(file);
-      if (!kind) continue;
-      if (kind === "image" && file.size > 20 * 1024 * 1024) continue;
-      newItems.push({
-        id: makeId(),
-        file,
-        name: file.name,
-        kind,
-        status: "queued",
-        statusMsg: "",
-        originalSrc: null,
-        processedSrc: null,
-        downloadUrl: null,
-        downloadName: `watermark-removed-${file.name.replace(/\.[^.]+$/, "")}${kind === "image" ? ".webp" : ".mp4"}`,
-        result: null,
-        videoProgress: null,
-      });
+    // Images: 3 total anon, unlimited logged in
+    if (kind === "image" && !authed && getAnonProcessCount() >= ANON_FREE_LIMIT) {
+      trackLimitReached("login", "upload");
+      window.dispatchEvent(new CustomEvent("eatbit:open-login", {
+        detail: { title: "Free limit reached (3/3 used)", subtitle: "Sign in free for unlimited one-at-a-time processing." },
+      }));
+      return;
     }
-    if (newItems.length > 0) {
-      trackEvent("tool_upload", { file_count: newItems.length, file_kinds: newItems.map((it) => it.kind).join(",") });
-      setQueue((prev) => [...prev, ...newItems]);
-    }
-  }, [queue]);
+
+    const item: FileItem = {
+      id: makeId(),
+      file,
+      name: file.name,
+      kind,
+      status: "queued",
+      statusMsg: "",
+      originalSrc: null,
+      processedSrc: null,
+      downloadUrl: null,
+      downloadName: `watermark-removed-${file.name.replace(/\.[^.]+$/, "")}${kind === "image" ? ".webp" : ".mp4"}`,
+      result: null,
+      videoProgress: null,
+    };
+    trackEvent("tool_upload", { file_count: 1, file_kinds: kind });
+    setQueue([item]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, [queue, activeItemId]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -657,6 +700,7 @@ export default function GeminiWatermarkRemoverPage() {
 
   const handleRemove = useCallback((id: string) => {
     flushSkips("remove_file", [id]);
+    setBusyNotice(null);
     setQueue((prev) => {
       const item = prev.find((it) => it.id === id);
       if (item?.downloadUrl) URL.revokeObjectURL(item.downloadUrl);
@@ -673,6 +717,7 @@ export default function GeminiWatermarkRemoverPage() {
     });
     setQueue([]);
     setActiveItemId(null);
+    setBusyNotice(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -688,41 +733,11 @@ export default function GeminiWatermarkRemoverPage() {
     if (res !== false) {
       markDownloaded(id);
       trackDownloadComplete({ file_kind: item.kind, download_type: "single" });
-      checkLimits().then(setDailyLimits).catch(() => {});
       setShowFeedback(true);
     }
   }, [queue, markDownloaded]);
 
-  const handleDownloadZip = async () => {
-    const doneItems = queue.filter((it) => it.status === "done" && it.downloadUrl);
-    if (doneItems.length === 0) return;
-    setIsZipping(true);
-    try {
-      const JSZip = (await import("jszip")).default;
-      const zip = new JSZip();
-      for (const item of doneItems) {
-        const resp = await fetch(item.downloadUrl!);
-        const blob = await resp.blob();
-        zip.file(item.downloadName, blob);
-      }
-      const zipBlob = await zip.generateAsync({ type: "blob" });
-      const ok = await downloadWithGate(
-        URL.createObjectURL(zipBlob),
-        "watermark-removed-files.zip",
-        true,
-        { download_type: "bulk_zip", file_count: doneItems.length }
-      );
-      if (ok !== false) {
-        markDownloaded("all");
-        checkLimits().then(setDailyLimits).catch(() => {});
-      }
-    } finally {
-      setIsZipping(false);
-    }
-  };
-
   const doneCount = queue.filter((it) => it.status === "done").length;
-  const allDone = queue.length > 0 && queue.every((it) => it.status === "done" || it.status === "error");
   const isAnyProcessing = !!activeItemId;
 
   return (
@@ -753,7 +768,7 @@ export default function GeminiWatermarkRemoverPage() {
         })()}
       </AnimatePresence>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebApplication", name: "Gemini Watermark Remover", applicationCategory: "MultimediaApplication", operatingSystem: "Any", browserRequirements: "Requires a modern browser with JavaScript enabled", url: "https://eatbit.in/tools/gemini-watermark-remover", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: "Free browser tool to remove visible Google Gemini AI watermarks from images and videos. Supports batch/multi-file processing with ZIP download. No signup, no upload.", featureList: ["Remove visible Gemini watermark from images", "Remove visible Gemini watermark from videos", "Batch multi-file processing", "Download all as ZIP", "Reverse alpha blending algorithm", "100% local browser processing", "No account required", "Supports JPG, PNG, WebP, MP4, WebM, MOV"], screenshot: "https://eatbit.in/og-gemini-watermark-remover.png", softwareVersion: "2.0", creator: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" } }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebApplication", name: "Gemini Watermark Remover", applicationCategory: "MultimediaApplication", operatingSystem: "Any", browserRequirements: "Requires a modern browser with JavaScript enabled", url: "https://eatbit.in/tools/gemini-watermark-remover", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: "Free browser tool to remove visible Google Gemini AI watermarks from images and videos, one file at a time. Images: 3 free without login, unlimited after sign-in. Videos: 2/day free, 4/day signed in, unlimited on Premium.", featureList: ["Remove visible Gemini watermark from images", "Remove visible Gemini watermark from videos", "Single-file processing, one at a time", "Reverse alpha blending algorithm", "100% local browser processing", "Images: 3 free without login, unlimited after sign-in", "Videos: 2/day free, 4/day signed in, unlimited on Premium", "Supports JPG, PNG, WebP, MP4, WebM, MOV"], screenshot: "https://eatbit.in/og-gemini-watermark-remover.png", softwareVersion: "2.0", creator: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" } }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQS.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) }) }} />
 
       {/* HERO + TOOL — merged into one 2-col layout so sidebar is visible from the top */}
@@ -769,36 +784,36 @@ export default function GeminiWatermarkRemoverPage() {
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="relative z-10">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-muted border border-border font-bold text-[10px] mb-5 uppercase tracking-wider text-foreground">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  1 Free Download/Day · No Signup · Images &amp; Videos · Batch + ZIP Download
+                  3 Free Without Login · Sign In for Unlimited · One File at a Time
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 leading-tight">
                   <span className="text-primary">Gemini</span> Watermark <span className="text-foreground">Remover</span>
                 </h1>
                 <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed mb-5">
-                  Remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from images and videos directly in your browser. Process multiple files at once and download them all as a ZIP.
+                  Remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from images and videos directly in your browser. Select <strong className="text-foreground">one file at a time</strong> — no bulk queue.
                 </p>
                 <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-5">
-                  {["Images & Videos", "Batch Upload", "Download as ZIP", "100% Private", "No Sign-up"].map((b) => (
+                  {["Images & Videos", "One-at-a-time", "100% Private", "No Sign-up for 3 free"].map((b) => (
                     <span key={b} className="flex items-center gap-1.5"><FaCheck className="text-primary w-3 h-3" /> {b}</span>
                   ))}
                 </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 border border-primary/30 bg-primary/5 text-xs text-muted-foreground">
-                  <span className="text-primary font-bold">✓ Free:</span> 1 download/day without signing in &nbsp;·&nbsp;
-                  <span className="text-primary font-bold">Sign in free</span> for 3/day &nbsp;·&nbsp;
-                  <Link href="/plans" className="text-primary font-bold underline underline-offset-2 hover:opacity-80" data-ga-event="click" data-ga-label="upgrade_pro">Pro</Link> for unlimited
+                <div className="inline-flex items-center gap-2 px-4 py-2 border border-primary/30 bg-primary/5 text-xs text-muted-foreground flex-wrap">
+                  <span className="text-primary font-bold">✓ Images:</span> 3 free without login, unlimited after sign-in (one at a time) &nbsp;·&nbsp;
+                  <span className="text-primary font-bold">Videos:</span> 2/day without login, 4/day signed in &nbsp;·&nbsp;
+                  <Link href="/plans" className="text-primary font-bold underline underline-offset-2 hover:opacity-80" data-ga-event="click" data-ga-label="upgrade_pro">Premium</Link> for unlimited videos
                 </div>
               </motion.div>
 
-              {/* Upload zone — always visible */}
+              {/* Upload zone — single file only */}
               <div
-                className={`relative border-2 border-dashed p-10 text-center cursor-pointer transition-all duration-300 ${isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"}`}
-                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                className={`relative border-2 border-dashed p-10 text-center transition-all duration-300 ${isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"} ${isAnyProcessing || queue.length > 0 ? "opacity-60 pointer-events-none" : "cursor-pointer"}`}
+                onDragOver={(e) => { e.preventDefault(); if (queue.length === 0 && !activeItemId) setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
-                onClick={() => { trackEvent("click", { event_label: "upload_box" }); fileInputRef.current?.click(); }}
+                onClick={() => { if (queue.length > 0 || activeItemId) return; trackEvent("click", { event_label: "upload_box" }); fileInputRef.current?.click(); }}
               >
-                <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple
-                  onChange={(e) => e.target.files && handleFiles(e.target.files)} id="watermark-file-input" aria-label="Upload Gemini images or videos to remove watermarks" />
+                <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
+                  onChange={(e) => e.target.files && handleFiles(e.target.files)} id="watermark-file-input" aria-label="Upload a single Gemini image or video to remove watermark" />
                 <motion.div animate={{ y: isDragging ? -8 : 0 }} className="flex flex-col items-center gap-4">
                   <div className="flex gap-4">
                     <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center"><FaImage className="w-5 h-5 text-primary" /></div>
@@ -806,19 +821,31 @@ export default function GeminiWatermarkRemoverPage() {
                     <div className="w-14 h-14 rounded-full bg-purple-400/10 border border-purple-400/20 flex items-center justify-center"><FaPlus className="w-5 h-5 text-purple-400" /></div>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-foreground mb-1">{queue.length > 0 ? "Drop more files or click to add" : "Drop your Gemini files here"}</p>
-                    <p className="text-muted-foreground text-sm">or <span className="text-primary font-semibold underline underline-offset-4">click to browse</span> &mdash; <span className="font-semibold">multiple files supported</span></p>
+                    <p className="text-lg font-bold text-foreground mb-1">{isAnyProcessing ? "Processing… please wait" : queue.length > 0 ? "One file at a time — clear current file to add another" : "Drop your Gemini file here"}</p>
+                    <p className="text-muted-foreground text-sm">or <span className="text-primary font-semibold underline underline-offset-4">click to browse</span> &mdash; <span className="font-semibold">single file only</span></p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center text-xs text-muted-foreground">
                     {["JPG", "PNG", "WebP", "MP4", "WebM", "MOV"].map((fmt) => (
                       <span key={fmt} className="px-2 py-0.5 border border-border bg-muted font-mono font-bold">{fmt}</span>
                     ))}
                   </div>
-                  <p className="text-xs font-semibold text-primary mt-1">
-                    {dailyLimits?.downloads.unlimited
-                      ? "Unlimited downloads on Pro"
-                      : `1 free download per day${dailyLimits ? ` · ${dailyLimits.downloads.remaining} left today` : " · no sign-up"}`}
-                  </p>
+                  <div className="text-xs font-semibold text-primary mt-1 space-y-1">
+                    <p>
+                      {loggedIn
+                        ? "Images: unlimited, one at a time"
+                        : `Images: ${anonRemaining} of ${ANON_FREE_LIMIT} free left · sign in for unlimited`}
+                    </p>
+                    <p>
+                      {premium
+                        ? "Videos: unlimited on Premium"
+                        : loggedIn
+                          ? `Videos: ${videoRemaining} of ${VIDEO_FREE_DAILY_LIMIT} left today · Premium for unlimited`
+                          : `Videos: ${videoRemaining} of ${VIDEO_ANON_DAILY_LIMIT} left today · sign in for ${VIDEO_FREE_DAILY_LIMIT}/day`}
+                    </p>
+                  </div>
+                  {busyNotice && (
+                    <p className="text-xs font-semibold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5">{busyNotice}</p>
+                  )}
                 </motion.div>
               </div>
 
@@ -826,14 +853,14 @@ export default function GeminiWatermarkRemoverPage() {
                 You can also <kbd className="px-1.5 py-0.5 border border-border rounded text-[10px] font-mono">Ctrl+V</kbd> to paste an image directly
               </p>
 
-              {/* Queue */}
+              {/* Queue — single file */}
               <AnimatePresence>
                 {queue.length > 0 && (
                   <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
                     {/* Queue header */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <h2 className="font-bold text-foreground text-sm">Files ({queue.length})</h2>
+                        <h2 className="font-bold text-foreground text-sm">Current file</h2>
                         <span className="text-xs text-muted-foreground">{doneCount} / {queue.length} done</span>
                         {isAnyProcessing && (
                           <span className="flex items-center gap-1 text-xs text-primary">
@@ -842,7 +869,7 @@ export default function GeminiWatermarkRemoverPage() {
                         )}
                       </div>
                       <button onClick={handleClearAll} data-ga-event="click" data-ga-label="clear_queue" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-400 transition-colors font-bold">
-                        <FaTrash className="w-3 h-3" /> Clear All
+                        <FaTrash className="w-3 h-3" /> Clear
                       </button>
                     </div>
 
@@ -854,32 +881,6 @@ export default function GeminiWatermarkRemoverPage() {
                         ))}
                       </AnimatePresence>
                     </div>
-
-                    {/* Download All as ZIP */}
-                    <AnimatePresence>
-                      {allDone && doneCount > 0 && (
-                        <motion.div initial={{ opacity: 0, y: 12, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }}
-                          className="relative overflow-hidden border border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6">
-                          <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/15 blur-3xl rounded-full pointer-events-none" />
-                          <div className="flex flex-col sm:flex-row items-center gap-4">
-                            <div className="flex-1 text-center sm:text-left">
-                              <p className="font-extrabold text-foreground text-base mb-1">
-                                🎉 All {doneCount} file{doneCount !== 1 ? "s" : ""} processed!
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Download all watermark-removed files in a single ZIP archive. Original filenames are preserved inside.
-                              </p>
-                            </div>
-                            <button onClick={handleDownloadZip} disabled={isZipping} id="download-zip-btn"
-                              data-ga-event="click" data-ga-label="download_zip"
-                              className="flex items-center gap-2.5 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 hover:scale-105 transition-all shadow-xl shadow-primary/25 disabled:opacity-60 disabled:scale-100 shrink-0">
-                              {isZipping ? <FaSpinner className="animate-spin" /> : <FaFileArchive />}
-                              {isZipping ? "Creating ZIP…" : "Download All as ZIP"}
-                            </button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -1141,9 +1142,10 @@ export default function GeminiWatermarkRemoverPage() {
               </thead>
               <tbody>
                 {[
-                  ["Downloads per day", "1", "3", "Unlimited"],
-                  ["Bulk / batch processing", "✓", "✓", "✓"],
-                  ["Download as ZIP", "✓", "✓", "✓"],
+                  ["Images (one file at a time)", "3 free total", "Unlimited", "Unlimited"],
+                  ["Videos per day (one at a time)", "2", "4", "Unlimited"],
+                  ["Bulk / batch processing", "—", "—", "—"],
+                  ["Download as ZIP", "—", "—", "—"],
                   ["Image support (JPG, PNG, WebP)", "✓", "✓", "✓"],
                   ["Video support (MP4, WebM, MOV)", "✓", "✓", "✓"],
                   ["100% in-browser (private)", "✓", "✓", "✓"],
