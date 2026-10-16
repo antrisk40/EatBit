@@ -25,6 +25,8 @@ export default function OtherToolsSidebar() {
           <Link
             key={tool.id}
             href={tool.path}
+            data-ga-event="click"
+            data-ga-label="other_tool"
             className="group flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-md transition-all"
           >
             <span className="text-lg shrink-0">{tool.icon}</span>

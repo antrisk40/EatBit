@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaTimes, FaCrown, FaCheck, FaBolt, FaShieldAlt,
@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "@/components/AuthProvider";
 import { createPremiumOrder, verifyPremiumPayment, getAvailablePlans, PlanType, PlanOption } from "@/lib/api";
+import { trackEvent, trackPopupConvert, trackPopupDismiss, trackPopupView } from "@/lib/analytics";
 
 declare global {
   interface Window { Razorpay: any; } // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -27,26 +28,49 @@ export default function UpgradeModal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const converted = useRef(false);
 
-  // Load plans from server when modal opens
+  // Load plans from server when modal opens + track popup view
   useEffect(() => {
     if (showUpgradeModal) {
+      converted.current = false;
+      trackPopupView("upgrade");
       getAvailablePlans().then((p) => {
         if (p.length > 0) setPlans(p);
       });
     }
   }, [showUpgradeModal]);
 
+  const closeUpgrade = () => {
+    if (!converted.current && !success) trackPopupDismiss("upgrade");
+    setShowUpgradeModal(false);
+  };
+
 
   const chosen = plans.find((p) => p.plan === selectedPlan);
 
   const handleUpgrade = async () => {
-    if (!user) { setShowUpgradeModal(false); openLogin(); return; }
+    if (!user) {
+      trackEvent("click", { event_label: "upgrade_sign_in" });
+      setShowUpgradeModal(false);
+      openLogin();
+      return;
+    }
 
     setLoading(true);
     setError("");
     try {
       const order = await createPremiumOrder(selectedPlan);
+      trackEvent("add_to_cart", {
+        currency: order.currency || "INR",
+        value: (order.amount ?? 0) / 100,
+        items: [{ item_id: selectedPlan, item_name: chosen?.label ?? selectedPlan }],
+      });
+      trackEvent("begin_checkout", {
+        currency: order.currency || "INR",
+        value: (order.amount ?? 0) / 100,
+        items: [{ item_id: selectedPlan, item_name: chosen?.label ?? selectedPlan }],
+      });
 
       if (!window.Razorpay) {
         await new Promise<void>((resolve, reject) => {
@@ -76,19 +100,38 @@ export default function UpgradeModal() {
             try {
               await verifyPremiumPayment({ ...response, plan: selectedPlan });
               await refreshUser();
+              converted.current = true;
+              trackPopupConvert("upgrade", { plan: selectedPlan });
+              trackEvent("purchase", {
+                transaction_id: response.razorpay_payment_id,
+                currency: order.currency || "INR",
+                value: (order.amount ?? 0) / 100,
+                items: [{ item_id: selectedPlan, item_name: chosen?.label ?? selectedPlan }],
+              });
               setSuccess(true);
               resolve();
             } catch (err: unknown) {
+              trackEvent("payment_failed", { plan: selectedPlan, stage: "verify" });
               reject(err instanceof Error ? err : new Error("Verification failed"));
             }
           },
-          modal: { ondismiss: () => reject(new Error("Payment cancelled")) },
+          modal: {
+            ondismiss: () => {
+              trackPopupDismiss("razorpay", { plan: selectedPlan });
+              trackEvent("payment_cancelled", { plan: selectedPlan });
+              reject(new Error("Payment cancelled"));
+            },
+          },
         });
+        trackPopupView("razorpay", { plan: selectedPlan });
         rzp.open();
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Payment failed";
-      if (msg !== "Payment cancelled") setError(msg);
+      if (msg !== "Payment cancelled") {
+        trackEvent("payment_failed", { plan: selectedPlan, message: msg });
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -102,7 +145,7 @@ export default function UpgradeModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={() => !success && setShowUpgradeModal(false)}
+          onClick={() => !success && closeUpgrade()}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -116,7 +159,7 @@ export default function UpgradeModal() {
 
             <button
               type="button"
-              onClick={() => setShowUpgradeModal(false)}
+              onClick={closeUpgrade}
               className="absolute top-4 right-4 z-[100] p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               aria-label="Close modal"
             >
@@ -165,7 +208,13 @@ export default function UpgradeModal() {
                       {plans.map((p) => (
                         <button
                           key={p.plan}
-                          onClick={() => setSelectedPlan(p.plan)}
+                          onClick={() => {
+                            setSelectedPlan(p.plan);
+                            trackEvent("select_item", {
+                              item_list_name: "upgrade_plans",
+                              items: [{ item_id: p.plan, item_name: p.label }],
+                            });
+                          }}
                           className={`relative flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
                             selectedPlan === p.plan
                               ? "bg-background text-foreground shadow"
@@ -234,6 +283,8 @@ export default function UpgradeModal() {
                   <button
                     onClick={handleUpgrade}
                     disabled={loading}
+                    data-ga-event="click"
+                    data-ga-label={user ? "upgrade_pay" : "upgrade_sign_in"}
                     className="w-full py-3.5 bg-primary text-primary-foreground font-bold rounded-xl text-sm hover:opacity-90 active:scale-95 transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <FaCrown />

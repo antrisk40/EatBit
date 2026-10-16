@@ -1,6 +1,7 @@
 "use client";
 import { downloadWithGate } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
+import { trackEvent } from "@/lib/analytics";
 
 import React, { useState, useRef, useEffect } from "react";
 import Script from "next/script";
@@ -165,7 +166,8 @@ export default function BundleClient() {
         const a = document.createElement('a');
         a.href = url;
         a.download = name;
-        await downloadWithGate(url, name);
+        const ok = await downloadWithGate(url, name);
+        if (ok !== false) trackEvent("tool_process_complete", { file_kind: "pdf" });
         
         const toolName = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() || "merge-and-split-pdf" : "merge-and-split-pdf";
         import("@/lib/api").then(m => m.trackUsage({
@@ -299,7 +301,7 @@ export default function BundleClient() {
                 />
                 <span className="px-3 py-2 text-sm text-muted-foreground border-l border-border bg-muted/30">.pdf</span>
               </div>
-              <button onClick={handleExportClick} className="px-6 py-2 text-sm font-bold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg">
+              <button onClick={handleExportClick} data-ga-event="click" data-ga-label="download_file" className="px-6 py-2 text-sm font-bold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg">
                 Export PDF
               </button>
             </div>

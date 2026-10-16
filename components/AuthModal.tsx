@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaGoogle, FaEnvelope, FaLock, FaUser, FaEye, FaEyeSlash, FaCheckCircle, FaPaperPlane } from "react-icons/fa";
 import { useAuth } from "@/components/AuthProvider";
 import { useGoogleLogin } from "@react-oauth/google";
 import { resendVerification } from "@/lib/api";
+import { trackEvent, trackPopupConvert, trackPopupDismiss, trackPopupView } from "@/lib/analytics";
 
 type Tab = "login" | "register";
 type ModalState = "form" | "check-email";
@@ -26,6 +27,20 @@ export default function AuthModal() {
   const [resendLoading, setResendLoading] = useState(false);
   const [resendSent, setResendSent] = useState(false);
   const [error, setError] = useState("");
+  const converted = useRef(false);
+
+  useEffect(() => {
+    if (showLoginModal) {
+      converted.current = false;
+      trackPopupView("login");
+    }
+  }, [showLoginModal]);
+
+  const closeWithoutConvert = () => {
+    if (!converted.current) trackPopupDismiss("login");
+    setShowLoginModal(false);
+    reset();
+  };
 
   const googleLogin = useGoogleLogin({
     flow: "auth-code",
@@ -34,14 +49,19 @@ export default function AuthModal() {
       setError("");
       try {
         await signInWithGoogle(codeResponse.code);
+        converted.current = true;
+        trackPopupConvert("login", { method: "google" });
+        trackEvent("login", { method: "google" });
         setShowLoginModal(false);
       } catch (err: unknown) {
+        trackEvent("login_fail", { method: "google" });
         setError(err instanceof Error ? err.message : "Google sign-in failed");
       } finally {
         setGoogleLoading(false);
       }
     },
     onError: () => {
+      trackEvent("login_fail", { method: "google", skip_stage: "just_after_popup" });
       setError("Google sign-in was cancelled or failed. Please try again.");
     },
   });
@@ -57,10 +77,14 @@ export default function AuthModal() {
     try {
       if (tab === "login") {
         await signIn(email, password);
+        converted.current = true;
+        trackPopupConvert("login", { method: "email" });
+        trackEvent("login", { method: "email" });
         setShowLoginModal(false);
         reset();
       } else {
         await signUp(name, email, password);
+        trackEvent("sign_up", { method: "email" });
         // signUp now returns { message, email } — show check-email state
         setRegisteredEmail(email);
         setRegisteredPassword(password);
@@ -68,6 +92,7 @@ export default function AuthModal() {
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
+      trackEvent(tab === "login" ? "login_fail" : "sign_up_fail", { method: "email" });
       // If unverified, show helpful message with option to resend
       if (msg.includes("verify your email")) {
         setRegisteredEmail(email);
@@ -101,7 +126,7 @@ export default function AuthModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={() => { setShowLoginModal(false); reset(); }}
+          onClick={closeWithoutConvert}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -117,7 +142,7 @@ export default function AuthModal() {
             {/* Close */}
             <button
               type="button"
-              onClick={() => { setShowLoginModal(false); reset(); }}
+              onClick={closeWithoutConvert}
               className="absolute top-4 right-4 z-[100] p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               aria-label="Close modal"
             >
@@ -146,6 +171,9 @@ export default function AuthModal() {
                     const { verifyOtp } = await import("@/lib/api");
                     await verifyOtp(registeredEmail, otp);
                     await refreshUser();
+                    converted.current = true;
+                    trackPopupConvert("login", { method: "otp" });
+                    trackEvent("login", { method: "otp" });
                     setShowLoginModal(false);
                     reset();
                   } catch (err: unknown) {
@@ -208,6 +236,8 @@ export default function AuthModal() {
                   {(["login", "register"] as Tab[]).map((t) => (
                     <button
                       key={t}
+                      data-ga-event="click"
+                      data-ga-label={t === "login" ? "auth_tab_sign_in" : "auth_tab_sign_up"}
                       onClick={() => { setTab(t); reset(); }}
                       className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all duration-200 ${
                         tab === t ? "bg-background text-foreground shadow" : "text-muted-foreground hover:text-foreground"
@@ -220,7 +250,7 @@ export default function AuthModal() {
 
                 {/* Google OAuth */}
                 <button
-                  onClick={() => googleLogin()}
+                  onClick={() => { trackEvent("click", { event_label: "auth_google" }); googleLogin(); }}
                   disabled={googleLoading}
                   className="w-full flex items-center justify-center gap-3 py-3 border border-border rounded-xl text-sm font-semibold hover:bg-muted transition-colors mb-4 disabled:opacity-60 disabled:cursor-not-allowed"
                 >

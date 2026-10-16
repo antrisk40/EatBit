@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { Poppins } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
@@ -34,6 +35,7 @@ import UpgradeModal from '@/components/UpgradeModal'
 import { FaWhatsapp } from 'react-icons/fa'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import ClarityInit from '@/components/ClarityInit'
+import GaTracker from '@/components/GaTracker'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -126,7 +128,7 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-TRB57BHFJF');
+            gtag('config', 'G-TRB57BHFJF', { send_page_view: true });
           `}
         </Script>
 
@@ -178,6 +180,9 @@ export default function RootLayout({
           <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}>
           <AuthProvider>
           <ClarityInit />
+          <Suspense fallback={null}>
+            <GaTracker />
+          </Suspense>
           {/* Global modals — available on every page */}
           <AuthModal />
           <UpgradeModal />
@@ -209,6 +214,8 @@ export default function RootLayout({
             rel="noopener noreferrer"
             className="fixed bottom-6 right-6 z-50 group flex items-center justify-center w-14 h-14 bg-green-500 text-white rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 hover:shadow-green-500/50"
             aria-label="Chat with us on WhatsApp"
+            data-ga-event="click"
+            data-ga-label="whatsapp"
           >
             {/* Ping animation rings */}
             <span className="absolute inline-flex w-full h-full rounded-full bg-green-400 opacity-60 animate-ping" />

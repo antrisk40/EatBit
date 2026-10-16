@@ -21,6 +21,8 @@ export default function ClientLeadBanner() {
           {/* Dismiss button */}
           <button
             onClick={() => setDismissed(true)}
+            data-ga-event="click"
+            data-ga-label="lead_banner_dismiss"
             className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Dismiss banner"
           >
@@ -51,6 +53,8 @@ export default function ClientLeadBanner() {
           <div className="flex flex-col gap-2">
             <Link
               href="/contact-us"
+              data-ga-event="click"
+              data-ga-label="lead_banner_quote"
               className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity"
             >
               Get a Free Quote <FaArrowRight className="w-2.5 h-2.5" />
@@ -59,6 +63,8 @@ export default function ClientLeadBanner() {
               href="https://wa.me/8319212779?text=Hi%2C%20I%20found%20your%20tool%20on%20EatBit%20and%20I%27m%20interested%20in%20custom%20software."
               target="_blank"
               rel="noopener noreferrer"
+              data-ga-event="click"
+              data-ga-label="lead_banner_whatsapp"
               className="flex items-center justify-center gap-1.5 w-full py-2.5 border border-green-500/40 bg-green-500/10 text-green-400 text-xs font-bold hover:bg-green-500/20 transition-colors"
             >
               <FaWhatsapp className="w-3.5 h-3.5" /> Chat on WhatsApp

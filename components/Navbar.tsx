@@ -60,7 +60,7 @@ export default function Navbar() {
             <Link className={getLinkClass("/careers")} href="/careers">Careers</Link>
             <Link className={getLinkClass("/contact-us")} href="/contact-us">Contact Us</Link>
             <Button className="rounded-none shadow-lg shadow-orange-500/30 w-[140px] font-semibold transition-transform hover:scale-105" asChild>
-              <Link href="/contact-us">Get Started</Link>
+              <Link href="/contact-us" data-ga-event="click" data-ga-label="nav_get_started">Get Started</Link>
             </Button>
             <ModeToggle />
             {user ? (
@@ -108,6 +108,8 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={openLogin}
+                data-ga-event="click"
+                data-ga-label="nav_sign_in"
                 className="flex items-center gap-2 text-sm font-semibold text-foreground border border-border px-4 py-2 rounded-full hover:border-primary/50 hover:text-primary transition-colors"
               >
                 <FaUser className="text-xs" /> Sign In
@@ -160,6 +162,8 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => { openLogin(); closeMenu(); }}
+                data-ga-event="click"
+                data-ga-label="nav_sign_in"
                 className="flex items-center gap-1.5 text-xs font-semibold text-foreground border border-border px-3 py-1.5 rounded-full hover:border-primary/50 hover:text-primary transition-colors"
               >
                 <FaUser className="text-[10px]" /> Sign In

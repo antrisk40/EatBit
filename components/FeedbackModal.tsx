@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaStar, FaBriefcase, FaPaperPlane, FaSpinner } from "react-icons/fa";
 import { submitFeedback } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
+import { trackEvent, trackPopupConvert, trackPopupDismiss, trackPopupView } from "@/lib/analytics";
 
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwLnyGXKrgLTdkMgXnwL38DafnGxE-vhb-SzHG0gCKCl7aWrduKWGAomaiSUve4jrAY/exec";
 
-export default function FeedbackModal({ onClose }: { onClose: () => void }) {
+export default function FeedbackModal({ onClose, source = "tool" }: { onClose: () => void; source?: string }) {
   const { user } = useAuth();
+  const converted = useRef(false);
   const [rating, setRating] = useState<number>(0);
   const [hovered, setHovered] = useState<number>(0);
   const [message, setMessage] = useState("");
@@ -23,12 +25,21 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
   const [emailOverride, setEmailOverride] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  useEffect(() => {
+    trackPopupView("feedback", { source });
+    return () => {
+      if (!converted.current) trackPopupDismiss("feedback", { source });
+    };
+  }, [source]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) return;
     
     setLoading(true);
+    setSubmitError("");
     const isCustom = needsCustom === "yes";
     const finalEmail = user?.email || emailOverride;
 
@@ -67,10 +78,15 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
       } catch { /* ignore sheet errors */ }
 
       localStorage.setItem("eb_feedback", "submitted"); // Never ask again
+      converted.current = true;
+      trackPopupConvert("feedback", { source, rating });
+      trackEvent("generate_lead", { lead_source: "feedback", rating, custom_software: isCustom });
       setSubmitted(true);
       setTimeout(onClose, 2500);
     } catch (err) {
       console.error(err);
+      setSubmitError("Could not submit feedback. Please try again.");
+      trackEvent("feedback_error", { source });
       setLoading(false);
     }
   };
@@ -154,7 +170,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
                   {rating > 0 && rating < 3 ? (
                     <div className="space-y-1.5">
                       <label className="block text-[11px] font-bold text-red-500 uppercase tracking-wider px-1">
-                        We're sorry to hear that! What went wrong?
+                        We&apos;re sorry to hear that! What went wrong?
                       </label>
                       <textarea
                         required
@@ -240,6 +256,11 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
                     </div>
                   )}
 
+                  {submitError && (
+                    <p className="text-red-400 text-xs text-center bg-red-400/10 border border-red-400/20 rounded-lg py-2 px-3">
+                      {submitError}
+                    </p>
+                  )}
                   <div className="flex gap-3 pt-2">
                     <button
                       type="button"

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { getMe, login, register, loginWithGoogle, logout, getSubscriptionStatus, User } from "@/lib/api";
+import { trackEvent, trackPopupView } from "@/lib/analytics";
 import FeedbackModal from "./FeedbackModal";
 
 interface AuthContextValue {
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoginMessage(null);
       }
       setShowLoginModal(true);
+      trackPopupView("login");
     };
     const onOpenUpgrade = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -73,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUpgradeMessage(null);
       }
       setShowUpgradeModal(true);
+      trackPopupView("upgrade");
     };
     const onOpenFeedback = () => setShowFeedbackModal(true);
     window.addEventListener("eatbit:open-login", onOpenLogin);
@@ -101,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = () => {
+    trackEvent("logout");
     logout();
     setUser(null);
   };
@@ -116,8 +120,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         signOut,
         refreshUser,
-        openLogin: () => setShowLoginModal(true),
-        openUpgrade: () => setShowUpgradeModal(true),
+        openLogin: () => {
+          setShowLoginModal(true);
+          trackPopupView("login");
+        },
+        openUpgrade: () => {
+          setShowUpgradeModal(true);
+          trackPopupView("upgrade");
+        },
         showLoginModal,
         showUpgradeModal,
         setShowLoginModal,
@@ -128,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     >
       {children}
       {showFeedbackModal && (
-        <FeedbackModal onClose={() => setShowFeedbackModal(false)} />
+        <FeedbackModal onClose={() => setShowFeedbackModal(false)} source="global" />
       )}
     </AuthContext.Provider>
   );

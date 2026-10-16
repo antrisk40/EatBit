@@ -1,6 +1,7 @@
 "use client";
 import { downloadWithGate } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
+import { trackEvent } from "@/lib/analytics";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import qrcode from "qrcode-generator";
@@ -469,7 +470,8 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
       const objUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = objUrl; a.download = "qr-code." + ext;
-      await downloadWithGate(objUrl, "qr-code." + ext);
+      const ok = await downloadWithGate(objUrl, "qr-code." + ext);
+      if (ok !== false) trackEvent("tool_process_complete", { file_kind: "image", output_format: ext });
       
       const toolName = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() || "qr-code-generator" : "qr-code-generator";
       import("@/lib/api").then(m => m.trackUsage({
@@ -549,7 +551,8 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
     const objUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = objUrl; a.download = "qr-code.svg";
-    await downloadWithGate(a.href, a.download);
+    const ok = await downloadWithGate(a.href, a.download);
+    if (ok !== false) trackEvent("tool_process_complete", { file_kind: "image", output_format: "svg" });
 
     const toolName = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() || "qr-code-generator" : "qr-code-generator";
     import("@/lib/api").then(m => m.trackUsage({
@@ -909,13 +912,13 @@ export default function QRCoder({ defaultTab = "url", heroTitle, heroDesc, seoCo
                 <div className="p-5">
                   <Section title="Download">
                     <div className="grid grid-cols-3 gap-2">
-                      <button onClick={() => downloadCanvas("image/png", "png")} className="py-2.5 text-sm font-bold rounded-xl border border-border bg-background hover:bg-muted transition-colors flex flex-col items-center gap-0.5">
+                      <button onClick={() => downloadCanvas("image/png", "png")} data-ga-event="click" data-ga-label="download_png" className="py-2.5 text-sm font-bold rounded-xl border border-border bg-background hover:bg-muted transition-colors flex flex-col items-center gap-0.5">
                         <span>PNG</span><span className="text-[10px] text-muted-foreground font-normal">screen</span>
                       </button>
-                      <button onClick={() => downloadCanvas("image/jpeg", "jpg")} className="py-2.5 text-sm font-bold rounded-xl border border-border bg-background hover:bg-muted transition-colors flex flex-col items-center gap-0.5">
+                      <button onClick={() => downloadCanvas("image/jpeg", "jpg")} data-ga-event="click" data-ga-label="download_jpg" className="py-2.5 text-sm font-bold rounded-xl border border-border bg-background hover:bg-muted transition-colors flex flex-col items-center gap-0.5">
                         <span>JPG</span><span className="text-[10px] text-muted-foreground font-normal">photo</span>
                       </button>
-                      <button onClick={downloadSVG} className="py-2.5 text-sm font-bold rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20 flex flex-col items-center gap-0.5">
+                      <button onClick={downloadSVG} data-ga-event="click" data-ga-label="download_svg" className="py-2.5 text-sm font-bold rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20 flex flex-col items-center gap-0.5">
                         <span>SVG</span><span className="text-[10px] font-normal opacity-80">print</span>
                       </button>
                     </div>

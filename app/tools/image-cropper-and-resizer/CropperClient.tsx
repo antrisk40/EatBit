@@ -1,5 +1,6 @@
 "use client";
 import { downloadWithGate } from "@/lib/downloadWithGate";
+import { trackEvent } from "@/lib/analytics";
 
 import React, { useState, useRef, useEffect, ChangeEvent, DragEvent } from 'react';
 import Cropper from 'cropperjs';
@@ -130,7 +131,8 @@ export default function CropperClient() {
       a.href = url;
       const ext = activeFormat === 'jpeg' ? 'jpg' : activeFormat;
       a.download = `cropped-image.${ext}`;
-      await downloadWithGate(url, a.download);
+      const ok = await downloadWithGate(url, a.download);
+      if (ok !== false) trackEvent("tool_process_complete", { file_kind: "image", output_format: ext });
       
       // Track usage
       import("@/lib/api").then(({ trackUsage }) => trackUsage({
@@ -302,6 +304,8 @@ export default function CropperClient() {
                     <button
                       disabled={!imageSrc}
                       onClick={handleDownload}
+                      data-ga-event="click"
+                      data-ga-label="download_file"
                       className="w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       <Download className="w-5 h-5" />

@@ -1,6 +1,7 @@
 "use client";
 import { downloadWithGate, canProcessBeforeDownload } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
+import { trackEvent, useProcessDownloadFunnel } from "@/lib/analytics";
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -203,7 +204,7 @@ function FileItemCard({ item, onRemove, onDownload }: FileItemCardProps) {
         <span className="flex-1 truncate text-xs font-bold" title={item.name}>{item.name}</span>
         <span className="text-xs opacity-60 shrink-0 capitalize">{item.status}</span>
         {(item.status === "queued" || item.status === "error") && (
-          <button onClick={() => onRemove(item.id)} className="ml-2 text-muted-foreground hover:text-red-400 transition-colors shrink-0" aria-label={`Remove ${item.name}`}>
+          <button onClick={() => onRemove(item.id)} data-ga-event="click" data-ga-label="remove_file" className="ml-2 text-muted-foreground hover:text-red-400 transition-colors shrink-0" aria-label={`Remove ${item.name}`}>
             <FaTrash className="w-3 h-3" />
           </button>
         )}
@@ -295,10 +296,12 @@ function FileItemCard({ item, onRemove, onDownload }: FileItemCardProps) {
       {item.status === "done" && (
         <div className="px-4 py-3 flex items-center gap-3 flex-wrap">
           <button onClick={() => onDownload(item.id)} id={`download-btn-${item.id}`}
+            data-ga-event="click" data-ga-label="download_file"
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-bold text-xs hover:opacity-90 transition-all hover:scale-105 shadow-lg shadow-primary/20">
             <FaDownload /> {item.kind === "image" ? "Download Image" : "Download Video"}
           </button>
           <button onClick={() => window.dispatchEvent(new CustomEvent("eatbit:ask-feedback"))}
+            data-ga-event="click" data-ga-label="give_feedback"
             className="flex items-center gap-2 px-4 py-2 border border-border bg-background text-foreground font-bold text-xs hover:border-primary/50 transition-all hover:scale-105">
             <FaStar className="text-yellow-400" /> Give Feedback
           </button>
@@ -326,6 +329,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
+  const { markDownloaded, flushSkips } = useProcessDownloadFunnel(queue);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -363,9 +367,11 @@ export default function BulkGeminiWatermarkRemoverPage() {
       const procUrl = URL.createObjectURL(processedBlob);
       const downloadName = `watermark-removed-${file.name.replace(/\.[^.]+$/, "")}.webp`;
       updateItem(id, { status: "done", processedSrc: procUrl, downloadUrl: procUrl, downloadName, result: { applied: meta?.applied ?? false, skipReason: meta?.skipReason ?? null, size: meta?.size ?? null }, statusMsg: meta?.applied ? "✓ Watermark removed successfully" : "No removable watermark detected — original preserved" });
+      trackEvent("tool_process_complete", { file_kind: "image" });
     } catch (err) {
       console.error(err);
       updateItem(id, { status: "error", statusMsg: "Processing failed. Please try another image." });
+      trackEvent("tool_process_fail", { file_kind: "image" });
     }
   }, [updateItem]);
 
@@ -400,6 +406,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
       const procUrl = URL.createObjectURL(res.blob);
       const downloadName = `watermark-removed-${file.name.replace(/\.[^.]+$/, "")}.mp4`;
       updateItem(id, { status: "done", processedSrc: procUrl, downloadUrl: procUrl, downloadName, statusMsg: `✓ Done — ${res.processedFrames ?? "?"} frames processed`, videoProgress: null });
+      trackEvent("tool_process_complete", { file_kind: "video" });
     } catch (err: unknown) {
       console.error(err);
       // Translate library error messages (originally in Chinese) to user-friendly English
@@ -412,6 +419,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
         ? "Could not create canvas for video processing. Please try refreshing the page."
         : "Video processing failed. Please try a different file or browser.";
       updateItem(id, { status: "error", statusMsg: friendly });
+      trackEvent("tool_process_fail", { file_kind: "video" });
     }
   }, [updateItem]);
 
@@ -428,6 +436,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
         if (!res.allowed) {
           updateItem(next.id, { status: "error", statusMsg: "Limit reached. Please login to continue processing." });
           setActiveItemId(null);
+          trackEvent("limit_hit", { gate: res.code === "signup_required" ? "login" : "upgrade", action: "process" });
           if (res.code === "signup_required") {
             window.dispatchEvent(new CustomEvent("eatbit:open-login"));
           } else {
@@ -435,6 +444,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
           }
           return;
         }
+        trackEvent("tool_process_start", { file_kind: next.kind, file_size_bytes: next.file.size });
         const start = Date.now();
         run(next).finally(() => {
           setActiveItemId(null);
@@ -460,6 +470,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
     
     if (!limits.downloads.unlimited) {
       if (limits.downloads.remaining <= 0) {
+        trackEvent("limit_hit", { gate: limits.tier === "anonymous" ? "login" : "upgrade", action: "upload" });
         if (limits.tier === "anonymous") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
         } else {
@@ -470,6 +481,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
       
       const totalRequested = queue.length + arr.length;
       if (totalRequested > limits.downloads.remaining) {
+        trackEvent("limit_hit", { gate: limits.tier === "anonymous" ? "login" : "upgrade", action: "upload" });
         if (limits.tier === "anonymous") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} file(s) for free. Please login to continue.` } }));
         } else {
@@ -499,7 +511,10 @@ export default function BulkGeminiWatermarkRemoverPage() {
         videoProgress: null,
       });
     }
-    if (newItems.length > 0) setQueue((prev) => [...prev, ...newItems]);
+    if (newItems.length > 0) {
+      trackEvent("tool_upload", { file_count: newItems.length, file_kinds: newItems.map((it) => it.kind).join(",") });
+      setQueue((prev) => [...prev, ...newItems]);
+    }
   }, [queue]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -509,15 +524,17 @@ export default function BulkGeminiWatermarkRemoverPage() {
   }, [handleFiles]);
 
   const handleRemove = useCallback((id: string) => {
+    flushSkips("remove_file", [id]);
     setQueue((prev) => {
       const item = prev.find((it) => it.id === id);
       if (item?.downloadUrl) URL.revokeObjectURL(item.downloadUrl);
       if (item?.originalSrc) URL.revokeObjectURL(item.originalSrc);
       return prev.filter((it) => it.id !== id);
     });
-  }, []);
+  }, [flushSkips]);
 
   const handleClearAll = () => {
+    flushSkips("clear_queue");
     queue.forEach((it) => {
       if (it.downloadUrl) URL.revokeObjectURL(it.downloadUrl);
       if (it.originalSrc) URL.revokeObjectURL(it.originalSrc);
@@ -530,9 +547,15 @@ export default function BulkGeminiWatermarkRemoverPage() {
   const handleDownload = useCallback(async (id: string) => {
     const item = queue.find((it) => it.id === id);
     if (!item || !item.downloadUrl) return;
-    const res = await downloadWithGate(item.downloadUrl, item.downloadName, true);
-    if (res !== false) setShowFeedback(true);
-  }, [queue]);
+    const res = await downloadWithGate(item.downloadUrl, item.downloadName, true, {
+      download_type: "single",
+      file_kind: item.kind,
+    });
+    if (res !== false) {
+      markDownloaded(id);
+      setShowFeedback(true);
+    }
+  }, [queue, markDownloaded]);
 
   const handleDownloadZip = async () => {
     const doneItems = queue.filter((it) => it.status === "done" && it.downloadUrl);
@@ -547,8 +570,14 @@ export default function BulkGeminiWatermarkRemoverPage() {
         zip.file(item.downloadName, blob);
       }
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      await downloadWithGate(URL.createObjectURL(zipBlob), "watermark-removed-files.zip", true);
-} finally {
+      const ok = await downloadWithGate(
+        URL.createObjectURL(zipBlob),
+        "watermark-removed-files.zip",
+        true,
+        { download_type: "bulk_zip", file_count: doneItems.length }
+      );
+      if (ok !== false) markDownloaded("all");
+    } finally {
       setIsZipping(false);
     }
   };
@@ -622,7 +651,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => { trackEvent("click", { event_label: "upload_box" }); fileInputRef.current?.click(); }}
               >
                 <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple
                   onChange={(e) => e.target.files && handleFiles(e.target.files)} id="watermark-file-input" aria-label="Upload Gemini images or videos to remove watermarks" />
@@ -663,7 +692,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
                           </span>
                         )}
                       </div>
-                      <button onClick={handleClearAll} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-400 transition-colors font-bold">
+                      <button onClick={handleClearAll} data-ga-event="click" data-ga-label="clear_queue" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-400 transition-colors font-bold">
                         <FaTrash className="w-3 h-3" /> Clear All
                       </button>
                     </div>
@@ -693,6 +722,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
                               </p>
                             </div>
                             <button onClick={handleDownloadZip} disabled={isZipping} id="download-zip-btn"
+                              data-ga-event="click" data-ga-label="download_zip"
                               className="flex items-center gap-2.5 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 hover:scale-105 transition-all shadow-xl shadow-primary/25 disabled:opacity-60 disabled:scale-100 shrink-0">
                               {isZipping ? <FaSpinner className="animate-spin" /> : <FaFileArchive />}
                               {isZipping ? "Creating ZIP…" : "Download All as ZIP"}
@@ -931,7 +961,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
           <div className="space-y-3">
             {FAQS.map((faq, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border border-border overflow-hidden">
-                <button onClick={() => setActiveFaq(activeFaq === i ? null : i)} className="w-full text-left px-6 py-4 flex justify-between items-center hover:bg-muted/50 transition-colors" id={`faq-${i}`} aria-expanded={activeFaq === i}>
+                <button onClick={() => { setActiveFaq(activeFaq === i ? null : i); trackEvent("click", { event_label: "faq", faq_index: i }); }} className="w-full text-left px-6 py-4 flex justify-between items-center hover:bg-muted/50 transition-colors" id={`faq-${i}`} aria-expanded={activeFaq === i}>
                   <span className="font-semibold text-foreground text-sm pr-4">{faq.q}</span>
                   <motion.span animate={{ rotate: activeFaq === i ? 180 : 0 }} transition={{ duration: 0.2 }} className="shrink-0 text-muted-foreground"><FaChevronDown className="w-4 h-4" /></motion.span>
                 </button>
@@ -978,10 +1008,10 @@ export default function BulkGeminiWatermarkRemoverPage() {
               <p className="text-sm text-muted-foreground">We build production-grade SaaS, AI tools, and mobile apps — just like this one. Fast, affordable, and backed by real engineering.</p>
             </div>
             <div className="flex flex-col gap-3 shrink-0 w-full sm:w-auto">
-              <Link href="/contact-us" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 hover:scale-105 transition-all shadow-lg shadow-primary/20">
+              <Link href="/contact-us" data-ga-event="click" data-ga-label="lead_banner_quote" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 hover:scale-105 transition-all shadow-lg shadow-primary/20">
                 Get a Free Quote <FaArrowRight className="w-3 h-3" />
               </Link>
-              <a href="https://wa.me/8319212779?text=Hi%2C%20I%20saw%20the%20Gemini%20Watermark%20Remover%20on%20EatBit%20and%20I%27m%20interested%20in%20custom%20software." target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-green-500/40 bg-green-500/10 text-green-400 font-bold text-sm hover:bg-green-500/20 transition-colors">
+              <a href="https://wa.me/8319212779?text=Hi%2C%20I%20saw%20the%20Gemini%20Watermark%20Remover%20on%20EatBit%20and%20I%27m%20interested%20in%20custom%20software." target="_blank" rel="noopener noreferrer" data-ga-event="click" data-ga-label="lead_banner_whatsapp" className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-green-500/40 bg-green-500/10 text-green-400 font-bold text-sm hover:bg-green-500/20 transition-colors">
                 <FaMagic className="w-3 h-3" /> Chat on WhatsApp
               </a>
             </div>
@@ -1018,8 +1048,8 @@ export default function BulkGeminiWatermarkRemoverPage() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">Need Custom <span className="text-primary">Software</span> Built?</h2>
             <p className="text-muted-foreground mb-10 max-w-xl mx-auto">EatBit builds AI tools, SaaS platforms, and production-grade web apps. Tell us what you need.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#tool" className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-bold text-sm shadow-xl shadow-primary/20 hover:opacity-90 hover:scale-105 transition-all"><FaMagic /> Try the Tool</a>
-              <Link href="/contact-us" className="inline-flex items-center gap-2 px-8 py-4 border border-border bg-background text-foreground font-bold text-sm hover:border-primary/50 transition-all group">Get in Touch <FaArrowRight className="group-hover:translate-x-1 transition-transform" /></Link>
+              <a href="#tool" data-ga-event="click" data-ga-label="cta_try_tool" className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-bold text-sm shadow-xl shadow-primary/20 hover:opacity-90 hover:scale-105 transition-all"><FaMagic /> Try the Tool</a>
+              <Link href="/contact-us" data-ga-event="click" data-ga-label="cta_contact" className="inline-flex items-center gap-2 px-8 py-4 border border-border bg-background text-foreground font-bold text-sm hover:border-primary/50 transition-all group">Get in Touch <FaArrowRight className="group-hover:translate-x-1 transition-transform" /></Link>
             </div>
           </motion.div>
         </div>
@@ -1038,7 +1068,10 @@ function PasteHandler({ onFiles }: { onFiles: (files: File[]) => void }) {
         .filter((i) => i.kind === "file")
         .map((i) => i.getAsFile())
         .filter(Boolean) as File[];
-      if (files.length > 0) onFiles(files);
+      if (files.length > 0) {
+        trackEvent("tool_paste", { file_count: files.length });
+        onFiles(files);
+      }
     };
     document.addEventListener("paste", handler);
     return () => document.removeEventListener("paste", handler);

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { FaCheck } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
+import { trackEvent } from "@/lib/analytics";
 
 export default function PlansPage() {
   const containerVariants = {
@@ -117,7 +118,13 @@ export default function PlansPage() {
                       variant={plan.popular ? 'default' : 'outline'}
                       asChild
                     >
-                      <Link href="/contact-us">{plan.cta}</Link>
+                      <Link
+                        href="/contact-us"
+                        data-ga-event="click"
+                        data-ga-label={`plans_cta_${plan.title.toLowerCase().replace(/\s+/g, '_')}`}
+                        data-ga-params={JSON.stringify({ plan_title: plan.title, plan_price: plan.price })}
+                        onClick={() => trackEvent("plan_cta_click", { plan_title: plan.title, plan_price: plan.price })}
+                      >{plan.cta}</Link>
                     </Button>
                   </CardFooter>
                 </Card>

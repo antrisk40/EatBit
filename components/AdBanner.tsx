@@ -88,6 +88,8 @@ export default function AdBanner({ slot = "tool-bottom", className = "" }: AdBan
                 <p className="text-sm font-semibold text-foreground leading-snug">{msg.headline}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{msg.sub}</p>
                 <button onClick={user ? openUpgrade : openLogin}
+                  data-ga-event="click"
+                  data-ga-label={user ? "ad_upgrade" : "ad_sign_in"}
                   className="mt-2.5 text-xs font-bold text-primary-foreground bg-primary px-3 py-1.5 rounded-full hover:opacity-90 transition-opacity">
                   {user ? "Upgrade Now" : "Sign In Free"}
                 </button>
@@ -136,6 +138,8 @@ export default function AdBanner({ slot = "tool-bottom", className = "" }: AdBan
             </div>
             <div className="flex items-center gap-2 flex-shrink-0 mr-4">
               <button onClick={user ? openUpgrade : openLogin}
+                data-ga-event="click"
+                data-ga-label={user ? "ad_upgrade" : "ad_sign_in"}
                 className="text-xs font-bold text-primary-foreground bg-primary px-3 py-1.5 rounded-full hover:opacity-90 active:scale-95 transition-all whitespace-nowrap">
                 {user ? "Upgrade" : "Sign In"}
               </button>

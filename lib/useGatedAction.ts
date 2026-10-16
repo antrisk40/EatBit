@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/components/AuthProvider";
 import { checkBulkAccess, recordDownload, triggerDownload, checkLimits, UsageLimits } from "@/lib/api";
+import { trackEvent } from "@/lib/analytics";
 
 /**
  * useGatedAction — tier-based gating for downloads and bulk ops.
@@ -27,6 +28,7 @@ export function useGatedAction() {
 
     if (result.allowed) {
       triggerDownload(url, filename);
+      trackEvent("file_download", { file_name: filename, link_text: filename });
 
       // Show soft nudge after anonymous user uses their 1 free download
       if (result.limits.tier === "anonymous" && result.limits.downloads.remaining === 0) {
@@ -37,6 +39,7 @@ export function useGatedAction() {
     }
 
     // Blocked
+    trackEvent("limit_hit", { gate: result.code === "signup_required" ? "login" : "upgrade", action: "download" });
     if (result.code === "signup_required") {
       openLogin(); // soft: "Sign up free for 5/day"
     } else {
@@ -55,6 +58,7 @@ export function useGatedAction() {
 
     if (result.allowed) return true;
 
+    trackEvent("limit_hit", { gate: result.code === "login_required" ? "login" : "upgrade", action: "bulk" });
     if (result.code === "login_required") {
       openLogin();
     } else {

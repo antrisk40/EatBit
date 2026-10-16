@@ -1,6 +1,7 @@
 "use client";
 import { downloadWithGate } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
+import { trackEvent, useProcessDownloadFunnel } from "@/lib/analytics";
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -122,6 +123,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
   const [showFeedback, setShowFeedback] = useState(false);
   const pendingAction = useRef<(() => void) | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { markDownloaded, flushSkips } = useProcessDownloadFunnel(files.map((f) => ({ id: f.id, status: f.status, kind: "image" })));
 
   // Cleanup object URLs on unmount
   useEffect(() => {
@@ -135,6 +137,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
     
     if (!limits.downloads.unlimited) {
       if (limits.downloads.remaining <= 0) {
+        trackEvent("limit_hit", { gate: limits.tier === "anonymous" ? "login" : "upgrade", action: "upload" });
         if (limits.tier === "anonymous") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
         } else {
@@ -145,6 +148,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
       
       const totalRequested = files.length + arr.length;
       if (totalRequested > limits.downloads.remaining) {
+        trackEvent("limit_hit", { gate: limits.tier === "anonymous" ? "login" : "upgrade", action: "upload" });
         if (limits.tier === "anonymous") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} file(s) for free. Please login to continue.` } }));
         } else {
@@ -157,6 +161,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
     const { recordDownload } = await import("@/lib/api");
     const rec = await recordDownload();
     if (!rec.allowed) {
+       trackEvent("limit_hit", { gate: rec.code === "signup_required" ? "login" : "upgrade", action: "process" });
        if (rec.code === "signup_required") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: "You can only process 1 file for free. Please login to continue." } }));
        } else {
@@ -177,18 +182,22 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
       status: "pending" as const,
     }));
     setFiles(prev => [...prev, ...newEntries]);
+    trackEvent("tool_upload", { file_count: newEntries.length, file_kinds: "image" });
     // Start converting
     newEntries.forEach((entry, i) => {
       const file = arr[i];
       const start = Date.now();
+      trackEvent("tool_process_start", { file_kind: "image", file_size_bytes: file.size, output_format: toFmt });
       setFiles(prev => prev.map(f => f.id === entry.id ? { ...f, status: "converting" } : f));
       convertFile(file, toFmt, quality).then(blob => {
         const url = URL.createObjectURL(blob);
         setFiles(prev => prev.map(f => f.id === entry.id ? { ...f, status: "done", convertedBlob: blob, convertedUrl: url, convertedSize: blob.size } : f));
+        trackEvent("tool_process_complete", { file_kind: "image", output_format: toFmt });
         import("@/lib/api").then(({ trackUsage }) => trackUsage({
            tool: window.location.pathname.split('/').pop() || "image-converter", file_name: file.name, file_type: "image", file_size_bytes: file.size, processing_ms: Date.now() - start, output_format: toFmt
         })).catch(() => {});
       }).catch(err => {
+        trackEvent("tool_process_fail", { file_kind: "image" });
         setFiles(prev => prev.map(f => f.id === entry.id ? { ...f, status: "error", error: err.message } : f));
       });
     });
@@ -211,7 +220,9 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
     executePending(async () => {
       const url = file.convertedUrl || URL.createObjectURL(file.convertedBlob!);
       const base = file.originalName.replace(/\.[^.]+$/, "");
-      await downloadWithGate(url, `${base}.${toFmt === "jpg" ? "jpg" : toFmt}`, true);
+      const ok = await downloadWithGate(url, `${base}.${toFmt === "jpg" ? "jpg" : toFmt}`, true);
+      if (ok !== false) markDownloaded(file.id);
+      return ok;
     });
   };
 
@@ -225,13 +236,15 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
       done.forEach(f => { const base = f.originalName.replace(/\.[^.]+$/, ""); zip.file(`${base}.${toFmt}`, f.convertedBlob!); });
       const blob = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(blob);
-      await downloadWithGate(url, "converted-images.zip", true);
+      const ok = await downloadWithGate(url, "converted-images.zip", true);
+      if (ok !== false) markDownloaded("all");
+      return ok;
       setTimeout(() => URL.revokeObjectURL(url), 5000);
     });
   };
 
-  const clearAll = () => { files.forEach(f => { if (f.originalUrl) URL.revokeObjectURL(f.originalUrl); if (f.convertedUrl) URL.revokeObjectURL(f.convertedUrl); }); setFiles([]); };
-  const removeFile = (id: string) => { const f = files.find(x => x.id === id); if (f?.originalUrl) URL.revokeObjectURL(f.originalUrl); if (f?.convertedUrl) URL.revokeObjectURL(f.convertedUrl); setFiles(prev => prev.filter(x => x.id !== id)); };
+  const clearAll = () => { flushSkips("clear_queue"); files.forEach(f => { if (f.originalUrl) URL.revokeObjectURL(f.originalUrl); if (f.convertedUrl) URL.revokeObjectURL(f.convertedUrl); }); setFiles([]); };
+  const removeFile = (id: string) => { flushSkips("remove_file", [id]); const f = files.find(x => x.id === id); if (f?.originalUrl) URL.revokeObjectURL(f.originalUrl); if (f?.convertedUrl) URL.revokeObjectURL(f.convertedUrl); setFiles(prev => prev.filter(x => x.id !== id)); };
 
   const doneCount = files.filter(f => f.status === "done").length;
   const selectCls = "bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors";
@@ -300,7 +313,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
                 onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => { trackEvent("click", { event_label: "upload_box" }); fileInputRef.current?.click(); }}
                 className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-200 mb-6 ${isDragging ? "border-primary bg-primary/5 scale-[1.01]" : "border-border hover:border-primary/50 hover:bg-muted/30"}`}
               >
                 <input ref={fileInputRef} type="file" multiple accept="image/*,.heic,.heif" className="hidden"
@@ -317,7 +330,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
                     <h2 className="font-semibold text-foreground">{files.length} file{files.length !== 1 ? "s" : ""} · {doneCount} converted</h2>
                     <div className="flex gap-2">
                       {doneCount > 0 && (
-                        <button onClick={downloadAll}
+                        <button onClick={downloadAll} data-ga-event="click" data-ga-label="download_zip"
                           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                           {doneCount > 1 ? `Download all (${doneCount})` : "Download"}
@@ -360,7 +373,7 @@ export default function ImageConverter({ defaultFrom = "jpg", defaultTo = "png",
                             )}
                             {file.status === "error" && <span className="text-xs text-destructive">{file.error}</span>}
                             {file.status === "done" && (
-                              <button onClick={() => downloadFile(file)}
+                              <button onClick={() => downloadFile(file)} data-ga-event="click" data-ga-label="download_file"
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:opacity-90 transition-all">
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                                 Download

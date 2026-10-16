@@ -1,6 +1,7 @@
 "use client";
 import { downloadWithGate } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
+import { trackEvent } from "@/lib/analytics";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Script from "next/script";
@@ -1154,7 +1155,8 @@ export default function PdfEditorClient() {
       const bytes = await finalDoc.save();
       const blob = new Blob([bytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
-      await downloadWithGate(url, (baseFileName || "edited-document").replace(/\.pdf$/i, "") + ".pdf");
+      const ok = await downloadWithGate(url, (baseFileName || "edited-document").replace(/\.pdf$/i, "") + ".pdf");
+      if (ok !== false) trackEvent("tool_process_complete", { file_kind: "pdf" });
       
       const toolName = typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() || "pdf-editor" : "pdf-editor";
       import("@/lib/api").then(m => m.trackUsage({
