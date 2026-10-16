@@ -1,7 +1,7 @@
 "use client";
 import { downloadWithGate, canProcessBeforeDownload } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
-import { trackEvent, useProcessDownloadFunnel } from "@/lib/analytics";
+import { trackEvent, useProcessDownloadFunnel, trackFileSelected, trackDownloadClick, trackDownloadComplete, trackLimitReached } from "@/lib/analytics";
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -467,10 +467,13 @@ export default function BulkGeminiWatermarkRemoverPage() {
     const limits = await checkLimits();
     
     let arr = Array.from(files);
+
+    // Track file_selected BEFORE the gate — captures true top-of-funnel
+    arr.forEach((f) => trackFileSelected(f));
     
     if (!limits.downloads.unlimited) {
       if (limits.downloads.remaining <= 0) {
-        trackEvent("limit_hit", { gate: limits.tier === "anonymous" ? "login" : "upgrade", action: "upload" });
+        trackLimitReached(limits.tier === "anonymous" ? "login" : "upgrade", "upload");
         if (limits.tier === "anonymous") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
         } else {
@@ -481,7 +484,7 @@ export default function BulkGeminiWatermarkRemoverPage() {
       
       const totalRequested = queue.length + arr.length;
       if (totalRequested > limits.downloads.remaining) {
-        trackEvent("limit_hit", { gate: limits.tier === "anonymous" ? "login" : "upgrade", action: "upload" });
+        trackLimitReached(limits.tier === "anonymous" ? "login" : "upgrade", "upload");
         if (limits.tier === "anonymous") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} file(s) for free. Please login to continue.` } }));
         } else {
@@ -547,12 +550,14 @@ export default function BulkGeminiWatermarkRemoverPage() {
   const handleDownload = useCallback(async (id: string) => {
     const item = queue.find((it) => it.id === id);
     if (!item || !item.downloadUrl) return;
+    trackDownloadClick({ file_kind: item.kind, download_type: "single" });
     const res = await downloadWithGate(item.downloadUrl, item.downloadName, true, {
       download_type: "single",
       file_kind: item.kind,
     });
     if (res !== false) {
       markDownloaded(id);
+      trackDownloadComplete({ file_kind: item.kind, download_type: "single" });
       setShowFeedback(true);
     }
   }, [queue, markDownloaded]);
@@ -576,7 +581,10 @@ export default function BulkGeminiWatermarkRemoverPage() {
         true,
         { download_type: "bulk_zip", file_count: doneItems.length }
       );
-      if (ok !== false) markDownloaded("all");
+      if (ok !== false) {
+        markDownloaded("all");
+        trackDownloadComplete({ download_type: "bulk_zip", file_count: doneItems.length });
+      }
     } finally {
       setIsZipping(false);
     }

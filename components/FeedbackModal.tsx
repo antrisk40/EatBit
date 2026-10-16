@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaStar, FaBriefcase, FaPaperPlane, FaSpinner } from "react-icons/fa";
 import { submitFeedback } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
-import { trackEvent, trackPopupConvert, trackPopupDismiss, trackPopupView } from "@/lib/analytics";
+import { trackEvent, trackPopupConvert, trackPopupDismiss, trackPopupView, trackFeedbackAbandon } from "@/lib/analytics";
 
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwLnyGXKrgLTdkMgXnwL38DafnGxE-vhb-SzHG0gCKCl7aWrduKWGAomaiSUve4jrAY/exec";
@@ -29,9 +29,17 @@ export default function FeedbackModal({ onClose, source = "tool" }: { onClose: (
 
   useEffect(() => {
     trackPopupView("feedback", { source });
+    // Also notify Clarity so it can tag the session
+    window.clarity?.("event", "feedback_open");
     return () => {
-      if (!converted.current) trackPopupDismiss("feedback", { source });
+      // Fire abandon if user closes without submitting and had interacted
+      if (!converted.current && (rating > 0 || message.trim().length > 0)) {
+        trackFeedbackAbandon({ has_text: message.trim().length > 0, rating, source });
+      } else if (!converted.current) {
+        trackPopupDismiss("feedback", { source });
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,12 +89,18 @@ export default function FeedbackModal({ onClose, source = "tool" }: { onClose: (
       converted.current = true;
       trackPopupConvert("feedback", { source, rating });
       trackEvent("generate_lead", { lead_source: "feedback", rating, custom_software: isCustom });
+      // Dedicated success event visible in GA4 key events + Clarity
+      trackEvent("feedback_submit_success", { rating, is_lead: isCustom, source });
+      window.clarity?.("event", "feedback_submit_success");
       setSubmitted(true);
       setTimeout(onClose, 2500);
     } catch (err) {
       console.error(err);
       setSubmitError("Could not submit feedback. Please try again.");
-      trackEvent("feedback_error", { source });
+      // Include a status code if the error came from a Response object
+      const status = (err as { status?: number })?.status ?? 0;
+      trackEvent("feedback_submit_error", { source, status, error_message: String(err).slice(0, 100) });
+      window.clarity?.("event", "feedback_submit_error");
       setLoading(false);
     }
   };

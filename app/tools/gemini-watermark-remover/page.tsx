@@ -2,7 +2,7 @@
 import { downloadWithGate } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
 import { getToolFeedback, checkLimits, type ToolFeedbackSummary, type UsageLimits } from "@/lib/api";
-import { trackEvent, useProcessDownloadFunnel } from "@/lib/analytics";
+import { trackEvent, useProcessDownloadFunnel, trackFileSelected, trackDownloadClick, trackDownloadComplete, trackLimitReached, trackCompareSlider } from "@/lib/analytics";
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -151,6 +151,7 @@ function FileItemCard({ item, onRemove, onDownload }: FileItemCardProps) {
   const [sliderX, setSliderX] = useState(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const sliderTracked = useRef(false);
 
   const videoProgressPct = item.videoProgress
     ? Math.round(item.videoProgress.phase === "detect" ? item.videoProgress.progress * 12 : 12 + item.videoProgress.progress * 88)
@@ -242,8 +243,8 @@ function FileItemCard({ item, onRemove, onDownload }: FileItemCardProps) {
           )}
           {item.processedSrc && (
             <div className="absolute top-0 bottom-0 z-10 flex flex-col items-center cursor-col-resize" style={{ left: `${sliderX}%`, transform: "translateX(-50%)" }}
-              onMouseDown={(e) => { e.preventDefault(); setIsDraggingSlider(true); }}
-              onTouchStart={() => setIsDraggingSlider(true)}
+              onMouseDown={(e) => { e.preventDefault(); setIsDraggingSlider(true); if (!sliderTracked.current) { sliderTracked.current = true; trackCompareSlider(); } }}
+              onTouchStart={() => { setIsDraggingSlider(true); if (!sliderTracked.current) { sliderTracked.current = true; trackCompareSlider(); } }}
               role="slider" aria-label="Comparison slider" aria-valuenow={Math.round(sliderX)}>
               <div className="w-0.5 h-full bg-white/80 shadow-[0_0_12px_rgba(0,0,0,0.8)]" />
               <div className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-xl flex items-center justify-center border-2 border-primary">
@@ -595,10 +596,13 @@ export default function GeminiWatermarkRemoverPage() {
     const limits = await checkLimits();
     
     let arr = Array.from(files);
+
+    // Track file_selected BEFORE the gate — so we see the true top-of-funnel
+    arr.forEach((f) => trackFileSelected(f));
     
     if (!limits.downloads.unlimited) {
       if (limits.downloads.remaining <= 0) {
-        trackEvent("limit_hit", { gate: limits.tier === "anonymous" ? "login" : "upgrade", action: "upload" });
+        trackLimitReached(limits.tier === "anonymous" ? "login" : "upgrade", "upload");
         if (limits.tier === "anonymous") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Please Login", subtitle: "to continue for free" } }));
         } else {
@@ -609,7 +613,7 @@ export default function GeminiWatermarkRemoverPage() {
       
       const totalRequested = queue.length + arr.length;
       if (totalRequested > limits.downloads.remaining) {
-        trackEvent("limit_hit", { gate: limits.tier === "anonymous" ? "login" : "upgrade", action: "upload" });
+        trackLimitReached(limits.tier === "anonymous" ? "login" : "upgrade", "upload");
         if (limits.tier === "anonymous") {
           window.dispatchEvent(new CustomEvent("eatbit:open-login", { detail: { title: "Limit reached!", subtitle: `You can only process ${limits.downloads.remaining} file(s) for free. Please login to continue.` } }));
         } else {
@@ -675,12 +679,15 @@ export default function GeminiWatermarkRemoverPage() {
   const handleDownload = useCallback(async (id: string) => {
     const item = queue.find((it) => it.id === id);
     if (!item || !item.downloadUrl) return;
+    // Track the click intent before the gate runs
+    trackDownloadClick({ file_kind: item.kind, download_type: "single" });
     const res = await downloadWithGate(item.downloadUrl, item.downloadName, true, {
       download_type: "single",
       file_kind: item.kind,
     });
     if (res !== false) {
       markDownloaded(id);
+      trackDownloadComplete({ file_kind: item.kind, download_type: "single" });
       checkLimits().then(setDailyLimits).catch(() => {});
       setShowFeedback(true);
     }

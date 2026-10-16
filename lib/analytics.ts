@@ -20,6 +20,8 @@ declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
     dataLayer?: unknown[];
+    // Microsoft Clarity custom event API
+    clarity?: (method: string, ...args: unknown[]) => void;
   }
 }
 
@@ -43,9 +45,21 @@ const popupOpenedAt: Record<string, number> = {};
 let lastGateAt = 0;
 
 export function trackEvent(name: string, params: Record<string, unknown> = {}) {
-  if (name === "limit_hit") lastGateAt = Date.now();
-  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
-  window.gtag("event", name, { ...pageContext(), ...params });
+  if (name === "limit_hit" || name === "limit_reached") lastGateAt = Date.now();
+  if (typeof window === "undefined") return;
+  if (typeof window.gtag === "function") {
+    window.gtag("event", name, { ...pageContext(), ...params });
+  }
+  // Mirror to Clarity as a custom event (Clarity only accepts a string label)
+  window.clarity?.("event", name);
+}
+
+/**
+ * track() — Unified helper: sends to both GA4 and Microsoft Clarity.
+ * Prefer this for all new event calls going forward.
+ */
+export function track(name: string, params: Record<string, unknown> = {}) {
+  trackEvent(name, params);
 }
 
 export function trackPageView(path: string) {
@@ -242,4 +256,124 @@ export function useProcessDownloadFunnel(items: FunnelItem[]) {
   }, []);
 
   return { markDownloaded, flushSkips };
+}
+
+// ─── Tool Funnel Helpers ──────────────────────────────────────────────────────
+
+/** Fired when a user picks or drops a file — before the limit gate. */
+export function trackFileSelected(file: File, tool?: string) {
+  const size_mb = Math.round((file.size / (1024 * 1024)) * 10) / 10;
+  // Bucket file size so GA4 reports don't blow up with 10k distinct values
+  const size_bucket =
+    size_mb < 1 ? "<1MB" :
+    size_mb < 5 ? "1-5MB" :
+    size_mb < 20 ? "5-20MB" : ">20MB";
+  trackEvent("file_selected", {
+    file_type: file.type || "unknown",
+    file_kind: file.type.startsWith("video") ? "video" : "image",
+    size_mb,
+    size_bucket,
+    tool: tool ?? (typeof window !== "undefined" ? window.location.pathname.split("/").pop() : ""),
+  });
+}
+
+/** Fired when the user clicks a download button (before gate check). */
+export function trackDownloadClick(params: {
+  file_kind?: string;
+  download_type?: "single" | "bulk_zip";
+  plan?: string;
+}) {
+  trackEvent("download_click", params);
+}
+
+/** Fired after a file is successfully saved to disk. */
+export function trackDownloadComplete(params: {
+  file_kind?: string;
+  download_type?: "single" | "bulk_zip";
+  file_count?: number;
+}) {
+  trackEvent("download_complete", params);
+}
+
+/**
+ * trackLimitReached — fired when the daily/plan limit actively blocks a user.
+ * Distinct from limit_hit so it can be marked as a key event in GA4.
+ * gate: "login" | "upgrade"
+ * action: "upload" | "process" | "download"
+ */
+export function trackLimitReached(gate: "login" | "upgrade", action: "upload" | "process" | "download") {
+  lastGateAt = Date.now();
+  trackEvent("limit_reached", { gate, action });
+  // Also fire the existing limit_hit for backwards compatibility
+  trackEvent("limit_hit", { gate, action });
+}
+
+/** Fired when the user drags the before/after comparison slider. */
+export function trackCompareSlider() {
+  trackEvent("compare_slider_used", {});
+}
+
+// ─── Feedback Funnel Helpers ─────────────────────────────────────────────────
+
+/**
+ * trackFeedbackAbandon — fired when the feedback modal is closed
+ * after the user has typed something (has_text) or selected a rating.
+ */
+export function trackFeedbackAbandon(params: { has_text: boolean; rating: number; source?: string }) {
+  trackEvent("feedback_abandon", params);
+}
+
+// ─── Error Tracking ───────────────────────────────────────────────────────────
+
+/** Fired for JavaScript runtime errors caught via window.onerror or ErrorBoundary. */
+export function trackError(message: string, source?: string, line?: number) {
+  trackEvent("js_error", {
+    error_message: String(message).slice(0, 150), // GA4 max string length
+    error_source: source ?? "unknown",
+    error_line: line,
+  });
+}
+
+/**
+ * trackApiError — fired for failed API calls (4xx / 5xx).
+ * Call this in fetch catch blocks.
+ */
+export function trackApiError(endpoint: string, status: number) {
+  trackEvent("api_error", {
+    endpoint: endpoint.replace(/https?:\/\/[^/]+/, ""), // strip origin
+    status,
+    is_rate_limit: status === 429,
+    is_server_error: status >= 500,
+  });
+}
+
+/**
+ * useJsErrorTracker — mounts a global window.onerror + unhandledrejection listener
+ * that sends js_error events to GA4 + Clarity automatically.
+ * Mount once in GaTracker (already in layout).
+ */
+export function useJsErrorTracker() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onError = (event: ErrorEvent) => {
+      // Ignore cross-origin script errors (empty message, no source)
+      if (!event.message || event.message === "Script error.") return;
+      trackError(event.message, event.filename, event.lineno);
+    };
+
+    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const msg = event.reason instanceof Error
+        ? event.reason.message
+        : String(event.reason ?? "Unhandled rejection");
+      trackError(msg, "unhandledrejection");
+    };
+
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onUnhandledRejection);
+    return () => {
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onUnhandledRejection);
+    };
+  }, []);
 }

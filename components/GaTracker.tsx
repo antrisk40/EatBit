@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { trackClick, trackEvent, trackPageView, useScrollDepthTracker, useEngagementTimeTracker } from "@/lib/analytics";
+import { trackClick, trackEvent, trackPageView, useScrollDepthTracker, useEngagementTimeTracker, useJsErrorTracker } from "@/lib/analytics";
 
 export default function GaTracker() {
   const pathname = usePathname();
@@ -48,6 +48,9 @@ export default function GaTracker() {
 
   // Engagement time: fires user_engagement on tab hide / page unload
   useEngagementTimeTracker();
+
+  // Global JS error tracker: fires js_error for window.onerror + unhandledrejection
+  useJsErrorTracker();
 
   return null;
 }
