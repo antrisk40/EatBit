@@ -6,23 +6,16 @@ export default function robots(): MetadataRoute.Robots {
     return {
         rules: [
             {
-                // Main crawler: allow everything except internal paths
+                // Main crawler: allow everything except internal paths.
+                // IMPORTANT: /_next/static/ must stay crawlable so Googlebot can
+                // fetch the JS/CSS it needs to render pages fully.
                 userAgent: "*",
-                allow: "/",
+                allow: ["/", "/_next/static/"],
                 disallow: [
-                    "/_next/",           // Next.js static assets — not pages
                     "/api/",             // API routes — not indexable content
-                    "/tools/track-view", // Internal analytics endpoint (currently causing 404 in GSC)
+                    "/tools/track-view", // Internal analytics endpoint (causing 404 in GSC)
                     "/favicon.ico",      // Binary asset — not a page
-                    "/*.woff2$",         // Font files
-                    "/*.woff$",
-                    "/*.ttf$",
                 ],
-            },
-            {
-                // Block AI training crawlers from scraping tool content
-                userAgent: ["GPTBot", "ClaudeBot", "Google-Extended", "CCBot", "anthropic-ai"],
-                disallow: ["/"],
             },
         ],
         sitemap: `${BASE_URL}/sitemap.xml`,

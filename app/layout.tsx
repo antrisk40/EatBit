@@ -3,29 +3,6 @@ import { Suspense } from 'react'
 import { Poppins } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
-import '@fontsource/amiri'
-import '@fontsource/arimo'
-import '@fontsource/caladea'
-import '@fontsource/carlito'
-import '@fontsource/eb-garamond'
-import '@fontsource/fira-sans'
-import '@fontsource/inter'
-import '@fontsource/lato'
-import '@fontsource/noto-sans'
-import '@fontsource/noto-sans-chakma'
-import '@fontsource/noto-serif'
-import '@fontsource/noto-serif-tamil'
-import '@fontsource/open-sans'
-import '@fontsource/open-sans-condensed'
-import '@fontsource/oranienbaum'
-import '@fontsource/poppins'
-import '@fontsource/pt-sans'
-import '@fontsource/pt-sans-caption'
-import '@fontsource/pt-sans-narrow'
-import '@fontsource/pt-serif'
-import '@fontsource/pt-serif-caption'
-import '@fontsource/scheherazade-new'
-import '@fontsource/roboto'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -109,12 +86,6 @@ export default function RootLayout({
             -webkit-font-smoothing: antialiased;
           }
         `}</style>
-        {/* Google AdSense — site verification + units on tool pages that have real products */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4123566150896961"
-          crossOrigin="anonymous"
-        />
       </head>
       <body className={`${poppins.variable} font-sans antialiased text-foreground bg-background transition-colors duration-300`}>
 

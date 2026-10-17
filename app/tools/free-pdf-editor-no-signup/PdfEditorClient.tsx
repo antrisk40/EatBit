@@ -1,4 +1,29 @@
 "use client";
+// Editor-only web fonts. Kept off the root layout so they don't ship on
+// every page — these power the font picker below.
+import "@fontsource/amiri";
+import "@fontsource/arimo";
+import "@fontsource/caladea";
+import "@fontsource/carlito";
+import "@fontsource/eb-garamond";
+import "@fontsource/fira-sans";
+import "@fontsource/inter";
+import "@fontsource/lato";
+import "@fontsource/noto-sans";
+import "@fontsource/noto-sans-chakma";
+import "@fontsource/noto-serif";
+import "@fontsource/noto-serif-tamil";
+import "@fontsource/open-sans";
+import "@fontsource/open-sans-condensed";
+import "@fontsource/oranienbaum";
+import "@fontsource/poppins";
+import "@fontsource/pt-sans";
+import "@fontsource/pt-sans-caption";
+import "@fontsource/pt-sans-narrow";
+import "@fontsource/pt-serif";
+import "@fontsource/pt-serif-caption";
+import "@fontsource/scheherazade-new";
+import "@fontsource/roboto";
 import { downloadWithGate } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
 import { trackEvent } from "@/lib/analytics";
