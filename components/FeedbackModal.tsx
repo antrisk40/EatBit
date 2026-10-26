@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaStar, FaBriefcase, FaPaperPlane, FaSpinner } from "react-icons/fa";
 import { submitFeedback } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
+import html2canvas from "html2canvas";
 import { trackEvent, trackPopupConvert, trackPopupDismiss, trackPopupView, trackFeedbackAbandon } from "@/lib/analytics";
 
 const GOOGLE_SCRIPT_URL =
@@ -63,8 +64,28 @@ export default function FeedbackModal({ onClose, source = "tool" }: { onClose: (
         email_override: emailOverride || undefined
       };
       
+      // Auto-capture screenshot for low ratings (≤ 2) even if user didn't attach media
+      let fileToUpload: File | undefined = mediaFile || undefined;
+      if (rating <= 2 && !mediaFile) {
+        try {
+          const canvas = await html2canvas(document.body, {
+            scale: 0.7,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            windowWidth: document.documentElement.scrollWidth,
+            windowHeight: document.documentElement.scrollHeight,
+          });
+          const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), "image/webp", 0.7));
+          fileToUpload = new File([blob], `auto-screenshot-${Date.now()}.webp`, { type: "image/webp" });
+        } catch (err) {
+          console.warn("Auto-screenshot capture failed:", err);
+          // Non-fatal — proceed without screenshot
+        }
+      }
+
       // Submit to Backend CRM
-      await submitFeedback(payload, mediaFile || undefined);
+      await submitFeedback(payload, fileToUpload);
       
       // Submit to Google Sheet
       try {

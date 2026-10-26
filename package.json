@@ -44,6 +44,7 @@
     "cropperjs": "^1.6.2",
     "framer-motion": "^12.34.4",
     "heic2any": "^0.0.4",
+    "html2canvas": "^1.4.1",
     "jszip": "^3.10.1",
     "lucide-react": "^0.576.0",
     "mediabunny": "^1.53.1",

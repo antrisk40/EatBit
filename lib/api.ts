@@ -298,7 +298,7 @@ export async function submitFeedback(payload: FeedbackPayload, file?: File) {
       form.append(key, String(val));
     }
   });
-  if (file && payload.rating <= 2) {
+  if (file) {
     form.append("media_file", file);
   }
 

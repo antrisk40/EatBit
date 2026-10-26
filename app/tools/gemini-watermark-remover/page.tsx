@@ -3,7 +3,7 @@ import { downloadWithGate } from "@/lib/downloadWithGate";
 import FeedbackModal from "@/components/FeedbackModal";
 import { getToolFeedback, type ToolFeedbackSummary } from "@/lib/api";
 import { trackEvent, useProcessDownloadFunnel, trackFileSelected, trackDownloadClick, trackDownloadComplete, trackLimitReached, trackCompareSlider } from "@/lib/analytics";
-import { ANON_FREE_LIMIT, VIDEO_ANON_DAILY_LIMIT, VIDEO_FREE_DAILY_LIMIT, getAnonProcessCount, getAnonRemaining, incrementAnonProcessCount, isLoggedIn, canProcessVideo, incrementVideoCount, getVideoRemaining, openVideoLimitModal } from "@/lib/processGate";
+import { ANON_FREE_LIMIT, VIDEO_ANON_DAILY_LIMIT, VIDEO_FREE_DAILY_LIMIT, getAnonFreeLimit, getVideoAnonDailyLimit, getVideoFreeDailyLimit, refreshLimitsConfig, getAnonProcessCount, getAnonRemaining, incrementAnonProcessCount, isLoggedIn, canProcessVideo, incrementVideoCount, getVideoRemaining, openVideoLimitModal } from "@/lib/processGate";
 import { useAuth } from "@/components/AuthProvider";
 
 import { useCallback, useRef, useState, useEffect } from "react";
@@ -452,15 +452,26 @@ export default function GeminiWatermarkRemoverPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [ratings, setRatings] = useState<ToolFeedbackSummary | null>(null);
-  const [anonRemaining, setAnonRemaining] = useState<number>(ANON_FREE_LIMIT);
-  const [videoRemaining, setVideoRemaining] = useState<number>(VIDEO_ANON_DAILY_LIMIT);
+  const [anonRemaining, setAnonRemaining] = useState<number>(getAnonFreeLimit());
+  const [videoRemaining, setVideoRemaining] = useState<number>(getVideoAnonDailyLimit());
   const [busyNotice, setBusyNotice] = useState<string | null>(null);
+  const [limitsReady, setLimitsReady] = useState(false);
   const { markDownloaded, flushSkips } = useProcessDownloadFunnel(queue);
 
   useEffect(() => {
     if (!loggedIn) setAnonRemaining(getAnonRemaining());
     if (!premium) setVideoRemaining(getVideoRemaining(loggedIn ? "free" : "anon"));
   }, [loggedIn, premium, queue.length, activeItemId]);
+
+  // Fetch dynamic limits from CRM on mount
+  useEffect(() => {
+    refreshLimitsConfig().then(() => {
+      setLimitsReady(true);
+      if (!loggedIn) setAnonRemaining(getAnonRemaining());
+      if (!premium) setVideoRemaining(getVideoRemaining(loggedIn ? "free" : "anon"));
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch published reviews for this tool
   useEffect(() => {
@@ -580,7 +591,7 @@ export default function GeminiWatermarkRemoverPage() {
         updateItem(next.id, {
           status: "error",
           statusMsg: gate.reason === "anon_video_limit"
-            ? `You've used all ${VIDEO_ANON_DAILY_LIMIT} free videos today. Sign in free for ${VIDEO_FREE_DAILY_LIMIT}/day.`
+            ? `You've used all ${VIDEO_ANON_DAILY_LIMIT} free videos today. Sign in free for ${getVideoFreeDailyLimit()}/day.`
             : `You've used all ${VIDEO_FREE_DAILY_LIMIT} free videos today. Upgrade to Premium for unlimited videos.`,
         });
         setActiveItemId(null);
@@ -768,7 +779,7 @@ export default function GeminiWatermarkRemoverPage() {
         })()}
       </AnimatePresence>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebApplication", name: "Gemini Watermark Remover", applicationCategory: "MultimediaApplication", operatingSystem: "Any", browserRequirements: "Requires a modern browser with JavaScript enabled", url: "https://eatbit.in/tools/gemini-watermark-remover", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: "Free browser tool to remove visible Google Gemini AI watermarks from images and videos, one file at a time. Images: 3 free without login, unlimited after sign-in. Videos: 2/day free, 4/day signed in, unlimited on Premium.", featureList: ["Remove visible Gemini watermark from images", "Remove visible Gemini watermark from videos", "Single-file processing, one at a time", "Reverse alpha blending algorithm", "100% local browser processing", "Images: 3 free without login, unlimited after sign-in", "Videos: 2/day free, 4/day signed in, unlimited on Premium", "Supports JPG, PNG, WebP, MP4, WebM, MOV"], screenshot: "https://eatbit.in/og-gemini-watermark-remover.png", softwareVersion: "2.0", creator: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" } }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebApplication", name: "Gemini Watermark Remover", applicationCategory: "MultimediaApplication", operatingSystem: "Any", browserRequirements: "Requires a modern browser with JavaScript enabled", url: "https://eatbit.in/tools/gemini-watermark-remover", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: "Free browser tool to remove visible Google Gemini AI watermarks from images and videos, one file at a time. Images: " + getAnonFreeLimit() + " free without login, unlimited after sign-in. Videos: " + getVideoAnonDailyLimit() + "/day free, " + getVideoFreeDailyLimit() + "/day signed in, unlimited on Premium.", featureList: ["Remove visible Gemini watermark from images", "Remove visible Gemini watermark from videos", "Single-file processing, one at a time", "Reverse alpha blending algorithm", "100% local browser processing", "Images: " + getAnonFreeLimit() + " free without login, unlimited after sign-in", "Videos: " + getVideoAnonDailyLimit() + "/day free, " + getVideoFreeDailyLimit() + "/day signed in, unlimited on Premium", "Supports JPG, PNG, WebP, MP4, WebM, MOV"], screenshot: "https://eatbit.in/og-gemini-watermark-remover.png", softwareVersion: "2.0", creator: { "@type": "Organization", name: "EatBit", url: "https://eatbit.in" } }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQS.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) }) }} />
 
       {/* HERO + TOOL — merged into one 2-col layout so sidebar is visible from the top */}
@@ -784,7 +795,7 @@ export default function GeminiWatermarkRemoverPage() {
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="relative z-10">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-muted border border-border font-bold text-[10px] mb-5 uppercase tracking-wider text-foreground">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  3 Free Without Login · Sign In for Unlimited · One File at a Time
+                  {getAnonFreeLimit()} Free Without Login · Sign In for Unlimited · One File at a Time
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 leading-tight">
                   <span className="text-primary">Gemini</span> Watermark <span className="text-foreground">Remover</span>
@@ -793,13 +804,13 @@ export default function GeminiWatermarkRemoverPage() {
                   Remove <strong className="text-foreground">visible Gemini AI watermarks</strong> from images and videos directly in your browser. Select <strong className="text-foreground">one file at a time</strong> — no bulk queue.
                 </p>
                 <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-5">
-                  {["Images & Videos", "One-at-a-time", "100% Private", "No Sign-up for 3 free"].map((b) => (
+                  {["Images & Videos", "One-at-a-time", "100% Private", `No Sign-up for ${getAnonFreeLimit()} free`].map((b) => (
                     <span key={b} className="flex items-center gap-1.5"><FaCheck className="text-primary w-3 h-3" /> {b}</span>
                   ))}
                 </div>
                 <div className="inline-flex items-center gap-2 px-4 py-2 border border-primary/30 bg-primary/5 text-xs text-muted-foreground flex-wrap">
-                  <span className="text-primary font-bold">✓ Images:</span> 3 free without login, unlimited after sign-in (one at a time) &nbsp;·&nbsp;
-                  <span className="text-primary font-bold">Videos:</span> 2/day without login, 4/day signed in &nbsp;·&nbsp;
+                  <span className="text-primary font-bold">✓ Images:</span> {getAnonFreeLimit()} free without login, unlimited after sign-in (one at a time) &nbsp;·&nbsp;
+                  <span className="text-primary font-bold">Videos:</span> {getVideoAnonDailyLimit()}/day without login, {getVideoFreeDailyLimit()}/day signed in &nbsp;·&nbsp;
                   <Link href="/plans" className="text-primary font-bold underline underline-offset-2 hover:opacity-80" data-ga-event="click" data-ga-label="upgrade_pro">Premium</Link> for unlimited videos
                 </div>
               </motion.div>
@@ -833,14 +844,14 @@ export default function GeminiWatermarkRemoverPage() {
                     <p>
                       {loggedIn
                         ? "Images: unlimited, one at a time"
-                        : `Images: ${anonRemaining} of ${ANON_FREE_LIMIT} free left · sign in for unlimited`}
+                        : `Images: ${anonRemaining} of ${getAnonFreeLimit()} free left · sign in for unlimited`}
                     </p>
                     <p>
                       {premium
                         ? "Videos: unlimited on Premium"
                         : loggedIn
-                          ? `Videos: ${videoRemaining} of ${VIDEO_FREE_DAILY_LIMIT} left today · Premium for unlimited`
-                          : `Videos: ${videoRemaining} of ${VIDEO_ANON_DAILY_LIMIT} left today · sign in for ${VIDEO_FREE_DAILY_LIMIT}/day`}
+                          ? `Videos: ${videoRemaining} of ${getVideoFreeDailyLimit()} left today · Premium for unlimited`
+                          : `Videos: ${videoRemaining} of ${getVideoAnonDailyLimit()} left today · sign in for ${getVideoFreeDailyLimit()}/day`}
                     </p>
                   </div>
                   {busyNotice && (
