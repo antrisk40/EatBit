@@ -6,7 +6,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const seo = config.seo_text;
 
   // Build description dynamically from CRM-managed limits
-  const description = `Remove the visible Google Gemini watermark from images and videos — 100% in your browser, no upload, no sign-up. ${seo.image_limit_text}. ${seo.video_limit_text}. Supports MP4, WebM, MOV, JPG, PNG, WebP.`;
+  const description = seo.meta_description?.trim()
+    ? seo.meta_description
+    : `Remove the visible Google Gemini watermark from images and videos — 100% in your browser, no upload, no sign-up. ${seo.image_limit_text}. ${seo.video_limit_text}. Supports MP4, WebM, MOV, JPG, PNG, WebP.`;
   const ogDescription = `Remove the visible Gemini AI watermark from images and videos in your browser. ${seo.image_limit_text}. ${seo.video_limit_text}. 100% private. Supports MP4, WebM, MOV, JPG, PNG, WebP.`;
 
   return {

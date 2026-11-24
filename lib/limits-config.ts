@@ -35,7 +35,7 @@ export interface LimitsConfig {
   updated_at?: string;
 }
 
-// Fallback when API is unreachable (matches the defaults in the backend)
+// Fallback when API is unreachable (matches defaults)
 const FALLBACK_CONFIG: LimitsConfig = {
   tiers: {
     anonymous: { daily_downloads: 1, daily_bulk: 0, ads: true, image_free_total: 3, video_daily: 2 },
@@ -63,14 +63,14 @@ const FALLBACK_CONFIG: LimitsConfig = {
 
 /**
  * Fetch current limits config from the API.
- * Caches for 60 seconds via Next.js fetch cache (revalidate).
+ * Uses no-store so CRM limit updates apply immediately on SSR/navigation.
  * Falls back to hardcoded defaults if API is unreachable.
  */
 export async function getLimitsConfig(): Promise<LimitsConfig> {
   try {
     const res = await fetch(`${API_BASE}/tools/limits/config`, {
-      next: { revalidate: 60 }, // re-fetch every 60 seconds
-    } as RequestInit);
+      cache: "no-store",
+    });
     if (!res.ok) return FALLBACK_CONFIG;
     const data = await res.json();
     return data as LimitsConfig;
