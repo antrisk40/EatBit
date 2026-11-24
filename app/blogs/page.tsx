@@ -16,6 +16,14 @@ export const metadata: Metadata = {
 
 const BLOG_POSTS = [
   {
+    title: "SSC Exam Photo & Signature Size Guide (20KB–50KB, 165×215 px)",
+    slug: "ssc-photo-and-signature-size-guide",
+    desc: "Exact SSC CGL, CHSL, MTS & GD photo and signature dimensions, Name & Date rules, top rejection reasons, and instant browser cropper.",
+    image: "/blogs/privacy_first.webp",
+    category: "Exam Guide",
+    date: "Nov 25, 2026",
+  },
+  {
     title: "How to Turn Off the Gemini Watermark (And When You Still Need a Remover)",
     slug: "how-to-turn-off-gemini-watermark",
     desc: "Gemini now lets you disable the visible watermark in settings — but that only covers new images. Here's how to handle old images, shared files, screenshots, and videos.",

@@ -19,6 +19,9 @@ const STATIC_ROUTES = [
 ];
 
 const BLOG_SLUGS = [
+  "ssc-photo-and-signature-size-guide",
+  "how-to-turn-off-gemini-watermark",
+  "gemini-watermark-older-images",
   "why-privacy-first-image-cropper",
   "how-to-remove-gemini-watermark",
   "gemini-watermark-vs-synthid",

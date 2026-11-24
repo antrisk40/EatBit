@@ -24,6 +24,14 @@ export const CANONICAL_TOOLS = [
     category: "Video",
   },
   {
+    id: "govt-exam-photo-resizer",
+    title: "Govt Exam Photo & Signature Resizer",
+    desc: "Resize & compress photo and signature to exact KB & pixel specs for SSC, UPSC, IBPS, NEET, JEE, RRB & PAN.",
+    path: "/tools/govt-exam-photo-resizer",
+    icon: "🪪",
+    category: "Image",
+  },
+  {
     id: "image-cropper-and-resizer",
     title: "Image Cropper & Resizer",
     desc: "Crop, resize, and export images locally. Nothing is uploaded.",
