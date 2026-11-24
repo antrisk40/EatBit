@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { CANONICAL_TOOLS } from "@/lib/tools-catalog";
 
 export const metadata: Metadata = {
-  title: "Free Browser Tools for Images, PDFs & QR Codes | EatBit",
+  title: "Free Browser Tools for Videos, Images, PDFs & QR Codes | EatBit",
   description:
-    "Use EatBit’s privacy-first image converter, PDF editor, QR generator, and Gemini watermark remover. Files stay on your device. Maintained as real products, not keyword pages.",
+    "Use EatBit’s privacy-first video compressor, image converter, PDF editor, QR generator, and Gemini watermark remover. Files stay on your device. Maintained as real products, not keyword pages.",
   alternates: { canonical: "https://eatbit.in/tools" },
 };
 
-const categories = ["Image", "PDF", "QR"] as const;
+const categories = ["Video", "Image", "PDF", "QR"] as const;
 
 export default function ToolsHubPage() {
   return (

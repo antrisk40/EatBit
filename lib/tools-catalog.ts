@@ -16,6 +16,14 @@ export const CANONICAL_TOOLS = [
     category: "Image",
   },
   {
+    id: "video-compressor",
+    title: "Video Compressor",
+    desc: "Compress MP4, MOV, MKV and WebM videos online free — 1GB, 2GB, 10GB. No upload, no watermark, 100% private.",
+    path: "/tools/video-compressor",
+    icon: "🎬",
+    category: "Video",
+  },
+  {
     id: "image-cropper-and-resizer",
     title: "Image Cropper & Resizer",
     desc: "Crop, resize, and export images locally. Nothing is uploaded.",

@@ -148,14 +148,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""}>
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "local-dev-placeholder"}>
           <AuthProvider>
           <ClarityInit />
           <Suspense fallback={null}>
             <GaTracker />
           </Suspense>
           {/* Global modals — available on every page */}
-          <AuthModal />
+          {!!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && <AuthModal />}
           <UpgradeModal />
           {/* Out of the Box Global Background */}
           <div className="fixed inset-0 z-0 pointer-events-none bg-background">

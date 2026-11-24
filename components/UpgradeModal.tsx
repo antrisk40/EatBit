@@ -244,15 +244,19 @@ export default function UpgradeModal() {
                       <div className="flex items-baseline justify-center gap-1">
                         <span className="text-xl font-bold text-muted-foreground">₹</span>
                         <span className="text-5xl font-extrabold text-foreground">
-                          {chosen?.price_inr ?? (selectedPlan === "pro_yearly" ? 499 : 49)}
+                          {chosen?.price_inr ?? (selectedPlan === "pro_yearly" ? 499 : 99)}
                         </span>
                       </div>
                       <div className="flex items-center justify-center gap-2 mt-1">
                         <FaCalendarAlt className="text-muted-foreground text-xs" />
                         <p className="text-sm text-muted-foreground">
-                          {selectedPlan.includes("yearly")
-                            ? `per year · ~₹${Math.round((chosen?.price_inr ?? 499) / 12)}/month`
-                            : "per month · cancel anytime"}
+                          {chosen?.duration_days
+                            ? chosen.duration_days >= 365
+                              ? `per year · ~₹${Math.round(chosen.price_inr / 12)}/month`
+                              : `${chosen.duration_days} days access · one-time`
+                            : selectedPlan.includes("yearly")
+                              ? `per year · ~₹${Math.round((chosen?.price_inr ?? 499) / 12)}/month`
+                              : "30 days access · one-time"}
                         </p>
                       </div>
                       {selectedPlan.includes("yearly") && (
