@@ -16,6 +16,22 @@ export const metadata: Metadata = {
 
 const BLOG_POSTS = [
   {
+    title: "How to Turn Off the Gemini Watermark (And When You Still Need a Remover)",
+    slug: "how-to-turn-off-gemini-watermark",
+    desc: "Gemini now lets you disable the visible watermark in settings — but that only covers new images. Here's how to handle old images, shared files, screenshots, and videos.",
+    image: "/blogs/gemini_watermark_blog.webp",
+    category: "Guide",
+    date: "Nov 23, 2026",
+  },
+  {
+    title: "Removing Gemini Watermarks from Older Images, Shared Files & Bulk Libraries",
+    slug: "gemini-watermark-older-images",
+    desc: "Turning off the setting doesn't clean your backlog. Here's how to remove watermarks from old downloads, shared images, screenshots, and entire project folders.",
+    image: "/blogs/gemini_watermark.webp",
+    category: "Guide",
+    date: "Nov 23, 2026",
+  },
+  {
     title: "Why Your Image Tools Should Be Privacy-First",
     slug: "why-privacy-first-image-cropper",
     desc: "Crop and resize your images securely in your browser without losing quality. Our new client-side tools are fast, free, and never upload your photos to a server.",
