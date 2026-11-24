@@ -815,7 +815,7 @@ export default function GeminiWatermarkRemoverPage() {
                 <div className="inline-flex items-center gap-2 px-4 py-2 border border-primary/30 bg-primary/5 text-xs text-muted-foreground flex-wrap">
                   <span className="text-primary font-bold">✓ Images:</span> {getAnonFreeLimit()} free without login, unlimited after sign-in (one at a time) &nbsp;·&nbsp;
                   <span className="text-primary font-bold">Videos:</span> {getVideoAnonDailyLimit()}/day without login, {getVideoFreeDailyLimit()}/day signed in &nbsp;·&nbsp;
-                  <Link href="/plans" className="text-primary font-bold underline underline-offset-2 hover:opacity-80" data-ga-event="click" data-ga-label="upgrade_pro">Premium</Link> for unlimited videos
+                  <button onClick={() => window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"))} className="text-primary font-bold underline underline-offset-2 hover:opacity-80 cursor-pointer" data-ga-event="click" data-ga-label="upgrade_pro">Premium</button> for unlimited videos
                 </div>
               </motion.div>
 
@@ -1150,7 +1150,7 @@ export default function GeminiWatermarkRemoverPage() {
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-xs uppercase tracking-wider text-primary/70">Premium</span>
                       <span className="text-lg">Pro</span>
-                      <Link href="/plans" className="text-xs text-primary underline underline-offset-2 hover:opacity-80">See plans →</Link>
+                      <button onClick={() => window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"))} className="text-xs text-primary underline underline-offset-2 hover:opacity-80 cursor-pointer">See pricing →</button>
                     </div>
                   </th>
                 </tr>
@@ -1179,9 +1179,9 @@ export default function GeminiWatermarkRemoverPage() {
             </table>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/plans" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 hover:scale-105 transition-all shadow-lg shadow-primary/20">
+            <button onClick={() => window.dispatchEvent(new CustomEvent("eatbit:open-upgrade"))} data-ga-event="click" data-ga-label="upgrade_pro_cta" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 hover:scale-105 transition-all shadow-lg shadow-primary/20 cursor-pointer">
               Upgrade to Pro <FaArrowRight className="w-3 h-3" />
-            </Link>
+            </button>
             <p className="text-xs text-muted-foreground">Visitor and signed-in free tiers require no payment whatsoever.</p>
           </motion.div>
         </div>
