@@ -210,15 +210,23 @@ export async function updateProfile(updates: { name?: string; phone?: string }) 
 
 /** Fetches available plans (no auth required) */
 export async function getAvailablePlans(): Promise<PlanOption[]> {
-  const res = await fetch(`${API_BASE}/payments/plans`);
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await fetch(`${API_BASE}/payments/plans`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
 }
 
 export async function getSubscriptionStatus(): Promise<SubscriptionStatus | null> {
-  const res = await apiFetch("/payments/status");
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await apiFetch("/payments/status");
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
 /**

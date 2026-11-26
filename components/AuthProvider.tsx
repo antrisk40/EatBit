@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const me = await getMe();
       if (me) {
-        // Also fetch latest subscription status
+        // Also fetch latest subscription status without blocking login if /payments/status errors
         const sub = await getSubscriptionStatus();
         setUser({ ...me, is_premium: sub?.is_premium ?? me.is_premium });
       } else {

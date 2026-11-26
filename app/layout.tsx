@@ -155,7 +155,7 @@ export default function RootLayout({
             <GaTracker />
           </Suspense>
           {/* Global modals — available on every page */}
-          {!!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && <AuthModal />}
+          <AuthModal />
           <UpgradeModal />
           {/* Out of the Box Global Background */}
           <div className="fixed inset-0 z-0 pointer-events-none bg-background">
